@@ -1,0 +1,62 @@
+name: ❓ Question
+description: Ask a question about using the Blender USD Stable Export addon
+title: "[Question]: "
+labels: ["question", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question? We're here to help! Please provide as much detail as possible.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+      placeholder: Ask your question here...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide context about what you're trying to accomplish
+      placeholder: |
+        I'm trying to...
+        I want to...
+        My goal is...
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: What Have You Tried?
+      description: What have you already tried or researched?
+      placeholder: |
+        - I've read the documentation on...
+        - I've tried...
+        - I've searched for...
+
+  - type: dropdown
+    id: blender-version
+    attributes:
+      label: Blender Version
+      description: Which version of Blender are you using?
+      options:
+        - "4.2 LTS"
+        - "4.3"
+        - "4.4"
+        - "5.0+"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Any other information that might be helpful
+      placeholder: Screenshots, error messages, or other relevant information...
+

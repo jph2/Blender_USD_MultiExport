@@ -1,0 +1,46 @@
+# Issue labeler configuration
+# Automatically labels issues based on title patterns
+
+bug:
+  - 'bug'
+  - 'Bug'
+  - 'BUG'
+  - 'error'
+  - 'Error'
+  - 'ERROR'
+  - 'crash'
+  - 'Crash'
+  - 'broken'
+  - 'Broken'
+
+enhancement:
+  - 'feature'
+  - 'Feature'
+  - 'FEATURE'
+  - 'enhancement'
+  - 'Enhancement'
+  - 'improvement'
+  - 'Improvement'
+  - 'request'
+  - 'Request'
+
+question:
+  - 'question'
+  - 'Question'
+  - 'QUESTION'
+  - 'how'
+  - 'How'
+  - 'help'
+  - 'Help'
+  - 'support'
+  - 'Support'
+
+documentation:
+  - 'doc'
+  - 'Doc'
+  - 'DOC'
+  - 'documentation'
+  - 'Documentation'
+  - 'readme'
+  - 'README'
+

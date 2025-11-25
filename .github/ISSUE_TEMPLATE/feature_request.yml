@@ -1,0 +1,87 @@
+name: 💡 Feature Request
+description: Suggest a new feature or enhancement for the Blender USD Stable Export addon
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please fill out the form below to help us understand your needs.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? Describe it clearly
+      placeholder: I'm always frustrated when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see
+      placeholder: I would like the addon to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe any alternative solutions or features you've considered
+      placeholder: Other solutions I've considered...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - "Critical - Blocks my workflow"
+        - "High - Would significantly improve my workflow"
+        - "Medium - Nice to have"
+        - "Low - Minor improvement"
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Describe a specific use case or scenario where this feature would be helpful
+      placeholder: |
+        Example scenario:
+        - I have a scene with...
+        - I need to...
+        - This feature would allow me to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: mockups
+    attributes:
+      label: Mockups/Examples
+      description: If applicable, add mockups, screenshots, or examples
+      placeholder: Attach images or describe the UI/UX you envision
+      render: markdown
+
+  - type: checkboxes
+    id: related
+    attributes:
+      label: Related Issues
+      description: Check if this relates to existing issues
+      options:
+        - label: I have searched existing issues and this is not a duplicate
+          required: true
+        - label: This feature relates to an existing issue (provide issue number)
+          required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, examples, or information about the feature request
+      placeholder: Add any other context here...
+

@@ -213,11 +213,42 @@ Contributions are welcome! However, please note that this project is currently i
 - NVIDIA for USD/Omniverse ecosystem
 - OpenUSD community for documentation and resources
 
+## 🐛 Bug Reports & Feature Requests
+
+We use **GitHub Issues** for bug tracking and feature requests. The repository includes automated issue templates to help you provide all necessary information.
+
+### Reporting Bugs
+
+1. Go to [Issues](https://github.com/jph2/Blender_USD_StableExport/issues)
+2. Click **"New Issue"**
+3. Select **"🐛 Bug Report"** template
+4. Fill out the form with:
+   - Clear description of the bug
+   - Steps to reproduce
+   - Expected vs actual behavior
+   - Blender version and OS
+   - Screenshots or error logs
+
+### Requesting Features
+
+1. Go to [Issues](https://github.com/jph2/Blender_USD_StableExport/issues)
+2. Click **"New Issue"**
+3. Select **"💡 Feature Request"** template
+4. Describe the feature, use case, and priority
+
+### Asking Questions
+
+For questions, use the **"❓ Question"** template or [GitHub Discussions](https://github.com/jph2/Blender_USD_StableExport/discussions).
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
 ## 📧 Contact & Support
 
-- **Issues**: Use GitHub Issues for bug reports and feature requests
-- **Discussions**: Use GitHub Discussions for questions and community support
-- **Documentation**: See the [Documentation](#-documentation) section above
+- **🐛 Bug Reports**: [Create a Bug Report](https://github.com/jph2/Blender_USD_StableExport/issues/new?template=bug_report.yml)
+- **💡 Feature Requests**: [Request a Feature](https://github.com/jph2/Blender_USD_StableExport/issues/new?template=feature_request.yml)
+- **❓ Questions**: [Ask a Question](https://github.com/jph2/Blender_USD_StableExport/issues/new?template=question.yml) or [GitHub Discussions](https://github.com/jph2/Blender_USD_StableExport/discussions)
+- **📚 Documentation**: See the [Documentation](#-documentation) section above
+- **🤝 Contributing**: See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 

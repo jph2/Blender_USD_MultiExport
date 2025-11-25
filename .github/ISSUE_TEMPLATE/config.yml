@@ -1,0 +1,12 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/jph2/Blender_USD_StableExport/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 📚 Documentation
+    url: https://github.com/jph2/Blender_USD_StableExport#-documentation
+    about: Check the documentation and README for usage information
+  - name: 🔍 Search Issues
+    url: https://github.com/jph2/Blender_USD_StableExport/issues
+    about: Search existing issues before creating a new one
+
