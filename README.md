@@ -2,11 +2,31 @@
 
 A Blender Python addon that enables users to define specific endpoints (collections or objects) in Blender's scene hierarchy and export them as separate USD files, compensating for Blender's lack of native USD composition arc support.
 
+## 📊 Project Status
+
+**Current Status**: 🚧 **In Development** - Planning & Requirements Phase
+
+> **⚠️ Important**: This project is currently in the **planning and requirements gathering phase**. The addon is **not yet available** for installation or use. See development phases below for current progress.
+
+### Development Phases
+
+- [x] **Research & Discovery** - Complete
+- [x] **Designing Requirements Questionnaire** - Complete
+- [ ] **Requirements Questionnaire (to be filled out)** - In Progress
+- [ ] **Detailed Requirements** - Pending
+- [ ] **Module Design** - Pending
+- [ ] **Implementation** - Pending
+- [ ] **Testing & Documentation** - Pending
+
+See the [Implementation Process](README_Implementation.md) for details.
+
+---
+
 ## 🎯 Overview
 
 **Blender USD Stable Export** is a Blender addon designed to streamline USD export workflows by allowing users to define multiple export endpoints within a single Blender scene. Since Blender doesn't support USD composition arcs natively, this addon provides a workaround by enabling batch export of different scene parts as separate USD files.
 
-### Key Features
+### Planned Key Features
 
 - ✅ **Endpoint-Based Export**: Define collections or objects as export endpoints
 - ✅ **Batch Export**: Export multiple endpoints in a single operation
@@ -14,15 +34,16 @@ A Blender Python addon that enables users to define specific endpoints (collecti
 - ✅ **Scene State Safety**: Non-destructive export with automatic scene state restoration
 - ✅ **User-Friendly UI**: Integrated panel within Blender's interface
 - ✅ **Export Validation**: Built-in validation and error reporting
+- ✅ **Bug Report Button**: Direct bug reporting from within Blender UI
 
 ## 📋 Table of Contents
 
+- [Project Status](#-project-status)
 - [Overview](#-overview)
 - [Use Cases](#-use-cases)
 - [Requirements](#-requirements)
 - [Installation](#-installation)
 - [Usage](#-usage)
-- [Project Status](#-project-status)
 - [Documentation](#-documentation)
 - [Development](#-development)
 - [Contributing](#-contributing)
@@ -45,9 +66,11 @@ This addon is particularly useful for:
 
 ## 🚀 Installation
 
-### Method 1: Install from ZIP (Recommended)
+> **⚠️ Note**: The addon is not yet available for installation. This section describes the planned installation process for future releases.
 
-1. Download the latest release from the [Releases](../../releases) page
+### Method 1: Install from ZIP (Planned)
+
+1. Download the latest release from the [Releases](../../releases) page (when available)
 2. Open Blender
 3. Go to `Edit > Preferences > Add-ons`
 4. Click `Install...`
@@ -55,11 +78,11 @@ This addon is particularly useful for:
 6. Enable the addon by checking the box next to "USD Stable Export"
 7. Click `Save Preferences`
 
-### Method 2: Install from Source
+### Method 2: Install from Source (Planned)
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/Blender_USD_StableExport.git
+   git clone https://github.com/jph2/Blender_USD_StableExport.git
    ```
 
 2. In Blender, go to `Edit > Preferences > Add-ons`
@@ -69,7 +92,9 @@ This addon is particularly useful for:
 
 ## 📖 Usage
 
-### Basic Workflow
+> **⚠️ Note**: The addon is not yet available. This section describes the planned usage workflow.
+
+### Planned Basic Workflow
 
 1. **Open Your Scene**: Load your Blender scene with organized collections
 2. **Access the Addon**: Open the USD Stable Export panel (typically in Scene Properties or N-Panel)
@@ -90,7 +115,7 @@ An **endpoint** is a collection or set of objects that you want to export as a s
 
 > **⚠️ Naming Note**: Avoid using "Environment" as a collection name. In Omniverse, `/World` (default prim) and `/environment` are siblings at root level. `/environment` is reserved for lighting and is NOT imported when referencing (only content under `/World` is imported). Using "Environment" creates conflicts. Use descriptive names like "Props", "Set", "Location", or "SceneElements" instead. See [Naming Conventions](NAMING_CONVENTIONS.md) for details.
 
-### Export Options
+### Planned Export Options
 
 Each endpoint can be configured with:
 - Export filepath
@@ -98,22 +123,6 @@ Each endpoint can be configured with:
 - Material and texture export settings
 - Animation export settings
 - Custom export options
-
-## 📊 Project Status
-
-**Current Status**: 🚧 In Development
-
-This project is currently in the planning and requirements gathering phase. See the [Implementation Process](README_Implementation.md) for details.
-
-### Development Phases
-
-- [x] **Research & Discovery** - Complete
-- [x] **Deigning Requirements Questionnaire** - Complete
-- [ ] **Requirements Questionnaire (to be filled out)** - In Progress
-- [ ] **Detailed Requirements** - In Progress
-- [ ] **Module Design** - Pending
-- [ ] **Implementation** - Pending
-- [ ] **Testing & Documentation** - Pending
 
 ## 📚 Documentation
 
@@ -209,9 +218,11 @@ Contributions are welcome! However, please note that this project is currently i
 
 ## 🙏 Acknowledgments
 
-- Blender Foundation for the excellent Python API
-- NVIDIA for USD/Omniverse ecosystem
-- OpenUSD community for documentation and resources
+- **Blender Foundation** for the excellent Python API
+- **NVIDIA** for USD/Omniverse ecosystem
+- **Alliance for OpenUSD (AOUSD)** for advancing OpenUSD standards and ecosystem
+- **Academy Software Foundation (ASWF)** for fostering open source software in the motion picture and media industries
+- **OpenUSD community** for documentation, resources, and ongoing development
 
 ## 🐛 Bug Reports & Feature Requests
 
@@ -252,7 +263,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ---
 
-**Note**: This project is in active development. Features and APIs may change. Check the [Project Status](#-project-status) section for current development phase.
+**Note**: This project is in active development. Features and APIs may change. See the [Project Status](#-project-status) section at the top for current development phase.
 
 **Last Updated**: November 25, 2025
 
