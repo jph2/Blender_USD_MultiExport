@@ -2,28 +2,23 @@
 
 **Status**: ✅ In Progress - Requirements being populated from confirmed questionnaire items  
 **Date Created**: 25.11.2025  
-**Version**: v1.1.0  
+**Version**: v1.2.0  
+**Last Updated**: 25.11.2025 - Added ASWF USD Guidelines compliance requirements  
 **Target Platform**: Blender 5.0+ (officially released November 18, 2025)
 
 ---
 
-## ⚠️ This document is a placeholder
+## 📋 Requirements Status
 
-This document will contain the detailed requirements list derived from the completed Requirements Questionnaire (`01_Requirements_Questionnaire.md`).
+This document contains detailed requirements derived from confirmed questionnaire responses and ASWF USD Working Group guidelines.
 
 **Important**: All requirements must be compatible with **Blender 5.0+ only**. Blender 4.x versions are not supported.
 
-**Next Step**: Complete the questionnaire first, then populate this document with:
-- Functional requirements
-- Non-functional requirements
-- User stories
-- Acceptance criteria
-- Priority levels
-- Dependencies
+**ASWF Compliance**: Requirements marked with ASWF references align with [USD-WG Asset Structure Guidelines](https://github.com/usd-wg/assets/blob/main/docs/asset-structure-guidelines.md) to ensure compatibility with VFX pipelines and Omniverse workflows. See `USD_ASSET_STRUCTURE_ANALYSIS.md` for detailed analysis.
 
 ---
 
-## Document Structure (To Be Populated)
+## Document Structure
 
 ### 1. Overview
 - Project scope
@@ -216,6 +211,53 @@ These requirements have been confirmed and do not require questionnaire validati
 - [ ] Validation errors are logged
 - [ ] Warnings are displayed in UI
 - [ ] Invalid endpoints are skipped, valid ones continue
+
+#### REQ-EXP-007: USD Asset Structure Compliance
+**Priority**: Critical  
+**Status**: Confirmed Requirement  
+**Reference**: [ASWF USD Working Group Guidelines](https://github.com/usd-wg/assets/blob/main/docs/asset-structure-guidelines.md)
+
+**Requirement**: Exported USD files MUST follow ASWF USD Working Group guidelines for Component model structure to ensure compatibility with VFX pipelines and Omniverse workflows.
+
+**Functional Requirements**:
+- Root prim MUST be an Xform (Xformable) primitive, not a Scope
+- Root prim MUST have `kind` metadata set to `component`
+- Root prim MUST be set as `defaultPrim` in the USD file
+- Root prim path MUST follow naming convention: endpoint name → root prim path (e.g., "MyChair" → `/MyChair`)
+- Geometry SHOULD be organized under Scope primitives (e.g., `geo`, `mtl` scopes)
+- Purpose metadata SHOULD be set appropriately on Scope primitives (render, proxy, guide)
+- File extension MUST be `.usd` (allows ascii/binary switching without breaking references)
+- Materials MUST be encapsulated within the asset's root primitive hierarchy
+- Structure MUST be self-contained and portable
+
+**ASWF Guidelines Alignment**:
+- Each exported endpoint represents a **Component model** (self-contained asset)
+- Components keep geometry behind payloads (future consideration for v2.0+)
+- Components should inherit from Class primitives (future consideration for v2.0+)
+- Reference: [USD-WG Assets - Intent-VFX Examples](https://github.com/usd-wg/assets/tree/main/intent-vfx) for validation targets
+
+**Blender 5.0 Limitations** (Documented):
+- Multi-layer composition not supported natively
+- Payload authoring has limited control
+- Inherits authoring not easily supported
+- Variants authoring not supported
+
+**Acceptance Criteria**:
+- [ ] Root prim is Xform primitive (not Scope)
+- [ ] `kind` metadata is set to `component` on root prim
+- [ ] `defaultPrim` is set to root prim path
+- [ ] Root prim path follows naming convention (endpoint name → `/EndpointName`)
+- [ ] Geometry is organized under Scope primitives (when possible)
+- [ ] Purpose metadata is set on Scope primitives
+- [ ] File extension is `.usd`
+- [ ] Materials are under root prim hierarchy
+- [ ] Exported structure is validated against ASWF guidelines
+- [ ] Structure is compatible with intent-vfx examples
+
+**Related Requirements**:
+- REQ-EXP-001: Export Options Defaults
+- REQ-COMP-001: Blender Version Support
+- See `USD_ASSET_STRUCTURE_ANALYSIS.md` for detailed analysis
 
 ### User Interface Requirements
 
@@ -474,6 +516,29 @@ These requirements have been confirmed and do not require questionnaire validati
 - [ ] Addon follows Blender standards
 - [ ] No global settings are modified
 - [ ] Custom properties use isolated namespaces
+
+#### REQ-COMP-003: ASWF USD Guidelines Compliance
+**Priority**: Critical  
+**Status**: Confirmed Requirement  
+**Reference**: [ASWF USD Working Group Guidelines](https://github.com/usd-wg/assets/blob/main/docs/asset-structure-guidelines.md)
+
+**Requirement**: Exported USD files MUST comply with ASWF USD Working Group guidelines to ensure compatibility with VFX pipelines, Omniverse workflows, and industry standards.
+
+**Functional Requirements**:
+- Follow Component model structure guidelines
+- Align with USD-WG Assets intent-vfx examples
+- Ensure compatibility with VFX Reference Platform requirements
+- Document alignment with ASWF standards
+
+**Acceptance Criteria**:
+- [ ] Exported USD structure follows ASWF guidelines (see REQ-EXP-007)
+- [ ] Structure is validated against intent-vfx examples
+- [ ] Documentation references ASWF guidelines
+- [ ] Compatibility with VFX pipelines is maintained
+
+**Related Documents**:
+- `USD_ASSET_STRUCTURE_ANALYSIS.md` - Detailed analysis of ASWF guidelines relevance
+- REQ-EXP-007: USD Asset Structure Compliance
 
 ### Future Requirements (Version 2.0)
 
