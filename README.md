@@ -13,8 +13,8 @@ A Blender Python addon that enables users to define specific endpoints (collecti
 - [x] **Research & Discovery** - Complete
 - [x] **Designing Requirements Questionnaire** - Complete
 - [ ] **Requirements Questionnaire (to be filled out)** - In Progress
-- [ ] **Detailed Requirements** - Pending
-- [ ] **Module Design** - Pending
+- [ ] **Detailed Requirements** - In Progress
+- [ ] **Module Design** - In Progress
 - [ ] **Implementation** - Pending
 - [ ] **Testing & Documentation** - Pending
 
@@ -60,9 +60,9 @@ This addon is particularly useful for:
 
 ## 📦 Requirements
 
-- **Blender**: 4.2 LTS or later (primary target: 4.2 LTS)
-- **Python**: 3.11+ (bundled with Blender)
-- **USD Support**: Blender's built-in USD exporter (included with Blender 4.2+)
+- **Blender**: 5.0 or later (primary target: Blender 5.0, released November 18, 2025)
+- **Python**: 3.11+ (bundled with Blender 5.0)
+- **USD Support**: Blender's built-in USD exporter (included with Blender 5.0+)
 
 ## 🚀 Installation
 
@@ -169,8 +169,8 @@ Blender_USD_StableExport/
 ### Development Setup
 
 1. **Prerequisites**:
-   - Blender 4.2 LTS installed
-   - Python 3.11+ (for external IDE development)
+   - Blender 5.0+ installed (released November 18, 2025)
+   - Python 3.11+ (bundled with Blender 5.0, or for external IDE development)
    - Git
 
 2. **IDE Setup** (Optional):
@@ -184,9 +184,9 @@ Blender_USD_StableExport/
    - Test in Blender (use "Reload Scripts" for quick iteration)
    - Follow the implementation plan phases
 
-### Blender 5.0 Compatibility
+### Blender Version Support
 
-This addon is initially developed for Blender 4.2 LTS. A comprehensive compatibility review for Blender 5.0 is planned once official API documentation is available. See the [Research Document](Blender_USD_StableExport_RESEARCH.md#blender-50-readiness-and-compatibility-planning) for details.
+This addon is developed for **Blender 5.0** (officially released November 18, 2025). Blender 4.x versions are not supported. See the [Research Document](Blender_USD_StableExport_RESEARCH.md#blender-50-readiness-and-compatibility-planning) for API compatibility details.
 
 ## 🤝 Contributing
 
@@ -209,7 +209,7 @@ Contributions are welcome! However, please note that this project is currently i
 ## 🐛 Known Limitations
 
 - **USD Composition**: Blender doesn't support USD composition arcs natively. This addon exports separate files that must be composed manually in the target application (e.g., Omniverse).
-- **Blender Version**: Currently targets Blender 4.2 LTS. Blender 5.0 compatibility will be reviewed once official documentation is available.
+- **Blender Version**: Targets Blender 5.0+ only. Blender 4.x versions are not supported.
 - **Scene Modification**: The addon temporarily modifies scene visibility during export but always restores the original state.
 
 ## 📝 License

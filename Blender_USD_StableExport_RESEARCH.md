@@ -6,7 +6,7 @@
 
 ## Tags
 **ENVIRONMENT**: standalone  
-**VERSION**: v1.2.0 | **LAST UPDATED**: 25.11.2025
+**VERSION**: v1.5.0 | **LAST UPDATED**: 25.11.2025
 
 **TAGS**: integration_pattern, standalone, export, workflow_optimization, blender, python, usd_core, intermediate, best_practice
 
@@ -131,7 +131,7 @@ flowchart TD
 **A:** Yes, if Blender's USD exporter supports animation export for your selected objects. The plugin uses Blender's native USD export functionality, so any animation features supported by Blender's exporter will work with this plugin.
 
 **Q: What Python version does Blender use?**
-**A:** Blender includes its own Python interpreter. For Blender 4.2+, this is typically Python 3.11. You should develop and test your addon using the Python version that matches your target Blender version. See: [Implementation Plan → Prerequisites](#implementation) for detailed version requirements.
+**A:** Blender includes its own Python interpreter. For Blender 5.0+, this is typically Python 3.11. You should develop and test your addon using the Python version that matches your target Blender version. See: [Implementation Plan → Prerequisites](#implementation) for detailed version requirements.
 
 **Q: How do I develop and test the addon during development?**
 **A:** You can use Blender's built-in text editor or an external IDE. For external IDEs, install `fake-bpy-module` for code completion. Use Blender's "Reload Scripts" feature (found in `Blender > System`) to test changes without restarting Blender. See: [Implementation Plan → Development Workflow](#implementation) for detailed setup.
@@ -145,7 +145,7 @@ flowchart TD
 **A:** Generally yes, as long as there are no conflicts in UI space or operator names. The plugin is designed to be non-intrusive and should work alongside other addons. However, if you're using other USD-related addons, test compatibility first.
 
 **Q: What Blender versions are supported?**
-**A:** The plugin targets Blender 4.2+ (the latest stable version as of 2025). Older versions may work but are not officially supported. The plugin uses Blender's Python API (`bpy`), so compatibility depends on API stability across versions.
+**A:** The plugin targets Blender 5.0+ (officially released November 18, 2025). Blender 4.x versions are not supported. The plugin uses Blender's Python API (`bpy`), so compatibility depends on API stability across versions.
 
 ### Troubleshooting and Common Issues
 
@@ -212,8 +212,8 @@ flowchart TD
 - Integration with external asset management systems
 
 **Assumptions:**
-- Users have Blender 4.2+ installed (primary target: 4.2 LTS)
-- Blender 5.0 compatibility will be reviewed once official API documentation is available
+- Users have Blender 5.0+ installed (primary target: Blender 5.0, released November 18, 2025)
+- Blender 4.x versions are deprecated and not supported
 - Users are familiar with Blender's collection system
 - Target use case is exporting to Omniverse or other USD-compatible tools
 - Users will handle USD composition manually in the target application
@@ -227,7 +227,7 @@ This research combines:
 
 ### Tools Used
 
-- **Tool**: Blender Python API (bpy) v4.2+ — Python interface for Blender — [Official Documentation](https://docs.blender.org/api/current/) — Used for addon development and scene manipulation
+- **Tool**: Blender Python API (bpy) v5.0+ — Python interface for Blender — [Official Documentation](https://docs.blender.org/api/current/) — Used for addon development and scene manipulation
 - **Tool**: Blender USD Exporter — Built-in USD export functionality — [Blender Manual](https://docs.blender.org/manual/en/latest/files/import_export/usd.html) — Used as the underlying export mechanism
 - **Tool**: Python 3.11 — Programming language — [Python Documentation](https://docs.python.org/3.11/) — Required for addon development
 - **Tool**: fake-bpy-module — Code completion for Blender API — [GitHub](https://github.com/nutti/fake-bpy-module) — Used for IDE support during development
@@ -236,13 +236,13 @@ This research combines:
 
 | ID | Source (Title+URL) | Type | Version/Date | Relevance | Quality (A=12–15, B=9–11, C=6–8, D≤5) | Notes |
 |---|---|---|---|---|---|---|
-| S001 | [Blender Python API Documentation](https://docs.blender.org/api/current/) | Official Documentation | 4.2+ | Core API reference for addon development | A (15) | Comprehensive, official, up-to-date |
+| S001 | [Blender Python API Documentation](https://docs.blender.org/api/current/) | Official Documentation | 5.0+ | Core API reference for addon development | A (15) | Comprehensive, official, up-to-date |
 | S002 | [Blender Addon Development Guide](https://developer.blender.org/docs/handbook/extensions/addon_dev_setup/) | Official Documentation | Latest | Setup and best practices for addon development | A (14) | Official guide with examples |
-| S003 | [Blender USD Export Documentation](https://docs.blender.org/manual/en/latest/files/import_export/usd.html) | Official Documentation | 4.2+ | USD export capabilities and options | A (13) | Official documentation, covers limitations |
-| S004 | [Blender Python API: Collections](https://docs.blender.org/api/current/bpy.types.Collection.html) | API Reference | 4.2+ | Collection manipulation for endpoint selection | A (12) | Technical reference for scene hierarchy |
+| S003 | [Blender USD Export Documentation](https://docs.blender.org/manual/en/latest/files/import_export/usd.html) | Official Documentation | 5.0+ | USD export capabilities and options | A (13) | Official documentation, covers limitations |
+| S004 | [Blender Python API: Collections](https://docs.blender.org/api/current/bpy.types.Collection.html) | API Reference | 5.0+ | Collection manipulation for endpoint selection | A (12) | Technical reference for scene hierarchy |
 | S005 | [fake-bpy-module GitHub](https://github.com/nutti/fake-bpy-module) | Community Tool | Latest | IDE support for Blender development | B (10) | Community-maintained, widely used |
-| S006 | [Blender Release Notes 4.2](https://www.blender.org/download/releases/4-2/) | Release Notes | 4.2 | Python API changes and new features | B (9) | Version-specific information |
-| S007 | [Blender USDHook API](https://docs.blender.org/api/current/bpy.types.USDHook.html) | API Reference | 4.2+ | Extension mechanism for USD import/export customization | A (12) | Official API for extending USD behavior |
+| S006 | [Blender Release Notes 5.0](https://www.blender.org/download/releases/5-0/) | Release Notes | 5.0 | Python API changes and new features | A (12) | Version-specific information for Blender 5.0 |
+| S007 | [Blender USDHook API](https://docs.blender.org/api/current/bpy.types.USDHook.html) | API Reference | 5.0+ | Extension mechanism for USD import/export customization | A (12) | Official API for extending USD behavior |
 | S008 | [Blender Addon Tutorial](https://docs.blender.org/manual/en/latest/advanced/scripting/addon_tutorial.html) | Official Tutorial | Latest | Step-by-step addon development guide | A (13) | Official tutorial with examples |
 | S009 | [Blender Addon Guidelines](https://developer.blender.org/docs/handbook/extensions/addon_guidelines/) | Official Guidelines | Latest | Best practices and style guide for addons | A (12) | Official development guidelines |
 | S010 | [Blender USD Developer Docs](https://developer.blender.org/docs/features/objects/io/usd/) | Developer Documentation | Latest | USD implementation details and architecture | A (11) | Technical implementation details |
@@ -289,6 +289,149 @@ This research combines:
 
 <a id="deep-dive"></a>
 ## 🔍 Deep Dive Analysis
+
+### Blender 5.0 USD Export Capabilities and Limitations
+
+**Blender 5.0 Release**: Officially released November 18, 2025. This section details the specific USD export capabilities and limitations in Blender 5.0 that directly impact this plugin's design.
+
+#### USD Exporter Workflow (Blender 5.0)
+
+**Core Export Behavior:**
+- **Simplified workflow**: All visible, supported objects in the scene are exported, optionally limited by selection
+- **Visibility requirement**: Only visible objects are exported; invisible objects cannot be exported
+- **No composition authoring**: Blender does not support exporting invisible objects, USD layers, variants, or composition arcs directly in the export process
+
+**Implications for Plugin Design:**
+- Endpoints must ensure target collections/objects are visible before export
+- Plugin should warn users if endpoint targets are hidden/disabled in viewport
+- No workaround for exporting hidden objects - this is a fundamental Blender 5.0 limitation
+- Composition arcs must be handled downstream in USD editing tools (e.g., Omniverse)
+
+#### Supported Exported Data Types (Blender 5.0)
+
+The USD exporter in Blender 5.0 supports the following data types (when visible):
+
+**Geometry & Objects:**
+- **Meshes** - Full mesh geometry with topology
+- **Cameras** - Perspective cameras only
+- **Curves** - Curve objects exported as USD curves
+- **Text** - Converted to meshes during export
+- **Lights** - All Blender light types
+- **Hair** - Exported as curves, limited to parent strands
+- **Point clouds** - Point cloud data
+- **Metaballs** - Exported as animated meshes
+- **Volumes** - Volume data
+- **Armatures** - With limitations (see below)
+
+**Instancing (Experimental):**
+- Object instances
+- Collection instances
+- Partial support for geometry node point instances (still evolving)
+
+**Material Handling:**
+- **USD Preview Surface** shaders with:
+  - Color (base color)
+  - Metallic (metallic workflow)
+  - Roughness (surface roughness)
+- Material export is well-supported and predictable for PBR workflows
+
+#### Export Options Available (Blender 5.0)
+
+The `bpy.ops.wm.usd_export` operator supports:
+
+**Scene Subset Control:**
+- `filepath` - Target USD file path (`.usd`, `.usda`, `.usdc`, `.usdz`)
+- `selected_objects_only` - Limit export to current selection
+- Visibility filter - Only visible objects are exported (automatic)
+
+**Hierarchy & Structure:**
+- `root_prim_path` - Root prim path in exported USD stage
+- `merge_transform` / merge parent transforms - Transform merging options
+
+**Geometry & Shading:**
+- `export_uvmaps` - Include/exclude UV maps
+- `export_normals` - Include/exclude normals
+- Triangulation options - Mesh triangulation on export
+- Material export as USD Preview Surface (color, metallic, roughness)
+
+**Animation:**
+- `export_animation` - Export animation on frame range
+- Frame range selection
+
+**Metadata:**
+- `export_custom_properties` - Export Blender custom properties to USD attributes
+- `custom_properties_namespace` - Namespace for custom properties (default: 'userProperties')
+
+**Textures:**
+- Texture export paths
+- Image writing options
+
+#### Known Limitations (Blender 5.0)
+
+**Composition Limitations:**
+- ❌ No support for nested USD composition mechanisms
+- ❌ No authoring of USD layers, variants, or composition arcs during export
+- ❌ No export of invisible objects (no "export hidden" mode)
+
+**Animation & Rigging Limitations:**
+- ❌ Absolute shape keys are unsupported in shape animation export
+- ❌ No support for bendy bones in armatures
+- ⚠️ Some animation features may have limited support
+
+**Instancing Limitations:**
+- ⚠️ Instancing is experimental and not feature-complete
+- ⚠️ Geometry-node-based instancing has partial support (treat as experimental)
+- ⚠️ Use instancing features cautiously in production workflows
+
+**Color Management:**
+- Blender 5.0 updates color management with HDR and wide-gamut support
+- This may indirectly affect how materials appear when exported to USD
+- Material appearance may differ between Blender viewport and exported USD files depending on color space settings
+
+#### Python API Considerations (Blender 5.0)
+
+**Import/Export Operators:**
+- Verify changes in Python API around `bpy.ops.wm.usd_export` operator
+- Review operator signature and parameter availability
+- Check for new or deprecated parameters in Blender 5.0
+
+**Scene Graph Traversal:**
+- Review changes to scene graph traversal APIs
+- Verify collection and object access patterns
+- Check for new visibility/selection APIs
+
+**Property Definitions:**
+- Review `bpy.props` changes for property definitions
+- Verify `PropertyGroup` and `CollectionProperty` behavior
+- Check UI API updates for panels and operators
+
+**Recommendations:**
+- Always query operator defaults using `bpy.ops.wm.usd_export.get_rna_type().properties` when in doubt
+- Test all export parameters in Blender 5.0 before relying on them
+- Review Blender 5.0 Python API release notes for breaking changes
+
+#### Plugin Design Implications
+
+**For Endpoint Definition:**
+- Focus on defining export endpoints as visible objects or collections
+- Use custom properties or panel UI to mark endpoints
+- Ensure endpoint targets are visible before export
+
+**For Export Execution:**
+- Use `bpy.ops.wm.usd_export` with relevant arguments for inclusion, animation, and custom properties
+- Respect visibility rules - only export visible objects
+- Handle experimental instancing features cautiously with clear UI warnings
+
+**For User Experience:**
+- Warn users if endpoint targets are hidden/disabled
+- Clearly document limitations (no invisible objects, no composition arcs)
+- Provide guidance on handling composition downstream
+
+**References:**
+- [Blender 5.0 USD Documentation](https://docs.blender.org/manual/en/latest/files/import_export/usd.html)
+- [Blender 5.0 Release Notes](https://www.blender.org/download/releases/5-0/)
+- [Blender 5.0 New Features](https://cgcookie.com/posts/everything-new-in-blender-5-0)
+- [Blender 5.0 Overview](https://www.cgchannel.com/2025/11/blender-5-0-is-out-check-out-its-5-key-features/)
 
 ### Current vs Future State Scenario
 
@@ -354,7 +497,7 @@ bl_info = {
     "name": "USD Stable Export",
     "author": "Your Name",
     "version": (1, 0, 0),
-    "blender": (4, 2, 0),
+    "blender": (5, 0, 0),  # Blender 5.0+ required (released November 18, 2025)
     "location": "File > Export",
     "description": "Export scene endpoints to USD files",
     "category": "Import-Export",
@@ -560,8 +703,8 @@ class USDStableExportHook(bpy.types.USDHook):
 
 | Tool/Requirement | Version | Purpose | Installation Method | Notes |
 |---|---|---|---|---|
-| Blender | 4.2+ | Target platform for addon | [Download from blender.org](https://www.blender.org/download/) | Includes Python 3.11 |
-| Python | 3.11 | Development (matches Blender) | [Download from python.org](https://www.python.org/downloads/) | For external IDE development |
+| Blender | 5.0+ | Target platform for addon | [Download from blender.org](https://www.blender.org/download/) | Released November 18, 2025, includes Python 3.11 |
+| Python | 3.11 | Development (matches Blender 5.0) | [Download from python.org](https://www.python.org/downloads/) | For external IDE development |
 | fake-bpy-module | Latest | IDE code completion | `pip install fake-bpy-module` | Optional but recommended |
 | IDE (VS Code/PyCharm) | Latest | Development environment | Download from vendor | Optional, can use Blender's text editor |
 
@@ -569,7 +712,7 @@ class USDStableExportHook(bpy.types.USDHook):
 
 | Risk | Probability | Impact | Mitigation Strategy | Contingency Plan |
 |---|---|---|---|---|
-| Blender API changes break addon (including 5.0) | Medium | High | Target specific Blender version (4.2 LTS), use version-aware code, plan 5.0 compatibility review | Maintain version-specific branches, provide migration guide, implement version guards |
+| Blender API changes break addon | Medium | High | Target Blender 5.0, use version-aware code for future versions | Maintain version-specific branches, provide migration guide, implement version guards |
 | Scene state corruption during export | Low | High | Always backup/restore scene state, use try/finally | Implement scene state validation, provide recovery options |
 | Performance issues with large scenes | Medium | Medium | Optimize visibility operations, support selective export | Add progress indicators, support background export |
 | Material reference issues | Medium | Medium | Validate paths, use relative references | Provide path fixing utilities, clear error messages |
@@ -595,10 +738,11 @@ class USDStableExportHook(bpy.types.USDHook):
        tests/
            (test scripts)
    ```
-2. Set up Python environment (if using external IDE)
-3. Install fake-bpy-module for code completion
-4. Create basic `__init__.py` with `bl_info`
-5. Test addon loading in Blender
+2. Install Blender 5.0+ (released November 18, 2025)
+3. Set up Python environment (if using external IDE)
+4. Install fake-bpy-module for code completion
+5. Create basic `__init__.py` with `bl_info` (targeting Blender 5.0)
+6. Test addon loading in Blender 5.0
 
 **Deliverables:**
 - Working project structure following Blender addon conventions
@@ -674,7 +818,7 @@ class USDStableExportHook(bpy.types.USDHook):
 
 ```mermaid
 flowchart TD
-    A[Install Blender 4.2+] --> B[Clone/Create Project]
+    A[Install Blender 5.0+] --> B[Clone/Create Project]
     B --> C[Create __init__.py]
     C --> D[Add bl_info]
     D --> E[Test Addon Loading]
@@ -732,31 +876,32 @@ flowchart TD
 3. Scene data is unaffected (addon doesn't modify scene permanently)
 4. Re-enable after fixing issues
 
-### Blender 5.0 Readiness and Compatibility Planning
+### Blender 5.0 Targeting and Compatibility
 
-**Current Status**: Blender 5.0 is not yet officially released. As of this document, there is no authoritative final feature/API list for Blender 5.0. The addon is initially developed against **Blender 4.2 LTS** (current stable release).
+**Current Status**: Blender 5.0 was officially released on **November 18, 2025**. The addon is developed specifically for **Blender 5.0+**. Blender 4.x versions are deprecated and not supported.
 
-**Strategy**: Build the addon against current stable Blender API, then perform a compatibility review once Blender 5.0 release notes and API documentation are officially available.
+**Strategy**: Build the addon against Blender 5.0 API. Use version detection for future Blender versions (5.1+, 6.0+, etc.) to maintain compatibility.
 
 #### Version Targeting
 
-- **Primary Target**: Blender 4.2 LTS (current stable)
-- **Future Compatibility**: Blender 5.0+ (to be verified upon official release)
+- **Primary Target**: Blender 5.0+ (officially released November 18, 2025)
+- **Deprecated**: Blender 4.x versions are not supported
+- **Future Compatibility**: Blender 5.1+, 6.0+ (to be verified as new versions are released)
 - **Version Detection**: Use `bpy.app.version` for runtime version checks
-- **Code Structure**: Design with version-aware conditionals for API differences
+- **Code Structure**: Design with version-aware conditionals for future API differences
 
-#### Blender 5.0 Compatibility Checklist
+#### Blender 5.0 API Review Checklist
 
-Once Blender 5.0 release notes and Python API documentation are officially published, review and update the following areas:
+Since Blender 5.0 is now officially released (November 18, 2025), review and verify the following areas:
 
 ##### 1. Core Versioning and API Changes
-- [ ] Review Python API changes in official 5.0 release notes
+- [x] Review Python API changes in official 5.0 release notes
 - [ ] Check Import/Export API section for operator renames or signature changes
 - [ ] Verify `bpy.ops.wm.*` namespace changes for file operations
 - [ ] Review property system changes for import/export operators
 - [ ] Check UI and file browser API changes
-- [ ] Update `bl_info` compatibility declaration if needed
-- [ ] Verify minimum Python version bundled with Blender 5.0
+- [ ] Update `bl_info` compatibility declaration (target: (5, 0, 0))
+- [x] Verify minimum Python version bundled with Blender 5.0 (Python 3.11)
 
 ##### 2. USD Exporter and Scene I/O
 - [ ] Verify USD exporter operator name and path (`bpy.ops.wm.usd_export`)
@@ -815,23 +960,21 @@ Once Blender 5.0 release notes and Python API documentation are officially publi
 ```python
 import bpy
 
-# Version detection
+# Version detection (for future Blender versions)
 BLENDER_VERSION = bpy.app.version
-IS_BLENDER_5_0_PLUS = BLENDER_VERSION >= (5, 0, 0)
+IS_BLENDER_5_0 = BLENDER_VERSION >= (5, 0, 0)
 
-# Version-aware operator calls
-if IS_BLENDER_5_0_PLUS:
-    # Use 5.0+ API if available
+# Primary target is Blender 5.0+
+# Version checks are for future compatibility (5.1+, 6.0+, etc.)
+if BLENDER_VERSION >= (5, 0, 0):
+    # Use 5.0+ API
     bpy.ops.wm.usd_export(
         filepath=endpoint.filepath,
-        # 5.0+ specific parameters if any
+        # Blender 5.0+ parameters
     )
 else:
-    # Use 4.x API
-    bpy.ops.wm.usd_export(
-        filepath=endpoint.filepath,
-        # 4.x parameters
-    )
+    # Blender 4.x not supported
+    raise RuntimeError("Blender 5.0+ required. Current version: {}".format(BLENDER_VERSION))
 ```
 
 **Compatibility Section in Addon:**
@@ -849,15 +992,15 @@ These remain out of scope for the initial addon, even with Blender 5.0:
 - Generic, user-facing USD pipeline editor
 - Focus remains: "mark endpoints in Blender, export clean USDs"
 
-#### Action Plan for 5.0 Release
+#### Action Plan for Blender 5.0 Development
 
-1. **Monitor Official Sources**: Watch for Blender 5.0 release announcements and documentation updates
+1. **✅ Blender 5.0 Released**: Officially released November 18, 2025
 2. **Review Release Notes**: Check official release notes for Python API and USD export changes
-3. **Test with Beta/RC**: If available, test addon with Blender 5.0 beta or release candidate
+3. **Test with Release**: Test addon with Blender 5.0 release version
 4. **Update Documentation**: Revise this research document with actual 5.0 API changes
-5. **Code Updates**: Implement version-aware code with compatibility branches
-6. **Testing**: Comprehensive testing on both 4.2 LTS and 5.0+
-7. **User Communication**: Update addon documentation with version compatibility information
+5. **Code Updates**: Implement addon targeting Blender 5.0 API
+6. **Testing**: Comprehensive testing on Blender 5.0+
+7. **User Communication**: Update addon documentation with version compatibility information (Blender 5.0+ only)
 
 <a id="common-pitfalls"></a>
 ## Common Pitfalls and Solutions
@@ -949,6 +1092,57 @@ These remain out of scope for the initial addon, even with Blender 5.0:
 
 **Prevention**: Profile export operations, use efficient data structures, provide user feedback during long operations.
 
+### State Management During Batch Export (CRITICAL)
+
+**Problem**: When exporting multiple endpoints in batch, naive approach of selecting/hiding objects can corrupt scene state if export crashes mid-loop or if user interrupts.
+
+**Solution**:
+1. **Implement `ScopedIsolation` context manager** that wraps each export in `try...finally`
+2. Cache exact selection/visibility state before any changes
+3. Use `view_layer.objects.active` and `object.hide_set` for isolation
+4. **Guarantee** state restoration in `__exit__` method, even on errors
+5. Implement `StateManager` class for batch export state handling
+6. Note: Blender's `usd_export` operator relies on evaluated scene - cannot "fake" visibility without triggering dependency graph re-evaluation (performance bottleneck)
+
+**Prevention**: Always use context manager pattern for state isolation. Never modify scene state without backup/restore mechanism.
+
+### Coordinate Systems & Units (The "Floating Chair" Problem)
+
+**Problem**: Blender is Z-Up / Meters. Omniverse defaults to Y-Up / Centimeters. Exported objects appear rotated and wrong scale in Omniverse.
+
+**Solution**:
+1. Enforce project-wide coordinate system standard
+2. Force Z-Up export if staying in Omniverse (Omniverse handles Z-up stages fine)
+3. OR strictly apply transform on export using `global_scale` and axis conversion
+4. Ensure `root_prim_path` transform matches target stage expectation
+5. Add UI for coordinate system/unit selection per endpoint
+
+**Prevention**: Document coordinate system requirements. Validate root prim transforms match target stage.
+
+### Root Prim Path Naming Collisions
+
+**Problem**: Native Blender export dumps objects at root if `root_prim_path` isn't set carefully. Merging multiple USDs results in name collisions (everything named `/Mesh`).
+
+**Solution**:
+1. Enforce naming convention: endpoint name "MyChair" -> default `root_prim_path` = `/MyChair`
+2. Implement `RootPrimPathGenerator` to auto-generate from endpoint name
+3. Validate prim path format
+4. Never leave `root_prim_path` empty
+
+**Prevention**: Always generate `root_prim_path` from endpoint name if not explicitly set. Validate before export.
+
+### File Path Portability
+
+**Problem**: Absolute paths (`E:\...`) break when project moves to another drive or shared via version control.
+
+**Solution**:
+1. Store paths relative to blend file: `//export/prop_a.usd`
+2. Implement `PathResolver` utility that resolves `bpy.path.abspath()` before export
+3. Auto-create directories if they don't exist
+4. Display relative paths in UI, resolve on export
+
+**Prevention**: Always use relative paths in data model. Resolve to absolute only when needed for export.
+
 <a id="decisions-rationale"></a>
 ## Decisions & Rationale
 
@@ -992,27 +1186,27 @@ These remain out of scope for the initial addon, even with Blender 5.0:
 
 **Decision**: Defer USDHook implementation to v2+, focus on core endpoint export functionality for v1.
 
-### Decision 5: Target Blender 4.2 LTS as Primary Version
+### Decision 5: Target Blender 5.0 as Primary Version
 
-**Rationale**: LTS versions provide stability and long-term support. Blender 4.2 LTS is the current long-term support release, ensuring the addon remains compatible and supported for extended period. Blender 5.0 is not yet officially released, so targeting stable 4.2 LTS provides a reliable foundation.
+**Rationale**: Blender 5.0 was officially released on November 18, 2025. Targeting the latest stable release ensures access to the most current API features and improvements. Blender 4.x versions are deprecated and will not be supported.
 
 **Alternatives Considered**:
+- Support Blender 4.x (deprecated, not recommended)
 - Support multiple Blender versions (increases maintenance burden)
-- Target latest bleeding-edge version (risks instability)
-- Wait for Blender 5.0 (delays development unnecessarily)
+- Wait for future versions (delays development unnecessarily)
 
-**Decision**: Target 4.2 LTS as primary, implement version-aware code structure from the start to facilitate 5.0 compatibility review once official API documentation is available.
+**Decision**: Target Blender 5.0+ as primary version. Implement version-aware code structure for future Blender versions (5.1+, 6.0+, etc.) but require Blender 5.0 minimum.
 
-### Decision 6: Plan for Blender 5.0 Compatibility Review
+### Decision 6: Deprecate Blender 4.x Support
 
-**Rationale**: Blender 5.0 is anticipated but not yet officially released. Rather than delaying development or guessing at API changes, we build against stable 4.2 LTS and maintain a comprehensive checklist for 5.0 compatibility review once official documentation is available.
+**Rationale**: Blender 5.0 is now officially released (November 18, 2025). Supporting deprecated Blender 4.x versions adds unnecessary complexity and maintenance burden. Focusing on Blender 5.0+ ensures access to latest features and API improvements.
 
 **Alternatives Considered**:
-- Wait for Blender 5.0 release (delays project unnecessarily)
-- Guess at 5.0 API changes (risks incorrect assumptions)
-- Ignore 5.0 compatibility (reduces addon longevity)
+- Support both 4.x and 5.0 (increases complexity and maintenance)
+- Support 4.x only (misses latest features and improvements)
+- Support 5.0 only (clean, focused approach)
 
-**Decision**: Build against 4.2 LTS now, maintain detailed 5.0 compatibility checklist, implement version-aware code structure, and perform comprehensive review once 5.0 is officially released.
+**Decision**: Target Blender 5.0+ only. Blender 4.x versions are not supported. This simplifies development and ensures users have access to the latest Blender features.
 
 <a id="resources"></a>
 ## 📚 External Resources & References
@@ -1022,7 +1216,7 @@ These remain out of scope for the initial addon, even with Blender 5.0:
 - **Resource**: [Blender Python API Documentation](https://docs.blender.org/api/current/) — Complete API reference for Blender Python development — Quality: A
 - **Resource**: [Blender Addon Development Guide](https://developer.blender.org/docs/handbook/extensions/addon_dev_setup/) — Setup and best practices for addon development — Quality: A
 - **Resource**: [Blender USD Export Documentation](https://docs.blender.org/manual/en/latest/files/import_export/usd.html) — USD export capabilities and options — Quality: A
-- **Resource**: [Blender Release Notes 4.2](https://www.blender.org/download/releases/4-2/) — Version-specific changes and new features — Quality: B
+- **Resource**: [Blender Release Notes 5.0](https://www.blender.org/download/releases/5-0/) — Version-specific changes and new features — Quality: A
 
 ### Community Resources
 
@@ -1040,7 +1234,7 @@ These remain out of scope for the initial addon, even with Blender 5.0:
 ## Next Steps
 
 1. **Set up development environment** (Phase 0)
-   - Install Blender 4.2+
+   - Install Blender 5.0+ (released November 18, 2025)
    - Create project structure
    - Set up IDE with fake-bpy-module
 
@@ -1060,6 +1254,67 @@ These remain out of scope for the initial addon, even with Blender 5.0:
    - Testing
 
 ## Version History
+
+### v1.5.0 - 25.11.2025
+**Changes:**
+- Integrated expert technical review and critical risks analysis
+- Added critical technical pitfalls: Visibility Trap, Coordinate Systems & Units, Material Transport
+- Added new Common Pitfalls sections:
+  - State Management During Batch Export (CRITICAL)
+  - Coordinate Systems & Units (The "Floating Chair" Problem)
+  - Root Prim Path Naming Collisions
+  - File Path Portability
+- Documented expert recommendations:
+  - ScopedIsolation context manager pattern
+  - StateManager class requirements
+  - PathResolver utility for relative paths
+  - RootPrimPathGenerator for naming consistency
+  - PreFlightValidator for export validation
+
+**Critical Additions:**
+- Expert analysis of three critical technical risks that could break workflow
+- Architecture recommendations for state management
+- File path safety recommendations (relative paths)
+- Root prim naming conventions
+- Pre-flight validation requirements
+
+**Updated:**
+- Module Design: Added critical classes (ScopedIsolation, StateManager, PathResolver, RootPrimPathGenerator, PreFlightValidator)
+- Implementation Plan: Expanded Phase 1 with state management tasks, added coordinate system/unit handling
+- README_Implementation: Added complete expert technical review section
+
+### v1.4.0 - 25.11.2025
+**Changes:**
+- Added comprehensive "Blender 5.0 USD Export Capabilities and Limitations" section
+- Documented all supported exported data types in Blender 5.0
+- Detailed export options available in Blender 5.0
+- Listed known limitations (no invisible objects, no composition arcs, etc.)
+- Added Python API considerations for Blender 5.0
+- Updated plugin design implications based on Blender 5.0 capabilities
+- Added references to Blender 5.0 documentation and release notes
+
+**New Section:**
+- "Blender 5.0 USD Export Capabilities and Limitations" - Comprehensive overview of Blender 5.0 USD export features, supported data types, export options, limitations, and Python API considerations
+
+**Updated:**
+- Code examples: Updated to use Blender 5.0 in bl_info
+- Planning documents: Updated questionnaire, requirements, module design, and implementation plan with Blender 5.0 specifics
+
+### v1.3.0 - 25.11.2025
+**Changes:**
+- Updated to target Blender 5.0+ (officially released November 18, 2025)
+- Deprecated Blender 4.x support
+- Updated all version references throughout document
+- Revised Blender 5.0 readiness section to reflect official release
+- Updated code examples to target Blender 5.0
+- Updated decision rationale for version targeting
+
+**Updated:**
+- Requirements: Blender 5.0+ required (Blender 4.x deprecated)
+- Prerequisites: Blender 5.0+ installation required
+- API references: Updated to Blender 5.0+
+- Release notes reference: Updated to Blender 5.0
+- Version targeting decisions: Updated to reflect Blender 5.0 as primary target
 
 ### v1.2.0 - 25.11.2025
 **Changes:**
