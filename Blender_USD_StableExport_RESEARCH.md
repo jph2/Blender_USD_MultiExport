@@ -117,7 +117,10 @@ flowchart TD
 **A:** Blender's built-in USD exporter can export the entire scene or selected objects, but it doesn't support defining multiple "endpoints" (logical export targets) and exporting them as separate files in one operation. This plugin adds that capability, making it easier to export complex scenes where different parts need to be separate USD files.
 
 **Q: What are "endpoints" in this context?**
-**A:** An endpoint is a collection or set of objects in Blender that you want to export as a single USD file. Think of it as marking a part of your scene tree as an export target. For example, you might have a "Characters" collection and a "Environment" collection, and export each as separate USD files.
+**A:** An endpoint is a collection or set of objects in Blender that you want to export as a single USD file. Think of it as marking a part of your scene tree as an export target. For example, you might have a "Characters" collection and a "Props" collection, and export each as separate USD files.
+
+**Q: Why avoid using "Environment" as a collection name?**
+**A:** In Omniverse, `/World` (default prim) and `/environment` are siblings at the root level. `/environment` is reserved for scene-specific lighting and is NOT imported when a USD file is referenced (only content under the default prim `/World` is imported). Using "Environment" as a collection name could cause confusion and conflicts. If exported as `/World/environment`, it becomes part of the default prim (imported on reference), which conflicts with Omniverse's reserved `/environment` at root level. Instead, use descriptive names like "Props", "Set", "Location", "SceneElements", or other specific terms that describe the collection's content.
 
 ### Technical Implementation
 
