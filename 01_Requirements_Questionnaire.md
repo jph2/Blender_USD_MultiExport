@@ -244,6 +244,39 @@
   - [ ] Export settings/preferences
   - [ ] Other: _________________
 
+### 4.4 Support & Feedback UI
+- [ ] **Should the addon UI include support/feedback buttons?**
+  - [ ] Yes, include Bug Report button
+  - [ ] Yes, include Feature Request button
+  - [ ] Yes, include Documentation link
+  - [ ] Yes, include Help/Support link
+  - [ ] No, keep UI minimal
+  - [ ] Other: _________________
+
+- [ ] **If Bug Report button is included, what should it do?**
+  - [ ] Open GitHub Issues page in browser
+  - [ ] Open GitHub Issues with bug report template pre-filled
+  - [ ] Collect bug info in Blender and generate issue text
+  - [ ] Copy bug report template to clipboard
+  - [ ] Other: _________________
+
+- [ ] **What information should be auto-collected for bug reports?**
+  - [ ] Blender version
+  - [ ] Addon version
+  - [ ] Operating system
+  - [ ] Current scene information (object count, collection count)
+  - [ ] Current endpoint configuration
+  - [ ] Recent error messages/logs
+  - [ ] Export settings
+  - [ ] Other: _________________
+
+- [ ] **Where should support buttons be located in the UI?**
+  - [ ] In the main panel header
+  - [ ] In a separate "Help" or "Support" section
+  - [ ] In a dropdown menu
+  - [ ] As footer buttons
+  - [ ] Other: _________________
+
 ---
 
 ## 5. Error Handling & Feedback
