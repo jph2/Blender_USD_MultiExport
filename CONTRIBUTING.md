@@ -12,7 +12,7 @@ We use GitHub Issues to track bugs. Before creating a bug report, please:
 
 ### Creating a Bug Report
 
-1. Go to the [Issues](https://github.com/jph2/Blender_USD_StableExport/issues) page
+1. Go to the [Issues](https://github.com/jph2/Blender_USD_MultiExport/issues) page
 2. Click "New Issue"
 3. Select "🐛 Bug Report" template
 4. Fill out all required fields:
@@ -40,7 +40,7 @@ We welcome feature suggestions! Before creating a feature request:
 
 ### Creating a Feature Request
 
-1. Go to the [Issues](https://github.com/jph2/Blender_USD_StableExport/issues) page
+1. Go to the [Issues](https://github.com/jph2/Blender_USD_MultiExport/issues) page
 2. Click "New Issue"
 3. Select "💡 Feature Request" template
 4. Fill out:
@@ -128,8 +128,8 @@ Based on project status, current focus areas:
 
 ## 📧 Contact
 
-- **Issues**: [GitHub Issues](https://github.com/jph2/Blender_USD_StableExport/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/jph2/Blender_USD_StableExport/discussions)
+- **Issues**: [GitHub Issues](https://github.com/jph2/Blender_USD_MultiExport/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/jph2/Blender_USD_MultiExport/discussions)
 
 ---
 
