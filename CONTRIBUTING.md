@@ -1,4 +1,4 @@
-# Contributing to Blender USD Stable Export
+# Contributing to Blender USD Multi Export
 
 Thank you for your interest in contributing to Blender USD Stable Export! This document provides guidelines and instructions for contributing.
 
@@ -35,7 +35,7 @@ We use GitHub Issues to track bugs. Before creating a bug report, please:
 We welcome feature suggestions! Before creating a feature request:
 
 1. **Search existing issues** to see if it's already been suggested
-2. **Check the roadmap** in the [Research Document](Blender_USD_StableExport_RESEARCH.md)
+2. **Check the roadmap** in the [Research Document](Blender_USD_MultiExport_RESEARCH.md)
 3. **Consider the use case** - how would this feature help users?
 
 ### Creating a Feature Request
@@ -55,7 +55,7 @@ For questions about usage or implementation:
 
 1. **Check the documentation** first:
    - [README](README.md)
-   - [Research Document](Blender_USD_StableExport_RESEARCH.md)
+   - [Research Document](Blender_USD_MultiExport_RESEARCH.md)
    - [Naming Conventions](NAMING_CONVENTIONS.md)
 2. **Search existing issues** for similar questions
 3. Use the "❓ Question" template if you need to ask
@@ -133,5 +133,7 @@ Based on project status, current focus areas:
 
 ---
 
-Thank you for contributing to Blender USD Stable Export! 🎉
+Thank you for contributing to Blender USD Multi Export! 🎉
+
+> **Note**: This repository was renamed from `Blender_USD_StableExport` to `Blender_USD_MultiExport`. Old links still work thanks to GitHub's automatic redirects.
 
