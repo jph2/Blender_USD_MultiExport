@@ -147,6 +147,9 @@ flowchart TD
 **Q: What Blender versions are supported?**
 **A:** The plugin targets Blender 5.0+ (officially released November 18, 2025). Blender 4.x versions are not supported. The plugin uses Blender's Python API (`bpy`), so compatibility depends on API stability across versions.
 
+**Q: Will the same ZIP file work on Windows, Mac, and Linux?**
+**A:** Yes! Blender addons are Python-based and platform-independent. The same ZIP file works on Windows, macOS, and Linux. No separate builds are needed for different operating systems. Blender's Python API (`bpy`) is consistent across platforms, and file paths are handled via `bpy.path` utilities which automatically handle platform differences (Windows uses backslashes, Mac/Linux use forward slashes). The addon uses `bpy.path.abspath()` and `bpy.path.relpath()` for all file operations, ensuring cross-platform compatibility.
+
 ### Troubleshooting and Common Issues
 
 **Q: My exported USD files have broken material references. What's wrong?**

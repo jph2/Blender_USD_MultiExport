@@ -26,14 +26,17 @@
 
 ## 1. User Profile & Context
 
-### 1.1 Primary Users (Split USD vs Omniverse Audiences)
+### 1.1 Primary Users (Split USD vs Omniverse vs Apple Audiences)
 
-**Note**: USD and Omniverse are distinct audiences with different needs. Please indicate which audience(s) you represent.
+**Note**: USD, Omniverse, and Apple are distinct audiences with different needs. Please indicate which audience(s) you represent.
 
 - [ ] **Which audience do you represent?** (Select all that apply)
   - [ ] **USD Users** (working with USD files, USD-compatible tools, VFX pipelines)
   - [ ] **Omniverse Users** (working with NVIDIA Omniverse platform)
-  - [ ] **Both** (working with both USD and Omniverse)
+  - [ ] **Apple Users** (working with Apple platforms, AR/VR, RealityKit, ARKit, Apple content pipelines)
+  - [ ] **Both/Multiple** (working with multiple platforms/workflows)
+  
+**Note**: Apple is a founding member of AOUSD (Alliance for OpenUSD) and has specific USD workflows for AR/VR content creation and Apple platform integration. If you represent Apple workflows, please provide specific use cases and requirements.
 
 - [ ] **User Role** (Select all that apply)
   - [ ] 3D Artists/Modelers
@@ -60,10 +63,17 @@
   - [ ] Intermediate (Omniverse workflows, connectors)
   - [ ] Advanced (Omniverse extensions, custom pipelines)
 
+- [ ] **Apple USD Experience Level** (For Apple audience)
+  - [ ] No experience
+  - [ ] Basic (using USD with Apple platforms)
+  - [ ] Intermediate (RealityKit, ARKit integration)
+  - [ ] Advanced (Apple content pipelines, AR/VR workflows)
+
 ### 1.2 Use Case Context
 - [ ] **What is the primary use case?**
   - [ ] Exporting assets for Omniverse workflows
   - [ ] Exporting assets for other USD-compatible tools
+  - [ ] **Exporting assets for Apple platforms** (AR/VR, RealityKit, ARKit)
   - [ ] Creating asset libraries
   - [ ] Pipeline integration
   - [ ] Other: _________________
@@ -353,11 +363,10 @@
 ## 10. Constraints & Limitations
 
 ### 10.1 Technical Constraints
-- [ ] **Are there any technical constraints?** - **ROADMAP: Additional OS support planned for later**
-  - [ ] Must work on Windows only
-  - [ ] Must work on Linux only
-  - [ ] Must work on macOS only
-  - [ ] Cross-platform required - **ROADMAP: Additional OS support planned**
+
+**Note**: Cross-platform compatibility is confirmed. Blender addons are Python-based and platform-independent. The same ZIP file works on Windows, macOS, and Linux. See `02_Detailed_Requirements.md` section "REQ-COMP-004: Cross-Platform Compatibility" for confirmed requirements.
+
+- [ ] **Are there any additional technical constraints?**
   - [ ] Python version requirements: 3.11+ (bundled with Blender 5.0)
   - [ ] Other: _________________
 

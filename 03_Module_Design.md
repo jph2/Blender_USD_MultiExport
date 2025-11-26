@@ -68,11 +68,13 @@ This document will contain the module architecture and design derived from the D
 - **Critical**: Must work even if export crashes mid-loop
 
 **`PathResolver`**
-- **Purpose**: Handle file path resolution
+- **Purpose**: Handle file path resolution (cross-platform compatible)
 - **Responsibilities**:
   - Store paths relative to blend file (`//export/prop_a.usd`)
-  - Resolve to absolute paths before export: `bpy.path.abspath()`
+  - Resolve to absolute paths before export: `bpy.path.abspath()` (platform-agnostic)
   - Auto-create directories if they don't exist
+  - **Cross-platform**: Uses `bpy.path` utilities which handle Windows/Mac/Linux path differences automatically
+  - Never use hardcoded path separators (`/` or `\`) - always use `bpy.path` or `pathlib.Path`
 
 **`RootPrimPathGenerator`**
 - **Purpose**: Generate consistent root prim paths following ASWF USD Working Group guidelines

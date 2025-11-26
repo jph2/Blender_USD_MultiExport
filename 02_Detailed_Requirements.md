@@ -620,10 +620,33 @@ These requirements have been confirmed and do not require questionnaire validati
 
 **Requirement**: Enhanced help & support features (built-in tooltips, help button, example scenes, support forum) - planned for later.
 
-#### REQ-ROAD-003: Cross-Platform Support
-**Status**: Roadmap
+#### REQ-COMP-004: Cross-Platform Compatibility
+**Priority**: High  
+**Status**: Confirmed Requirement
 
-**Requirement**: Additional OS support beyond initial platform - planned for later.
+**Requirement**: The addon MUST work on Windows, macOS, and Linux using the same ZIP file. No platform-specific builds are required.
+
+**Functional Requirements**:
+- Same ZIP file works on Windows, macOS, and Linux
+- Use `bpy.path` utilities for all file path operations (platform-agnostic)
+- Never use hardcoded path separators (`/` or `\`)
+- Use `bpy.path.abspath()` and `bpy.path.relpath()` for path resolution
+- Use `pathlib.Path` or `os.path.join()` for path construction if needed
+- Test on multiple platforms during development
+
+**Why it works**:
+- Blender addons are pure Python code (platform-independent)
+- Blender's Python API (`bpy`) is consistent across platforms
+- `bpy.path` utilities handle platform differences automatically
+- No platform-specific binaries required
+
+**Acceptance Criteria**:
+- [ ] Same ZIP file installs and works on Windows
+- [ ] Same ZIP file installs and works on macOS
+- [ ] Same ZIP file installs and works on Linux
+- [ ] File paths work correctly on all platforms
+- [ ] No hardcoded path separators in code
+- [ ] All path operations use `bpy.path` utilities
 
 ---
 
