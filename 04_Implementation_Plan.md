@@ -1,9 +1,10 @@
 # Blender USD Stable Export - Implementation Plan
 
-**Status**: ⏳ Pending - Awaiting completion of Module Design  
-**Date Created**: 25.11.2025  
-**Version**: v1.0.0  
+**Status**: ✅ MVP Complete - v0.1.0 Released
+**Date Created**: 25.11.2025
+**Version**: v1.1.0 (Updated for MVP completion)
 **Target Platform**: Blender 5.0+ (officially released November 18, 2025)
+**MVP Release**: v0.1.0 - December 23, 2025
 
 ---
 
@@ -47,44 +48,49 @@ This document will contain the detailed step-by-step implementation plan derived
 - Test scene with various data types (meshes, cameras, curves, lights, etc.)
 - Documentation of operator signature
 
-#### Phase 1: Core Functionality (State Manager & Isolation Context) - **CRITICAL**
-**Critical Tasks:**
-- **Implement `ScopedIsolation` context manager** (MUST HAVE)
+#### Phase 1: MVP Core Functionality ✅ **COMPLETED** (v0.1.0)
+**Completed Tasks:**
+- ✅ **Implement `ScopedIsolation` context manager** (MUST HAVE)
   - Cache selection/visibility state
   - Isolate target endpoint
   - Guarantee state restoration
-- **Implement `StateManager` class** (MUST HAVE)
+- ✅ **Implement `StateManager` class** (MUST HAVE)
   - Backup/restore scene state
   - Handle batch export state management
   - Error recovery mechanisms
-- **Implement `PathResolver` utility**
+- ✅ **Implement `PathResolver` utility**
   - Relative path storage (`//export/prop_a.usd`)
   - Absolute path resolution before export
   - Directory auto-creation
-- **Implement `RootPrimPathGenerator`**
+- ✅ Implement visibility checking before export
+- ✅ Add warnings for hidden objects/collections
+- ✅ Support all Blender 5.0 supported data types
+- ✅ Handle experimental instancing with appropriate warnings
+- ✅ Implement proper error handling for Blender 5.0 limitations
+
+**Deliverables (v0.1.0 MVP):**
+- ✅ `ScopedIsolation` context manager (working)
+- ✅ `StateManager` class (working)
+- ✅ `PathResolver` utility (working)
+- ✅ Endpoint definition system with visibility validation
+- ✅ Warning system for hidden objects/collections
+- ✅ Support for all Blender 5.0 data types
+- ✅ Error handling for known limitations
+- ✅ Comprehensive logging and bug reporting
+- ✅ Functional UI with export controls
+
+**MVP Decision**: Core functionality complete and tested. Advanced features deferred to ensure MVP quality and gather user feedback before investing in complex USD manipulation features.
+
+#### Phase 1.5: Advanced Features (Post-MVP) 🔄 **PLANNED**
+**Deferred Tasks (v0.2.0+):**
+- ⏳ **Implement `RootPrimPathGenerator`**
   - Auto-generate from endpoint name
   - Prevent name collisions
-- **Implement `PreFlightValidator`**
+- ⏳ **Implement `PreFlightValidator`**
   - Check empty collections
   - Verify paths/directories
   - Check visibility settings
   - Warn about hidden objects
-- Implement visibility checking before export
-- Add warnings for hidden objects/collections
-- Support all Blender 5.0 supported data types
-- Handle experimental instancing with appropriate warnings
-- Implement proper error handling for Blender 5.0 limitations
-
-**Deliverables:**
-- `ScopedIsolation` context manager (working)
-- `StateManager` class (working)
-- `PathResolver` utility (working)
-- `RootPrimPathGenerator` utility (working)
-- `PreFlightValidator` operator (working)
-- Endpoint definition system with visibility validation
-- Warning system for hidden objects/collections
-- Support for all Blender 5.0 data types
-- Error handling for known limitations
 
 #### Phase 2: UI Implementation (with warnings for hidden objects/experimental features)
 **Critical Tasks:**
@@ -177,6 +183,22 @@ This document will contain the detailed step-by-step implementation plan derived
 
 ---
 
-**Status**: ⏳ Awaiting Module Design completion  
-**Last Updated**: 25.11.2025
+**Status**: ✅ MVP v0.1.0 Complete - Ready for Testing
+**MVP Release**: December 23, 2025
+**Next Phase**: v0.2.0 Advanced Features (Post-MVP validation)
+**Last Updated**: 23.12.2025
+
+**MVP Summary**:
+- Core endpoint-based export workflow functional
+- Safe scene state management implemented
+- Comprehensive error handling and logging
+- Cross-platform path resolution working
+- Automated bug report generation ready
+- Testing framework documented and ready
+
+**Why MVP Approach**:
+- Validate core concept before adding complexity
+- Get real-world testing feedback to guide priorities
+- Ensure solid foundation before advanced USD features
+- Risk mitigation through incremental development
 

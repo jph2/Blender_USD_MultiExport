@@ -291,5 +291,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 **Note**: This project is in active development. Features and APIs may change. See the [Project Status](#-project-status) section at the top for current development phase.
 
-**Last Updated**: November 25, 2025
+**Last Updated**: December 23, 2025
 
