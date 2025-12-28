@@ -347,105 +347,167 @@ class USDME_OT_export_endpoints(Operator):
                             
                             # Apply subdivision modifiers before export (following NVIDIA best practices)
                             # USD exports actual geometry, not modifier stacks, so modifiers must be applied
+                            # IMPORTANT: We duplicate objects first to avoid permanently modifying originals
                             # Reference: NVIDIA_BLender_BestPractise.md section 6.1
                             subdivision_modifiers_applied = []
+                            duplicated_objects = []  # Track duplicated objects for cleanup
+                            
                             if endpoint.export_subdivision:
                                 # Following NVIDIA pattern: apply modifiers to bake geometry into mesh
+                                # But we duplicate objects first to preserve originals (like CTRL+Z after export)
+                                
                                 if endpoint.endpoint_type == 'OBJECT':
                                     obj = bpy.data.objects.get(endpoint.object_name)
                                     if obj and obj.type == 'MESH':
-                                        # Remove shape keys first (NVIDIA pattern)
-                                        if obj.data.shape_keys:
-                                            try:
-                                                obj.select_set(True)
-                                                context.view_layer.objects.active = obj
-                                                bpy.ops.object.shape_key_remove(all=True, apply_mix=True)
-                                                logger.log_step("shape_keys_removed", {
-                                                    **endpoint_context,
-                                                    "object_name": obj.name
-                                                })
-                                            except Exception as e:
-                                                logger.log_warning(
-                                                    f"Failed to remove shape keys from '{obj.name}': {str(e)}",
-                                                    context=endpoint_context
-                                                )
+                                        # Check if object has subdivision modifiers before duplicating
+                                        has_subsurf = any(mod.type == 'SUBSURF' for mod in obj.modifiers)
                                         
-                                        # Apply subdivision modifiers (NVIDIA pattern)
-                                        for mod in list(obj.modifiers):  # Use list() to avoid iteration issues
-                                            if mod.type == 'SUBSURF':
+                                        if has_subsurf:
+                                            # Duplicate the object to avoid modifying the original
+                                            obj.select_set(True)
+                                            context.view_layer.objects.active = obj
+                                            bpy.ops.object.duplicate(linked=False)
+                                            dup_obj = context.view_layer.objects.active
+                                            
+                                            # Ensure duplicate is visible and selected for export
+                                            dup_obj.hide_viewport = False
+                                            dup_obj.select_set(True)
+                                            
+                                            # Link duplicate to same collection(s) as original
+                                            for collection in obj.users_collection:
+                                                if dup_obj.name not in collection.objects:
+                                                    collection.objects.link(dup_obj)
+                                            
+                                            duplicated_objects.append({
+                                                "original": obj,
+                                                "duplicate": dup_obj,
+                                                "type": "object"
+                                            })
+                                            
+                                            # Remove shape keys from duplicate first (NVIDIA pattern)
+                                            if dup_obj.data.shape_keys:
                                                 try:
-                                                    obj.select_set(True)
-                                                    context.view_layer.objects.active = obj
-                                                    bpy.ops.object.modifier_apply(modifier=mod.name, single_user=True)
-                                                    subdivision_modifiers_applied.append({
-                                                        "object": obj.name,
-                                                        "modifier": mod.name,
-                                                        "levels": mod.levels if hasattr(mod, 'levels') else None,
-                                                        "render_levels": mod.render_levels if hasattr(mod, 'render_levels') else None
-                                                    })
-                                                    logger.log_step("subdivision_modifier_applied", {
+                                                    dup_obj.select_set(True)
+                                                    context.view_layer.objects.active = dup_obj
+                                                    bpy.ops.object.shape_key_remove(all=True, apply_mix=True)
+                                                    logger.log_step("shape_keys_removed", {
                                                         **endpoint_context,
-                                                        "object_name": obj.name,
-                                                        "modifier_name": mod.name
+                                                        "object_name": dup_obj.name,
+                                                        "original_object": obj.name,
+                                                        "is_duplicate": True
                                                     })
                                                 except Exception as e:
                                                     logger.log_warning(
-                                                        f"Failed to apply subdivision modifier '{mod.name}' on '{obj.name}': {str(e)}",
+                                                        f"Failed to remove shape keys from duplicate '{dup_obj.name}': {str(e)}",
                                                         context=endpoint_context
                                                     )
+                                            
+                                            # Apply subdivision modifiers to duplicate (NVIDIA pattern)
+                                            for mod in list(dup_obj.modifiers):  # Use list() to avoid iteration issues
+                                                if mod.type == 'SUBSURF':
+                                                    try:
+                                                        dup_obj.select_set(True)
+                                                        context.view_layer.objects.active = dup_obj
+                                                        bpy.ops.object.modifier_apply(modifier=mod.name, single_user=True)
+                                                        subdivision_modifiers_applied.append({
+                                                            "object": dup_obj.name,
+                                                            "original_object": obj.name,
+                                                            "modifier": mod.name,
+                                                            "is_duplicate": True
+                                                        })
+                                                        logger.log_step("subdivision_modifier_applied", {
+                                                            **endpoint_context,
+                                                            "object_name": dup_obj.name,
+                                                            "original_object_name": obj.name,
+                                                            "modifier_name": mod.name
+                                                        })
+                                                    except Exception as e:
+                                                        logger.log_warning(
+                                                            f"Failed to apply subdivision modifier '{mod.name}' on duplicate '{dup_obj.name}': {str(e)}",
+                                                            context=endpoint_context
+                                                        )
                                         
                                 elif endpoint.endpoint_type == 'COLLECTION':
                                     collection = bpy.data.collections.get(endpoint.collection_name)
                                     if collection:
                                         for obj in collection.all_objects:
                                             if obj.type == 'MESH':
-                                                # Remove shape keys first
-                                                if obj.data.shape_keys:
-                                                    try:
-                                                        obj.select_set(True)
-                                                        context.view_layer.objects.active = obj
-                                                        bpy.ops.object.shape_key_remove(all=True, apply_mix=True)
-                                                        logger.log_step("shape_keys_removed", {
-                                                            **endpoint_context,
-                                                            "object_name": obj.name
-                                                        })
-                                                    except Exception as e:
-                                                        logger.log_warning(
-                                                            f"Failed to remove shape keys from '{obj.name}': {str(e)}",
-                                                            context=endpoint_context
-                                                        )
+                                                # Check if object has subdivision modifiers before duplicating
+                                                has_subsurf = any(mod.type == 'SUBSURF' for mod in obj.modifiers)
                                                 
-                                                # Apply subdivision modifiers
-                                                for mod in list(obj.modifiers):
-                                                    if mod.type == 'SUBSURF':
+                                                if has_subsurf:
+                                                    # Duplicate the object to avoid modifying the original
+                                                    obj.select_set(True)
+                                                    context.view_layer.objects.active = obj
+                                                    bpy.ops.object.duplicate(linked=False)
+                                                    dup_obj = context.view_layer.objects.active
+                                                    
+                                                    # Ensure duplicate is visible and selected for export
+                                                    dup_obj.hide_viewport = False
+                                                    dup_obj.select_set(True)
+                                                    
+                                                    # Link duplicate to same collection(s) as original
+                                                    for collection in obj.users_collection:
+                                                        if dup_obj.name not in collection.objects:
+                                                            collection.objects.link(dup_obj)
+                                                    
+                                                    duplicated_objects.append({
+                                                        "original": obj,
+                                                        "duplicate": dup_obj,
+                                                        "type": "collection"
+                                                    })
+                                                    
+                                                    # Remove shape keys from duplicate first
+                                                    if dup_obj.data.shape_keys:
                                                         try:
-                                                            obj.select_set(True)
-                                                            context.view_layer.objects.active = obj
-                                                            bpy.ops.object.modifier_apply(modifier=mod.name, single_user=True)
-                                                            subdivision_modifiers_applied.append({
-                                                                "object": obj.name,
-                                                                "modifier": mod.name,
-                                                                "levels": mod.levels if hasattr(mod, 'levels') else None,
-                                                                "render_levels": mod.render_levels if hasattr(mod, 'render_levels') else None
-                                                            })
-                                                            logger.log_step("subdivision_modifier_applied", {
+                                                            dup_obj.select_set(True)
+                                                            context.view_layer.objects.active = dup_obj
+                                                            bpy.ops.object.shape_key_remove(all=True, apply_mix=True)
+                                                            logger.log_step("shape_keys_removed", {
                                                                 **endpoint_context,
-                                                                "object_name": obj.name,
-                                                                "modifier_name": mod.name
+                                                                "object_name": dup_obj.name,
+                                                                "original_object": obj.name,
+                                                                "is_duplicate": True
                                                             })
                                                         except Exception as e:
                                                             logger.log_warning(
-                                                                f"Failed to apply subdivision modifier '{mod.name}' on '{obj.name}': {str(e)}",
+                                                                f"Failed to remove shape keys from duplicate '{dup_obj.name}': {str(e)}",
                                                                 context=endpoint_context
                                                             )
+                                                    
+                                                    # Apply subdivision modifiers to duplicate
+                                                    for mod in list(dup_obj.modifiers):
+                                                        if mod.type == 'SUBSURF':
+                                                            try:
+                                                                dup_obj.select_set(True)
+                                                                context.view_layer.objects.active = dup_obj
+                                                                bpy.ops.object.modifier_apply(modifier=mod.name, single_user=True)
+                                                                subdivision_modifiers_applied.append({
+                                                                    "object": dup_obj.name,
+                                                                    "original_object": obj.name,
+                                                                    "modifier": mod.name,
+                                                                    "is_duplicate": True
+                                                                })
+                                                                logger.log_step("subdivision_modifier_applied", {
+                                                                    **endpoint_context,
+                                                                    "object_name": dup_obj.name,
+                                                                    "original_object_name": obj.name,
+                                                                    "modifier_name": mod.name
+                                                                })
+                                                            except Exception as e:
+                                                                logger.log_warning(
+                                                                    f"Failed to apply subdivision modifier '{mod.name}' on duplicate '{dup_obj.name}': {str(e)}",
+                                                                    context=endpoint_context
+                                                                )
                                 
                                 if subdivision_modifiers_applied:
                                     logger.log_step("subdivision_modifiers_applied", {
                                         **endpoint_context,
                                         "modifiers_applied": len(subdivision_modifiers_applied),
-                                        "modifiers": subdivision_modifiers_applied
+                                        "modifiers": subdivision_modifiers_applied,
+                                        "duplicates_created": len(duplicated_objects)
                                     })
-                                else:
+                                elif endpoint.export_subdivision:
                                     logger.log_warning(
                                         "Subdivision export enabled but no subdivision modifiers found on target objects",
                                         context=endpoint_context
@@ -537,6 +599,41 @@ class USDME_OT_export_endpoints(Operator):
                                     recoverable=True
                                 )
                                 self.report({"ERROR"}, f"Failed to export '{endpoint.name}'. Check console for details.")
+                            
+                            # Clean up duplicated objects created for subdivision export
+                            # This must happen after export (success or failure) to restore original objects
+                            if duplicated_objects:
+                                try:
+                                    # Deselect all first
+                                    bpy.ops.object.select_all(action='DESELECT')
+                                    
+                                    # Select all duplicates for deletion
+                                    duplicates_to_delete = []
+                                    for dup_info in duplicated_objects:
+                                        dup_obj = dup_info["duplicate"]
+                                        # Check if duplicate still exists (might have been deleted)
+                                        if dup_obj and dup_obj.name in bpy.data.objects:
+                                            dup_obj_ref = bpy.data.objects.get(dup_obj.name)
+                                            if dup_obj_ref:
+                                                dup_obj_ref.select_set(True)
+                                                duplicates_to_delete.append(dup_obj_ref.name)
+                                    
+                                    # Delete selected duplicates
+                                    if context.selected_objects:
+                                        bpy.ops.object.delete(use_global=False)
+                                    
+                                    logger.log_step("duplicates_cleaned_up", {
+                                        **endpoint_context,
+                                        "duplicates_removed": len(duplicates_to_delete),
+                                        "duplicate_names": duplicates_to_delete
+                                    })
+                                except Exception as e:
+                                    logger.log_error(
+                                        f"Failed to clean up duplicated objects: {str(e)}",
+                                        context=endpoint_context,
+                                        recoverable=True
+                                    )
+                                    # Continue anyway - duplicates will remain in scene but originals are preserved
 
                     except Exception as e:
                         failed_count += 1
