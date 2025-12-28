@@ -1,10 +1,10 @@
 # Agent Handoff Summary - Blender USD Multi Export
 
-**Date**: 2025-12-26  
+**Date**: 2025-12-28  
 **Version**: 0.1.0  
 **MVP Progress**: 100% Complete  
 **Status**: MVP COMPLETE - Core endpoint-based USD export functionality implemented  
-**Recent Enhancements**: Enhanced logging system (file rotation, context tracking, performance timers), preferences integration, troubleshooting guide  
+**Recent Enhancements**: Subdivision export (NVIDIA pattern), origin metadata (object/collection names), light exclusion, NVIDIA best practices integration  
 
 ---
 
@@ -20,12 +20,15 @@
 - ✅ **Logging System** - Enhanced logging with file rotation, context tracking, performance timers, and preferences integration
 - ✅ **Build System** - Creates installation-ready zip files
 - ✅ **Addon Preferences** - User-configurable settings (log level, default export settings)
+- ✅ **Subdivision Export** - Bake subdivision surfaces into mesh (NVIDIA pattern with `single_user=True`)
+- ✅ **Origin Metadata** - Object name and collection name metadata in exported USD files
+- ✅ **Light Exclusion** - Automatic light exclusion from exports (`export_lights=False` + safety deselection)
 
 ### ✅ COMPLETE: Core Multi Export Functionality
 - ✅ **Core Modules** - 100% implemented
-  - `props.py` - Data models and scene properties
-  - `ui.py` - User interface panels and operators
-  - `ops_export.py` - Export operations and batch processing
+  - `props.py` - Data models and scene properties (includes `export_subdivision` property)
+  - `ui.py` - User interface panels and operators (includes subdivision checkbox)
+  - `ops_export.py` - Export operations and batch processing (NVIDIA pattern subdivision export)
   - `state_manager.py` - Scene state management and restoration
   - `path_resolver.py` - Cross-platform path resolution
   - `logging_utils.py` - Comprehensive logging and bug reporting
@@ -34,6 +37,9 @@
 - ✅ **State Management** - Safe scene isolation during export
 - ✅ **Error Handling** - Comprehensive validation and user feedback
 - ✅ **Addon Preferences** - User-configurable log level and default export settings
+- ✅ **Subdivision Export** - NVIDIA pattern: Apply modifiers with `single_user=True`, remove shape keys first
+- ✅ **Origin Metadata** - Includes `usdme:origin_object_name` and `usdme:origin_collection_name` in exported USD
+- ✅ **Light Exclusion** - Automatic exclusion of lights from exports
 
 ---
 
@@ -54,13 +60,13 @@ The core functionality is **fully implemented**:
 ## 📁 Key Files & Structure
 
 ### Working Files (100% Complete)
-- `addon/blender_usd_multiexport/__init__.py` - Registration (version 0.1.0) with preferences
-- `addon/blender_usd_multiexport/props.py` - Data models and scene properties
-- `addon/blender_usd_multiexport/ui.py` - UI panels and endpoint management operators
-- `addon/blender_usd_multiexport/ops_export.py` - Export operations and batch processing
-- `addon/blender_usd_multiexport/state_manager.py` - Scene state management ✅
-- `addon/blender_usd_multiexport/path_resolver.py` - Path resolution ✅
-- `addon/blender_usd_multiexport/logging_utils.py` - Logging system ✅
+- `blender_usd_multiexport_addon/__init__.py` - Registration (version 0.1.0) with preferences
+- `blender_usd_multiexport_addon/props.py` - Data models and scene properties (includes `export_subdivision`)
+- `blender_usd_multiexport_addon/ui.py` - UI panels and endpoint management operators (includes subdivision checkbox)
+- `blender_usd_multiexport_addon/ops_export.py` - Export operations and batch processing (NVIDIA pattern subdivision export)
+- `blender_usd_multiexport_addon/state_manager.py` - Scene state management ✅
+- `blender_usd_multiexport_addon/path_resolver.py` - Path resolution ✅
+- `blender_usd_multiexport_addon/logging_utils.py` - Logging system ✅
 - `build_extension.py` - Build script ✅
 
 ### Documentation Files (100% Up to Date)
@@ -81,11 +87,14 @@ The `USDME_OT_export_endpoints` operator:
 1. Validates all enabled endpoints
 2. Uses `ScopedIsolation` for safe scene state management
 3. Iterates through enabled endpoints
-4. Isolates target collection/objects for each endpoint
-5. Calls Blender's native USD export (`bpy.ops.wm.usd_export()`)
-6. Restores original scene state after each export
-7. Provides progress feedback and error handling
-8. Generates comprehensive logs for debugging
+4. **Applies subdivision modifiers** (if enabled) - NVIDIA pattern: removes shape keys first, applies with `single_user=True`
+5. **Deselects lights** - Safety check to ensure lights are not exported
+6. Isolates target collection/objects for each endpoint
+7. Calls Blender's native USD export (`bpy.ops.wm.usd_export()` with `export_lights=False`)
+8. **Adds origin metadata** - Object name, collection name, file info, timestamp, computer, username
+9. Restores original scene state after each export
+10. Provides progress feedback and error handling
+11. Generates comprehensive logs for debugging
 
 ### Blender Version Requirements
 - **Blender 5.0+ only** (4.x support not planned)
@@ -93,13 +102,42 @@ The `USDME_OT_export_endpoints` operator:
 
 ### USD Export Operator Parameters (Blender 5.0)
 ```python
-bpy.ops.wm.usd_export(
-    filepath=export_path,      # Required
-    relative_path=False,       # Optional
-    export_materials=True,     # Optional
-    # Additional parameters as needed
-)
+export_params = {
+    "filepath": export_path,      # Required
+    "export_materials": True,      # Optional
+    "export_uvmaps": True,        # Optional
+    "export_normals": True,       # Optional
+    "export_animation": False,    # Optional
+    "export_lights": False,       # Lights excluded (always)
+    "root_prim_path": f"/{sanitized_name}",  # Sanitized prim path
+    # Subdivision export (if enabled):
+    # "export_subdivision": "BEST_MATCH",  # When export_subdivision=True
+    # "evaluation_mode": "RENDER",         # When export_subdivision=True
+}
 ```
+
+### Subdivision Export (NVIDIA Pattern)
+When `export_subdivision` is enabled:
+1. **Removes shape keys first** - Prevents conflicts when applying modifiers
+2. **Applies subdivision modifiers** - Uses `bpy.ops.object.modifier_apply(modifier=mod.name, single_user=True)`
+3. **Bakes geometry** - Subdivision geometry is computed and stored as actual mesh data
+4. **Logs each step** - Tracks which modifiers were applied
+
+**Key Points**:
+- Uses NVIDIA pattern: `single_user=True` prevents mesh data sharing issues
+- Shape keys removed before modifiers to prevent conflicts
+- Geometry is baked into mesh (USD exports actual geometry, not modifier stacks)
+- Reference: `NVIDIA_BLender_BestPractise.md` section 6.1
+
+### Origin Metadata
+Exported USD files include custom `usdme:` attributes on root prim:
+- `usdme:export_timestamp` - ISO format timestamp
+- `usdme:origin_computer` - Computer hostname
+- `usdme:origin_file` - Full path to source .blend file
+- `usdme:origin_filename` - Name of source .blend file
+- `usdme:origin_username` - Username who exported
+- `usdme:origin_object_name` - Object name (if OBJECT endpoint)
+- `usdme:origin_collection_name` - Collection name (if COLLECTION endpoint)
 
 ### Addon Preferences
 - **Log Level**: User-configurable console log level (DEBUG, INFO, WARNING, ERROR)
@@ -115,6 +153,15 @@ bpy.ops.wm.usd_export(
 - **Animation**: Static exports only (animation export not yet implemented)
 - **Export Options**: Limited export options per endpoint (uses default settings)
 - **Validation**: Basic validation only (no pre-flight checks)
+- **Subdivision Modifiers**: Must be applied before export (baked into mesh). Modifier stacks are not exported.
+- **Light Exclusion**: Lights are always excluded (no option to include them)
+
+### Subdivision Export Notes
+- **Subdivision is baked**: When `export_subdivision=True`, modifiers are applied to the mesh before export
+- **Shape keys removed**: Shape keys are removed before applying modifiers (prevents conflicts)
+- **Mesh data safety**: Uses `single_user=True` to prevent mesh data sharing issues (NVIDIA pattern)
+- **File size increase**: Subdivided geometry increases file size significantly
+- **Performance**: High subdivision levels create dense geometry that increases export time
 
 ### Future Enhancements (Post-MVP)
 - Per-endpoint export settings (materials, UVs, normals, animation)
@@ -156,9 +203,10 @@ bpy.ops.wm.usd_export(
 
 ### Version Management
 - **Current Version**: 0.1.0
-- **Version Location**: `addon/blender_usd_multiexport/__init__.py` → `bl_info["version"] = (0, 1, 0)`
+- **Version Location**: `blender_usd_multiexport_addon/__init__.py` → `bl_info["version"] = (0, 1, 0)`
 - **Update version** when making significant changes (e.g., bug fixes → 0.1.1, new features → 0.2.0)
 - **Version Update Checklist**: See README.md → Version Update Workflow section
+- **Last Updated**: 2025-12-28 (subdivision export, metadata, light exclusion, NVIDIA patterns)
 
 ### Build & Installation
 - **Build Command**: `python build_extension.py`
@@ -183,6 +231,9 @@ bpy.ops.wm.usd_export(
 - **Path Resolution**: Cross-platform path handling works
 - **Documentation**: Follows best practices from FAKE References project
 - **Version Management**: Systematic version update workflow documented and implemented
+- **Subdivision Export**: NVIDIA pattern implemented - applies modifiers with `single_user=True`, removes shape keys first
+- **Metadata Export**: Origin metadata (object/collection names) successfully added to USD files
+- **Light Exclusion**: Automatic light exclusion working correctly
 
 ### Common Issues Fixed
 - ✅ Build script creates correct ZIP structure
@@ -192,6 +243,9 @@ bpy.ops.wm.usd_export(
 - ✅ Version badges added to README
 - ✅ Enhanced known issues documentation (version-specific)
 - ✅ Build infrastructure compliant with best practices
+- ✅ Subdivision export working (NVIDIA pattern with `single_user=True`)
+- ✅ Origin metadata includes object and collection names
+- ✅ Lights automatically excluded from exports
 
 ---
 
@@ -236,9 +290,10 @@ bpy.ops.wm.usd_export(
 
 4. **Build Guides**: `OV_USD_Scripts/best_practise_Blender Extensions_addons/`
    - `building_for_Blender.md` - Comprehensive user guide with troubleshooting and explanations
-   - `AGENTS_Blender_Addons.yml` - YAML format code patterns and templates for AI agents
+   - `AGENTS_Blender_Addons.yml` - YAML format code patterns and templates for AI agents (includes NVIDIA patterns)
+   - `NVIDIA_LEARNINGS_ANALYSIS.md` - Complete analysis of NVIDIA Omniverse Blender add-ons patterns
    - Complete framework for building Blender add-ons
-   - Best practices from FAKE References project integrated
+   - Best practices from FAKE References project and NVIDIA patterns integrated
 
 5. **Build Status**: `docs/archive/BUILD_STATUS_COMPARISON.md` (Archived - build infrastructure gaps resolved)
    - Historical comparison with best practices
@@ -284,7 +339,7 @@ bpy.ops.wm.usd_export(
 
 **Latest Zip File**: `dist/blender_usd_multiexport.zip` (version 0.1.0)
 
-**Recent Changes (0.1.0)**:
+**Recent Changes (0.1.0 - Updated 2025-12-28)**:
 - Complete MVP implementation
 - Addon preferences system added (log level, default export settings)
 - Build script created and tested (`build_extension.py`)
@@ -293,6 +348,10 @@ bpy.ops.wm.usd_export(
 - Version badges in README (version, status, Blender version)
 - Enhanced known issues documentation (version-specific, multiple locations)
 - Build infrastructure compliant with best practices (100% compliance achieved)
+- **Subdivision Export** - NVIDIA pattern implementation (applies modifiers with `single_user=True`)
+- **Origin Metadata** - Added `usdme:origin_object_name` and `usdme:origin_collection_name` to exported USD files
+- **Light Exclusion** - Automatic exclusion of lights from exports (`export_lights=False` + safety deselection)
+- **NVIDIA Patterns Integration** - Best practices from NVIDIA Omniverse Blender add-ons integrated into codebase
 
 **Immediate Next Steps**:
 1. **Testing** (Priority 1) - Follow testing plan and gather user feedback
@@ -315,7 +374,13 @@ bpy.ops.wm.usd_export(
 
 ---
 
-**Status**: MVP COMPLETE - Full endpoint-based USD export functionality implemented. **Ready for testing and user feedback.**
+**Status**: MVP COMPLETE - Full endpoint-based USD export functionality implemented with subdivision export, origin metadata, and light exclusion. **Ready for testing and user feedback.**
+
+**Recent Enhancements (2025-12-28)**:
+- ✅ Subdivision export with NVIDIA pattern (`single_user=True`, shape key removal)
+- ✅ Origin metadata includes object and collection names
+- ✅ Automatic light exclusion from exports
+- ✅ NVIDIA best practices integrated into codebase
 
 **Good luck! 🚀**
 

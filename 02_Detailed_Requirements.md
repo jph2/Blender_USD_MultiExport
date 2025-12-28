@@ -2,8 +2,8 @@
 
 **Status**: ✅ In Progress - Requirements being populated from confirmed questionnaire items  
 **Date Created**: 25.11.2025  
-**Version**: v1.2.0  
-**Last Updated**: 25.11.2025 - Added ASWF USD Guidelines compliance requirements  
+**Version**: v1.5.0  
+**Last Updated**: 28.12.2025 - Added remove endpoint with selection dropdown requirement  
 **Target Platform**: Blender 5.0+ (officially released November 18, 2025)
 
 ---
@@ -96,6 +96,119 @@ These requirements have been confirmed and do not require questionnaire validati
 - [ ] Disabled endpoints are skipped during export
 - [ ] Endpoint state persists with .blend file
 
+#### REQ-EP-007: Remove Endpoint with Selection
+**Priority**: Medium  
+**Status**: Confirmed Requirement  
+**Date Added**: 28.12.2025
+
+**Requirement**: Users MUST be able to remove specific endpoints using a remove button with a dropdown list to select which endpoint to remove.
+
+**Functional Requirements**:
+- Remove button with dropdown list showing all endpoints
+- Dropdown displays endpoint names (and optionally type/collection/object for clarity)
+- User can select which endpoint to remove from the dropdown
+- Selected endpoint is removed from the scene
+- Operation can be undone (UNDO support)
+- If no endpoints exist, remove button is disabled or hidden
+
+**Acceptance Criteria**:
+- [ ] Remove button has a dropdown list of endpoints
+- [ ] Dropdown shows endpoint names clearly
+- [ ] User can select and remove a specific endpoint
+- [ ] Remove operation supports UNDO
+- [ ] Remove button is disabled/hidden when no endpoints exist
+- [ ] Removed endpoint is properly cleaned up from scene data
+
+#### REQ-EP-003: Unified Collection/Object Selection
+**Priority**: High  
+**Status**: Confirmed Requirement  
+**Date Added**: 28.12.2025
+
+**Requirement**: Endpoints MUST support selecting either a collection (with sub-collections) or a single object as the export target, with clear visual indication of the selected type.
+
+**Functional Requirements**:
+- Each endpoint has a type selector (Collection or Object)
+- Collection type: Select entire collection or sub-collection
+- Object type: Select single object
+- Clear visual indication of selected type (icon, label, or both)
+- Type-specific selectors (collection dropdown for Collection type, object dropdown for Object type)
+- Only the relevant selector is visible based on endpoint type
+- Sub-collection inclusion option for Collection type (include/exclude child collections)
+
+**Acceptance Criteria**:
+- [ ] Endpoint type selector is available (Collection/Object)
+- [ ] Collection selector appears when Collection type is selected
+- [ ] Object selector appears when Object type is selected
+- [ ] Visual indicator shows selected type (icon and/or label)
+- [ ] Sub-collection toggle is available for Collection type
+- [ ] Endpoint type persists with .blend file
+- [ ] Auto-detection sets type based on selection (collection active → Collection type, object selected → Object type)
+
+#### REQ-EP-005: Auto-Naming Endpoints
+**Priority**: Medium  
+**Status**: Confirmed Requirement  
+**Date Added**: 28.12.2025
+
+**Requirement**: Endpoint names MUST be automatically set to match the selected collection or object name.
+
+**Functional Requirements**:
+- When a collection is selected, endpoint name is automatically set to the collection name
+- When an object is selected, endpoint name is automatically set to the object name
+- Auto-naming occurs when collection_name or object_name property changes
+- User can manually override the endpoint name if needed
+- Auto-naming updates if the selected collection/object changes
+
+**Acceptance Criteria**:
+- [ ] Endpoint name automatically updates when collection is selected
+- [ ] Endpoint name automatically updates when object is selected
+- [ ] Auto-naming works for both Collection and Object type endpoints
+- [ ] User can manually edit endpoint name to override auto-naming
+- [ ] Endpoint name updates if collection/object selection changes
+
+#### REQ-EP-006: Selection Tracking Button
+**Priority**: Medium  
+**Status**: Confirmed Requirement  
+**Date Added**: 28.12.2025
+
+**Requirement**: Each endpoint MUST have a "Select" button that allows users to track which endpoint belongs to which collection/object by selecting it in the viewport.
+
+**Functional Requirements**:
+- "Select" button available for each endpoint
+- Button selects the collection/object in the viewport when clicked
+- For Collection type: Selects all objects in the collection (and sub-collections if enabled)
+- For Object type: Selects the object in the viewport
+- Button provides visual feedback (icon, tooltip)
+- Selection works even if endpoint is disabled
+
+**Acceptance Criteria**:
+- [ ] "Select" button is visible for each endpoint
+- [ ] Clicking "Select" button selects the collection/object in viewport
+- [ ] Collection selection includes all objects in collection (respects sub-collection setting)
+- [ ] Object selection selects the specific object
+- [ ] Button works for both enabled and disabled endpoints
+- [ ] Visual feedback is provided (icon, tooltip)
+
+#### REQ-EP-004: Sub-Collection Handling
+**Priority**: Medium  
+**Status**: Confirmed Requirement  
+**Date Added**: 28.12.2025
+
+**Requirement**: When a collection endpoint is selected, users MUST be able to control whether sub-collections (child collections) are included in the export.
+
+**Functional Requirements**:
+- Toggle option: "Include Sub-collections" (default: enabled)
+- When enabled: Export includes objects from selected collection AND all child collections recursively
+- When disabled: Export includes only objects directly in the selected collection (excludes child collections)
+- Option only visible/applicable for Collection type endpoints
+- Option persists with endpoint configuration
+
+**Acceptance Criteria**:
+- [ ] "Include Sub-collections" toggle is available for Collection type endpoints
+- [ ] Toggle defaults to enabled (current behavior)
+- [ ] When enabled, child collections are included recursively
+- [ ] When disabled, only direct collection objects are exported
+- [ ] Toggle state persists with .blend file
+
 ### Export Functionality Requirements
 
 #### REQ-EXP-001: Export Options Defaults
@@ -183,18 +296,23 @@ These requirements have been confirmed and do not require questionnaire validati
 **Requirement**: Export validation MUST be performed automatically in the background.
 
 **Functional Requirements**:
-- Check endpoint collection/objects exist
+- Check endpoint type is valid (Collection or Object)
+- Check endpoint collection/object exists (type-specific validation)
 - Check filepath is valid
 - Check disk space available
 - Check write permissions
 - Validate exported USD file
 - Check material/texture references
 - All validation done automatically before export
+- Type-specific error messages (collection not found vs object not found)
 
 **Acceptance Criteria**:
+- [ ] Endpoint type validation is performed
+- [ ] Collection validation for Collection type endpoints
+- [ ] Object validation for Object type endpoints
 - [ ] All validation checks are performed automatically
 - [ ] Validation happens before export starts
-- [ ] Validation errors are reported appropriately
+- [ ] Validation errors are reported appropriately with type-specific messages
 
 #### REQ-EXP-006: Validation Error Handling
 **Priority**: High  
@@ -259,6 +377,101 @@ These requirements have been confirmed and do not require questionnaire validati
 - REQ-COMP-001: Blender Version Support
 - See `USD_ASSET_STRUCTURE_ANALYSIS.md` for detailed analysis
 
+#### REQ-EXP-008: Auto-Create Export Subfolder
+**Priority**: Medium  
+**Status**: Confirmed Requirement  
+**Date Added**: 28.12.2025
+
+**Requirement**: Users MUST be able to automatically create a subfolder named 'USD_Endpoint' with the object/collection name in the file location.
+
+**Functional Requirements**:
+- Checkbox option: "Create Subfolder" (default: checked)
+- Subfolder naming: `USD_Endpoint_[object_or_collection_name]`
+- Subfolder created in the directory specified by the filepath
+- USD file placed inside the created subfolder
+- If checkbox is unchecked, file is placed directly at the specified filepath
+- Option persists with endpoint configuration
+
+**Additional Functional Requirements**:
+- When create_subfolder is enabled and filepath is empty, auto-populate filepath with suggested path
+- Suggested filepath format: `{blend_file_directory}/{target_name}.usd` or `//{target_name}.usd` if blend file is unsaved
+- When filepath is a directory (no filename), automatically generate filename using target name: `{target_name}.usd`
+- Subfolder creation logic must handle both file paths and directory paths correctly
+
+**Acceptance Criteria**:
+- [ ] "Create Subfolder" checkbox is available for each endpoint
+- [ ] Checkbox defaults to checked
+- [ ] Subfolder is created with correct naming convention
+- [ ] USD file is placed inside subfolder when enabled
+- [ ] USD file is placed at filepath when disabled
+- [ ] Option persists with .blend file
+- [ ] Filepath is auto-populated when create_subfolder is checked and filepath is empty
+- [ ] Filename is generated when filepath is a directory (no filename specified)
+- [ ] Generated filename uses target name (collection or object name)
+- [ ] Subfolder creation works correctly with both file paths and directory paths
+
+#### REQ-EXP-009: Origin Metadata in USD Files
+**Priority**: Medium  
+**Status**: Confirmed Requirement  
+**Date Added**: 28.12.2025
+
+**Requirement**: Exported USD files MUST optionally include origin metadata as custom attributes on the root prim to track where the file originated.
+
+**Functional Requirements**:
+- Checkbox option: "Include Origin Metadata" (default: enabled)
+- Custom attributes added to root prim with namespace `usdme:`
+- Attributes include:
+  - `usdme:origin_file` - Full path to source .blend file
+  - `usdme:origin_filename` - Name of source .blend file
+  - `usdme:origin_username` - Username who exported the file
+  - `usdme:origin_computer` - Computer/hostname where export occurred
+  - `usdme:export_timestamp` - ISO timestamp of export
+- Metadata preserved in both ASCII and binary USD formats
+- Option persists with endpoint configuration
+- Graceful handling if USD Python API (pxr) is unavailable
+
+**Technical Implementation**:
+- Use `pxr.Usd` Python API to add custom attributes after export
+- Attributes use `Sdf.ValueTypeNames.String` type
+- Metadata added to root prim (endpoint name path)
+- Fallback to default prim if root prim not found
+
+**Acceptance Criteria**:
+- [ ] "Include Origin Metadata" checkbox is available
+- [ ] Checkbox defaults to enabled
+- [ ] All origin attributes are added to root prim
+- [ ] Metadata is preserved in binary USD files
+- [ ] Metadata is readable in both ASCII and binary formats
+- [ ] Option persists with .blend file
+- [ ] Graceful error handling if pxr API unavailable
+
+#### REQ-EXP-010: Overwrite Confirmation Dialog
+**Priority**: High  
+**Status**: Confirmed Requirement  
+**Date Added**: 28.12.2025
+
+**Requirement**: When exporting to an existing USD file, users MUST be prompted to confirm overwrite before the file is replaced.
+
+**Functional Requirements**:
+- Check if target USD file exists before export
+- Show confirmation dialog if file exists
+- Dialog must clearly indicate:
+  - File path that will be overwritten
+  - Warning message about data loss
+- User can choose to:
+  - Confirm overwrite (proceed with export)
+  - Cancel export (abort operation)
+- Confirmation dialog uses Blender's standard UI patterns
+- Option to remember choice (future enhancement)
+
+**Acceptance Criteria**:
+- [ ] File existence check is performed before export
+- [ ] Confirmation dialog appears when file exists
+- [ ] Dialog shows file path clearly
+- [ ] User can confirm or cancel overwrite
+- [ ] Export proceeds only after confirmation
+- [ ] Export is cancelled if user chooses not to overwrite
+
 ### User Interface Requirements
 
 #### REQ-UI-001: UI Layout
@@ -293,6 +506,52 @@ These requirements have been confirmed and do not require questionnaire validati
 - [ ] Tree view is available for hierarchical structures
 - [ ] Users can switch between views
 
+#### REQ-UI-008: Unified Type Selector with Visual Indication
+**Priority**: High  
+**Status**: Confirmed Requirement  
+**Date Added**: 28.12.2025
+
+**Requirement**: The UI MUST provide a unified selector that can select either collections or objects, with clear visual indication of what type is selected.
+
+**Functional Requirements**:
+- Type selector dropdown (Collection/Object) for each endpoint
+- Visual type indicator (icon and/or label) showing current selection type
+- Conditional selectors:
+  - Collection type → Show collection searchable dropdown (`prop_search` with `bpy.data.collections`)
+  - Object type → Show object searchable dropdown (`prop_search` with `bpy.data.objects`)
+- Only the relevant selector is visible based on selected type
+- Type indicator updates when type changes
+- Sub-collection toggle only visible for Collection type
+
+**Acceptance Criteria**:
+- [ ] Type selector dropdown is visible for each endpoint
+- [ ] Collection selector appears when Collection type is selected
+- [ ] Object selector appears when Object type is selected
+- [ ] Visual indicator (icon/label) shows selected type clearly
+- [ ] Non-active selector is hidden
+- [ ] Type changes update UI appropriately
+- [ ] Sub-collection toggle only appears for Collection type
+
+#### REQ-UI-009: UI Field Labels and Spacing
+**Priority**: High  
+**Status**: Confirmed Requirement  
+**Date Added**: 28.12.2025
+
+**Requirement**: The UI MUST provide clear labels for all fields and adequate space for long object/collection names.
+
+**Functional Requirements**:
+- All input fields must have visible labels (Type, Collection, Object, Filepath)
+- Labels must NOT have leading spaces (e.g., "Type:" not "  Type:")
+- Input fields for collection/object names must have sufficient horizontal space
+- Use `scale_x` or split layouts to accommodate long names
+- Labels should be clear and descriptive with appropriate icons
+
+**Acceptance Criteria**:
+- [ ] All fields have visible labels without leading spaces
+- [ ] Labels are clearly visible and associated with their input fields
+- [ ] Long collection/object names are fully visible without truncation
+- [ ] UI layout accommodates names up to 100+ characters
+
 #### REQ-UI-003: Endpoint List Information
 **Priority**: Medium  
 **Status**: Confirmed Requirement
@@ -301,7 +560,8 @@ These requirements have been confirmed and do not require questionnaire validati
 
 **Functional Requirements**:
 - Endpoint name
-- Collection/object name
+- Endpoint type (Collection/Object) with visual indicator
+- Collection/object name (based on type)
 - Export filepath
 - Status (enabled/disabled)
 - Last export time
@@ -309,6 +569,7 @@ These requirements have been confirmed and do not require questionnaire validati
 
 **Acceptance Criteria**:
 - [ ] All information is visible in endpoint list
+- [ ] Endpoint type is clearly indicated
 - [ ] Information is clearly displayed
 - [ ] List is easy to read and navigate
 
@@ -650,6 +911,37 @@ These requirements have been confirmed and do not require questionnaire validati
 
 ---
 
-**Status**: ⏳ Awaiting Requirements Questionnaire completion  
-**Last Updated**: 25.11.2025
+## Implementation Status
+
+### Recently Added Requirements (v1.5.0 - 28.12.2025)
+
+- **REQ-EP-007**: Remove Endpoint with Selection - Remove button with dropdown to select which endpoint to remove
+
+### Previously Added Requirements (v1.4.0 - 28.12.2025)
+
+- **REQ-EP-003**: Unified Collection/Object Selection - Endpoints can select collections or objects
+- **REQ-EP-004**: Sub-Collection Handling - Control over sub-collection inclusion
+- **REQ-EP-005**: Auto-Naming Endpoints - Endpoint names automatically match selected collection/object
+- **REQ-EP-006**: Selection Tracking Button - Select button to track which endpoint belongs to what
+- **REQ-UI-008**: Unified Type Selector with Visual Indication - UI for type selection
+- **REQ-UI-009**: UI Field Labels and Spacing - Clear labels and adequate space for long names
+- **REQ-EXP-008**: Auto-Create Export Subfolder - Create USD_Endpoint subfolder with object/collection name
+- **REQ-EXP-009**: Origin Metadata in USD Files - Track origin file, username, computer, timestamp
+
+### Current Implementation Status
+
+- ✅ MVP Complete (v0.1.0): Basic endpoint-based export functionality
+- ✅ Collection selection implemented
+- ✅ Sub-collection recursive inclusion implemented
+- ⏳ Object selection: Implemented (bug fix needed - TypeError in state_manager.py)
+- ⏳ Type selector UI: Implemented (UI improvements needed)
+- ⏳ Sub-collection toggle: Implemented
+- ⏳ UI improvements: Planned (see REQ-UI-009)
+- ⏳ Filepath subfolder: Planned (see REQ-EXP-008)
+- ⏳ Origin metadata: Planned (see REQ-EXP-009)
+
+---
+
+**Status**: ⏳ Requirements being refined and implemented  
+**Last Updated**: 28.12.2025
 

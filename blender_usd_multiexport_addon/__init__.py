@@ -94,6 +94,7 @@ classes: List[Type[bpy.types.PropertyGroup | bpy.types.Operator | bpy.types.Pane
     ui.USDME_OT_add_endpoint,
     ui.USDME_OT_generate_bug_report,
     ui.USDME_OT_remove_endpoint,
+    ui.USDME_OT_select_endpoint_target,
     ui.USDME_PT_main_panel,
 )
 

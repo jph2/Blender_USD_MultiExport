@@ -32,7 +32,7 @@ class PathResolver:
         Resolve a relative path to an absolute path for USD export.
 
         Args:
-            relative_path: Path relative to blend file (e.g., "//export/asset.usd")
+            relative_path: Path relative to blend file (e.g., "//export/asset.usd" or "./export/asset.usd")
             create_directories: Whether to create parent directories if they don't exist
 
         Returns:
@@ -51,6 +51,18 @@ class PathResolver:
                     context={"path": relative_path, "type": type(relative_path).__name__}
                 )
                 return None
+
+            # Convert ./ paths to // paths (relative to blend file)
+            # bpy.path.abspath() doesn't handle ./ correctly - it uses current working directory
+            # So we convert ./ to // which means "relative to blend file"
+            if relative_path.startswith("./"):
+                # Remove ./ prefix and convert to Blender's // format
+                converted_path = "//" + relative_path[2:]
+                self.logger.log_step("path_converted", {
+                    "original": relative_path,
+                    "converted": converted_path
+                })
+                relative_path = converted_path
 
             # Use Blender's cross-platform path resolution
             absolute_path = bpy.path.abspath(relative_path)

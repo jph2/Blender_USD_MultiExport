@@ -13,7 +13,7 @@ import zipfile
 from pathlib import Path
 
 # Configuration
-ADDON_DIR = Path(__file__).parent / "addon" / "blender_usd_multiexport"
+ADDON_DIR = Path(__file__).parent / "blender_usd_multiexport_addon"
 OUTPUT_DIR = Path(__file__).parent / "dist"
 ZIP_NAME = "blender_usd_multiexport.zip"
 
@@ -68,11 +68,19 @@ def build_extension_zip():
     # Create output directory
     OUTPUT_DIR.mkdir(exist_ok=True)
     
-    # Remove old zip if it exists
+    # Handle existing zip file
     zip_path = OUTPUT_DIR / ZIP_NAME
     if zip_path.exists():
-        print(f"Removing existing zip: {zip_path}")
-        zip_path.unlink()
+        print(f"Existing zip found: {zip_path}")
+        try:
+            zip_path.unlink()
+            print("Removed existing zip")
+        except PermissionError:
+            # File is locked (probably by Blender), create with timestamp instead
+            import time
+            timestamp = int(time.time())
+            zip_path = OUTPUT_DIR / f"blender_usd_multiexport_{timestamp}.zip"
+            print(f"File is locked, creating new zip: {zip_path.name}")
     
     # Create zip file
     print("\nPackaging files...")
@@ -80,11 +88,10 @@ def build_extension_zip():
     
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         # Add all files from addon directory
+        # ZIP root should be "blender_usd_multiexport_addon/" to match the module name
         for file_path in ADDON_DIR.rglob('*'):
             if file_path.is_file() and not should_exclude(file_path):
-                # Get relative path for zip
-                # Important: ZIP root should be "blender_usd_multiexport/", not "addon/blender_usd_multiexport/"
-                # ADDON_DIR is "addon/blender_usd_multiexport", so relative_to(ADDON_DIR.parent) gives "blender_usd_multiexport/file.py"
+                # Get relative path for zip - preserve the directory name
                 arcname = file_path.relative_to(ADDON_DIR.parent)
                 zipf.write(file_path, arcname)
                 files_added += 1

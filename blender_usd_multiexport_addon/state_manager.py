@@ -26,16 +26,18 @@ class ScopedIsolation:
             pass
     """
 
-    def __init__(self, context: bpy.types.Context, target_endpoint: Any):
+    def __init__(self, context: bpy.types.Context, target_endpoint: Any, include_subcollections: bool = True):
         """
         Initialize the isolation context.
 
         Args:
             context: Blender context
             target_endpoint: Collection or object to isolate for export
+            include_subcollections: For collections, whether to include child collections (default: True)
         """
         self.context = context
         self.target_endpoint = target_endpoint
+        self.include_subcollections = include_subcollections
 
         # State snapshots for restoration
         self._original_selection: Set[bpy.types.Object] = set()
@@ -90,7 +92,7 @@ class ScopedIsolation:
 
         # Unhide and select only the target objects
         for obj in target_objects:
-            if obj in view_layer.objects:  # Safety check
+            if obj.name in view_layer.objects:  # Safety check - use obj.name for bpy_prop_collection
                 obj.hide_viewport = False
                 obj.select_set(True)
 
@@ -101,8 +103,8 @@ class ScopedIsolation:
     def _get_target_objects(self) -> List[bpy.types.Object]:
         """Get all objects that belong to the target endpoint."""
         if isinstance(self.target_endpoint, bpy.types.Collection):
-            # Return all objects in the collection and its children
-            return self._get_collection_objects_recursive(self.target_endpoint)
+            # Return objects in the collection (with or without children based on flag)
+            return self._get_collection_objects_recursive(self.target_endpoint, self.include_subcollections)
         elif isinstance(self.target_endpoint, bpy.types.Object):
             # Return the object and its children in the hierarchy
             return self._get_object_hierarchy(self.target_endpoint)
@@ -110,21 +112,27 @@ class ScopedIsolation:
             # Treat as collection name
             collection = bpy.data.collections.get(self.target_endpoint)
             if collection:
-                return self._get_collection_objects_recursive(collection)
+                return self._get_collection_objects_recursive(collection, self.include_subcollections)
         else:
             # Fallback: assume it's an object
             return []
 
-    def _get_collection_objects_recursive(self, collection: bpy.types.Collection) -> List[bpy.types.Object]:
-        """Get all objects in a collection and its child collections."""
+    def _get_collection_objects_recursive(self, collection: bpy.types.Collection, include_children: bool = True) -> List[bpy.types.Object]:
+        """Get all objects in a collection and optionally its child collections.
+        
+        Args:
+            collection: The collection to get objects from
+            include_children: If True, recursively include objects from child collections (default: True)
+        """
         objects = []
 
         # Add objects directly in this collection
         objects.extend(collection.objects)
 
-        # Recursively add objects from child collections
-        for child_collection in collection.children:
-            objects.extend(self._get_collection_objects_recursive(child_collection))
+        # Recursively add objects from child collections if flag is set
+        if include_children:
+            for child_collection in collection.children:
+                objects.extend(self._get_collection_objects_recursive(child_collection, include_children))
 
         return objects
 
@@ -146,17 +154,17 @@ class ScopedIsolation:
 
         # Restore visibility state
         for obj, was_visible in self._original_visibility.items():
-            if obj in view_layer.objects:  # Safety check
+            if obj.name in view_layer.objects:  # Safety check - use obj.name for bpy_prop_collection
                 obj.hide_viewport = was_visible
 
         # Clear selection and restore original selection
         bpy.ops.object.select_all(action='DESELECT')
         for obj in self._original_selection:
-            if obj in view_layer.objects:  # Safety check
+            if obj.name in view_layer.objects:  # Safety check - use obj.name for bpy_prop_collection
                 obj.select_set(True)
 
         # Restore active object
-        if self._original_active_object and self._original_active_object in view_layer.objects:
+        if self._original_active_object and self._original_active_object.name in view_layer.objects:
             view_layer.objects.active = self._original_active_object
 
 
@@ -222,17 +230,17 @@ class StateManager:
 
             # Restore visibility
             for obj, was_visible in backup['visibility_states'].items():
-                if obj in view_layer.objects:
+                if obj.name in view_layer.objects:  # Safety check - use obj.name for bpy_prop_collection
                     obj.hide_viewport = was_visible
 
             # Restore selection
             bpy.ops.object.select_all(action='DESELECT')
             for obj in backup['selected_objects']:
-                if obj in view_layer.objects:
+                if obj.name in view_layer.objects:  # Safety check - use obj.name for bpy_prop_collection
                     obj.select_set(True)
 
             # Restore active object
-            if backup['active_object'] and backup['active_object'] in view_layer.objects:
+            if backup['active_object'] and backup['active_object'].name in view_layer.objects:
                 view_layer.objects.active = backup['active_object']
 
             # Restore other scene state
