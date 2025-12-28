@@ -1,5 +1,10 @@
 # Blender USD Multi Export
 
+[![License: To Be Determined](https://img.shields.io/badge/License-TBD-lightgrey.svg)](LICENSE)
+[![Blender: 5.0+](https://img.shields.io/badge/Blender-5.0+-orange.svg)](https://www.blender.org/)
+[![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-blue.svg)](HANDOFF.md)
+[![Status: MVP Complete](https://img.shields.io/badge/Status-MVP%20Complete-green.svg)](HANDOFF.md)
+
 A Blender Python addon that enables users to define specific endpoints (collections or objects) in Blender's scene hierarchy and export them as separate USD files, compensating for Blender's lack of native USD composition arc support.
 
 > **📝 Note on Project Name**: This project was previously named "Blender USD Stable Export". The name was changed to "Multi Export" to better reflect its core functionality: **multi-endpoint batch export capabilities**. The previous name "Stable" referred to reliable endpoint management and consistent export workflows, but it led to confusion as it could imply that Blender's built-in USD export is unstable (which is not the case - Blender's native USD export is stable and well-maintained). This addon enhances workflow by adding endpoint-based batch export functionality on top of Blender's solid foundation.
@@ -8,37 +13,38 @@ A Blender Python addon that enables users to define specific endpoints (collecti
 
 ## 📊 Project Status
 
-**Current Status**: 🚧 **In Development** - Planning & Requirements Phase
+**Current Status**: ✅ **MVP Released** - v0.1.0 Available for Testing
 
-> **⚠️ Important**: This project is currently in the **planning and requirements gathering phase**. The addon is **not yet available** for installation or use. See development phases below for current progress.
+> **🎉 MVP Available**: **Blender USD Multi Export v0.1.0** is now available! This functional MVP provides core endpoint-based USD export workflow. See installation instructions below for testing.
 
 ### Development Phases
 
 - [x] **Research & Discovery** - Complete
 - [x] **Designing Requirements Questionnaire** - Complete
-- [ ] **Requirements Questionnaire (to be filled out)** - In Progress
-- [ ] **Detailed Requirements** - In Progress
-- [ ] **Module Design** - In Progress
-- [ ] **Implementation** - Pending
-- [ ] **Testing & Documentation** - Pending
+- [ ] **Requirements Questionnaire** - Ongoing (confirmed requirements)
+- [ ] **Detailed Requirements** - Ongoing
+- [ ] **Module Design** - Ongoing
+- [x] **MVP Implementation (v0.1.0)** - ✅ Complete & Released
+- [ ] **Advanced Features (v0.2.0+)** - Post-MVP
+- [ ] **Full Testing & ASWF Compliance** - In Progress
 
-See the [Implementation Process](README_Implementation.md) for details.
+See the [Implementation Process](docs/archive/README_Implementation.md) for details (Archived - historical reference).
 
 ---
 
 ## 🎯 Overview
 
-**Blender USD Multi Export** is a Blender addon designed to streamline USD export workflows by allowing users to define multiple export endpoints within a single Blender scene. Since Blender doesn't support USD composition arcs natively, this addon provides a workaround by enabling batch export of different scene parts as separate USD files.
+**Blender USD Multi Export v0.1.0** is a functional MVP that provides core endpoint-based USD export workflow. Define export endpoints (collections or objects) and export multiple USD files in batch operations, with automatic scene state restoration and comprehensive error handling.
 
-### Planned Key Features
+### MVP v0.1.0 Key Features
 
 - ✅ **Endpoint-Based Export**: Define collections or objects as export endpoints
 - ✅ **Batch Export**: Export multiple endpoints in a single operation
-- ✅ **Material Preservation**: Automatically preserves materials and textures
-- ✅ **Scene State Safety**: Non-destructive export with automatic scene state restoration
+- ✅ **Scene State Safety**: Non-destructive export with automatic state restoration
+- ✅ **Cross-Platform Paths**: Relative path storage with absolute resolution
+- ✅ **Comprehensive Logging**: Verbose mode and automated bug reports
 - ✅ **User-Friendly UI**: Integrated panel within Blender's interface
-- ✅ **Export Validation**: Built-in validation and error reporting
-- ✅ **Bug Report Button**: Direct bug reporting from within Blender UI
+- ✅ **Error Handling**: Detailed validation and actionable error messages
 
 ## 📋 Table of Contents
 
@@ -71,78 +77,130 @@ This addon is particularly useful for:
 
 ## 🚀 Installation
 
-> **⚠️ Note**: The addon is not yet available for installation. This section describes the planned installation process for future releases.
+> **🎉 MVP Available**: Blender USD Multi Export v0.1.0 is now available for testing!
 
-### Method 1: Install from ZIP (Planned)
+### Method 1: Install from ZIP (Recommended for Distribution)
 
-1. Download the latest release from the [Releases](../../releases) page (when available)
-2. Open Blender
-3. Go to `Edit > Preferences > Add-ons`
-4. Click `Install...`
-5. Select the downloaded ZIP file
-6. Enable the addon by checking the box next to "USD Multi Export"
-7. Click `Save Preferences`
+**Build the ZIP file** (if you have the repository locally):
 
-> **✅ Cross-Platform Compatibility**: The same ZIP file works on **Windows, macOS, and Linux**. Blender addons are Python-based and platform-independent. No separate builds needed for different operating systems.
-
-### Method 2: Install from Source (Planned)
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/jph2/Blender_USD_MultiExport.git
+1. **Build the extension ZIP**:
+```bash
+   cd Blender_USD_MultiExport
+   python build_extension.py
    ```
+   This creates `dist/blender_usd_multiexport.zip` ready for installation.
 
-2. In Blender, go to `Edit > Preferences > Add-ons`
-3. Click `Install...`
-4. Navigate to the cloned repository and select the `addon` folder
-5. Enable the addon
+2. **Install in Blender 5.0+**:
+   - Open Blender 5.0+
+   - Go to **Edit → Preferences → Extensions**
+   - Click the **dropdown menu** (top right) → **Install from Disk**
+   - Select `dist/blender_usd_multiexport.zip`
+   - The extension will be installed and available
+
+3. **Enable the extension**:
+   - Search for "USD Multi Export" in the Extensions panel
+   - Click the checkbox to enable it
+   - The extension is now active
+
+**Verify Installation**:
+   - Look for "USD Multi Export" panel in the Scene Properties tab
+   - The panel should show endpoint management controls
+
+> **💡 Why Scene Properties?** This addon uses Scene Properties because USD export operations affect entire scenes, following Blender's conventions (the built-in USD exporter also uses Scene Properties). This placement provides persistent, non-intrusive access to export controls while you work. See [Best Practices](../../OV_Dev/OV_USD_Scripts/best_practise_Blender%20Extensions_addons/building_for_Blender.md#uiux-placement-best-practices) for more details.
+
+> **✅ Cross-Platform Compatibility**: The same ZIP file works on **Windows, macOS, and Linux**. Blender extensions are Python-based and platform-independent. No separate builds needed for different operating systems.
+
+#### Updating the Extension (Uninstall & Reinstall)
+
+When updating to a new version:
+
+1. **Uninstall the old version**:
+   - Go to **Edit → Preferences → Extensions**
+   - Find "USD Multi Export" in the list
+   - Click **"Uninstall"** button
+2. **Restart Blender** (important - ensures old code is cleared)
+3. **Install the new ZIP file**:
+   - Go to **Edit → Preferences → Extensions**
+   - Click dropdown (top right) → **Install from Disk**
+   - Select the new zip file
+4. **Restart Blender again** (to load the new version)
+
+> **Important**: Restarting Blender after uninstalling and reinstalling is required to ensure the old code is fully cleared and the new version loads correctly. If you experience issues after updating, restart Blender.
+
+### Method 2: Install from Local Repository (Development/Testing)
+
+For development or testing, you can install directly from the repository:
+
+1. **Open Blender 5.0+**
+2. **Go to `Edit > Preferences > Extensions`**
+3. **Click the dropdown menu** (top right) → **Install from Disk**
+4. **Navigate to your local repository** (`Blender_USD_MultiExport`) and select the `addon` folder
+5. **Enable the extension** by checking the box next to "USD Multi Export"
+
+**Note**: This method is for development/testing. For distribution, use Method 1 (ZIP installation).
+
+### Method 3: Install from GitHub Release (Future)
+
+1. Download the latest release ZIP from the [Releases](https://github.com/jph2/Blender_USD_MultiExport/releases) page
+2. Follow **Method 1, steps 2-3** above to install in Blender
 
 ## 📖 Usage
 
-> **⚠️ Note**: The addon is not yet available. This section describes the planned usage workflow.
+> **🎯 MVP Features**: v0.1.0 provides core functionality for testing. Advanced features will be added in future versions.
+>
+> **📚 For detailed usage instructions**, see the **[User Guide](06_USER_GUIDE.md)** with step-by-step workflows, troubleshooting, and best practices.
 
-### Planned Basic Workflow
+### Basic Workflow
 
 1. **Open Your Scene**: Load your Blender scene with organized collections
-2. **Access the Addon**: Open the USD Multi Export panel (typically in Scene Properties or N-Panel)
-3. **Define Endpoints**: 
-   - Click "Add Endpoint"
-   - Select a collection or objects
-   - Set the export filepath
-   - Configure export options
-4. **Export**: Click "Export All Endpoints" or export individual endpoints
+2. **Access the Addon**: Go to Scene Properties tab → "USD Multi Export" panel
+3. **Define Endpoints**:
+   - Click "Add" to create a new endpoint
+   - Set endpoint name (used for root prim path)
+   - Enter collection name (must match existing collection exactly)
+   - Set filepath (use `//export/filename.usd` for relative paths)
+   - Enable/disable endpoints as needed
+4. **Export**: Click "Export Endpoints" to batch export all enabled endpoints
 
 ### Defining Endpoints
 
 An **endpoint** is a collection or set of objects that you want to export as a single USD file. For example:
-- A "Characters" collection → exports to `characters.usd`
-- A "Props" collection → exports to `props.usd`
-- A "Vehicles" collection → exports to `vehicles.usd`
-- Selected objects → exports to `selected_objects.usd`
+- A "Characters" collection → exports to `//export/characters.usd`
+- A "Props" collection → exports to `//export/props.usd`
+- A "Vehicles" collection → exports to `//export/vehicles.usd`
 
-> **⚠️ Naming Note**: Avoid using "Environment" as a collection name. In Omniverse, `/World` (default prim) and `/environment` are siblings at root level. `/environment` is reserved for lighting and is NOT imported when referencing (only content under `/World` is imported). Using "Environment" creates conflicts. Use descriptive names like "Props", "Set", "Location", or "SceneElements" instead. See [Naming Conventions](NAMING_CONVENTIONS.md) for details.
+> **⚠️ Naming Note**: Avoid using "Environment" as a collection name. In Omniverse, `/World` (default prim) and `/environment` are siblings at root level. `/environment` is reserved for lighting and is NOT imported when referencing (only content under `/World` is imported). Using "Environment" creates conflicts. Use descriptive names like "Props", "Set", "Location", or "SceneElements" instead. See [Naming Conventions](NAMING_CONVENTIONS.md) for details (Active reference).
 
-### Planned Export Options
+### MVP v0.1.0 Export Options
 
-Each endpoint can be configured with:
-- Export filepath
-- Root prim path
-- Material and texture export settings
-- Animation export settings
-- Custom export options
+Each endpoint exports with these settings:
+- **Materials**: ✅ Enabled (USD Preview Surface)
+- **UV Maps**: ✅ Enabled
+- **Normals**: ✅ Enabled
+- **Animation**: ❌ Disabled (static exports only)
+- **Root Prim Path**: Uses endpoint name (e.g., `/Characters`)
+- **File Format**: `.usd` (ASCII/binary switching supported)
+
+### Verbose Logging
+
+Enable "Verbose Logging" in the panel for detailed console output during development and testing.
 
 ## 📚 Documentation
 
 ### Project Documentation
 
-- **[Research Document](Blender_USD_MultiExport_RESEARCH.md)**: Comprehensive research and analysis
-- **[Discovery Document](Blender_USD_MultiExport_DISCOVERY.md)**: Initial discovery and planning
-- **[Apple USD Perspective](APPLE_USD_PERSPECTIVE.md)**: Apple's USD workflows and requirements
-- **[Implementation Process](README_Implementation.md)**: Step-by-step implementation workflow
-- **[Requirements Questionnaire](01_Requirements_Questionnaire.md)**: Requirements gathering questionnaire
-- **[Detailed Requirements](02_Detailed_Requirements.md)**: Confirmed requirements and specifications
-- **[Module Design](03_Module_Design.md)**: Architecture and module structure
+- **[Research Document](docs/archive/Blender_USD_StableExport_RESEARCH.md)**: Comprehensive research and analysis (Archived - historical reference)
+- **[Discovery Document](docs/archive/Blender_USD_StableExport_DISCOVERY.md)**: Initial discovery and planning (Archived - historical reference)
+- **[Apple USD Perspective](docs/archive/APPLE_USD_PERSPECTIVE.md)**: Apple's USD workflows and requirements (Archived - historical reference)
+- **[Implementation Process](docs/archive/README_Implementation.md)**: Step-by-step implementation workflow (Archived - historical reference)
+- **[Requirements Questionnaire](01_Requirements_Questionnaire.md)**: Requirements gathering questionnaire (Active reference)
+- **[Detailed Requirements](02_Detailed_Requirements.md)**: Confirmed requirements and specifications (Active reference)
+- **[Module Design](03_Module_Design.md)**: Architecture and module structure (Active reference)
 - **[Implementation Plan](04_Implementation_Plan.md)**: Step-by-step implementation guide
+- **[Testing Plan](05_Testing_Plan.md)**: Comprehensive testing procedures and bug reporting guidelines
+- **[User Guide](06_USER_GUIDE.md)**: Complete user guide with workflows, troubleshooting, and best practices
+- **[Troubleshooting Guide](TROUBLESHOOTING.md)**: Platform-specific troubleshooting, debugging procedures, and common issues
+- **[Complete Implementation Plan](04_Implementation_Plan.md)**: Complete development history, implementation details, and roadmap
 
 ## 🍎 Apple USD Perspective
 
@@ -152,7 +210,7 @@ Apple is a founding member of the Alliance for OpenUSD (AOUSD) and plays a key r
 - **Apple Platform Pipelines**: Integration with Apple's content creation ecosystem
 - **Cross-Platform Workflows**: USD as interchange format for multi-platform content
 
-See **[APPLE_USD_PERSPECTIVE.md](APPLE_USD_PERSPECTIVE.md)** for detailed information about Apple's USD usage, requirements, and how this addon aligns with Apple workflows.
+See **[docs/archive/APPLE_USD_PERSPECTIVE.md](docs/archive/APPLE_USD_PERSPECTIVE.md)** for detailed information about Apple's USD usage, requirements, and how this addon aligns with Apple workflows (Archived - historical reference).
 
 ### External Resources
 
@@ -170,22 +228,20 @@ See **[APPLE_USD_PERSPECTIVE.md](APPLE_USD_PERSPECTIVE.md)** for detailed inform
 
 ```
 Blender_USD_MultiExport/
-├── addon/                          # Addon source code (to be created)
+├── addon/                          # Addon source code
 │   └── blender_usd_multiexport/
-│       ├── __init__.py
-│       ├── ops_export.py
-│       ├── props.py
-│       └── ui.py
-├── docs/                           # Documentation
-│   └── Blender_USD_MultiExport_RESEARCH.md
-├── tests/                          # Test scripts (to be created)
-├── 01_Requirements_Questionnaire.md
-├── 02_Detailed_Requirements.md
-├── 03_Module_Design.md
-├── 04_Implementation_Plan.md
-├── APPLE_USD_PERSPECTIVE.md        # Apple USD workflows
+│       ├── __init__.py             # Addon registration
+│       ├── props.py                # Data model & properties
+│       ├── ui.py                   # User interface panels
+│       ├── ops_export.py           # Export operations
+│       ├── state_manager.py        # Scene state management
+│       ├── path_resolver.py        # Cross-platform paths
+│       └── logging_utils.py        # Logging & bug reports
+├── dist/                           # Build output directory (generated)
+│   └── blender_usd_multiexport.zip # Distribution ZIP file
+├── build_extension.py              # Build script for creating ZIP
 ├── README.md                       # This file
-└── README_Implementation.md
+└── [other project files...]
 ```
 
 ### Development Setup
@@ -206,9 +262,59 @@ Blender_USD_MultiExport/
    - Test in Blender (use "Reload Scripts" for quick iteration)
    - Follow the implementation plan phases
 
+### Building the Extension
+
+To create a distribution ZIP file for installation:
+
+```bash
+python build_extension.py
+```
+
+This will:
+- Create `dist/blender_usd_multiexport.zip`
+- Exclude development files (`__pycache__`, `.git`, `*.md`, etc.)
+- Preserve correct directory structure for Blender 5.0+ Extensions system
+- Provide build summary with file count and size
+
+**Build Output**:
+- ZIP file: `dist/blender_usd_multiexport.zip`
+- Ready for installation via `Edit → Preferences → Extensions → Install from Disk`
+
+**Note**: Rebuild the ZIP after code changes or version updates before testing installation.
+
+### Version Update Workflow
+
+When releasing a new version, follow this checklist:
+
+1. **Update version in code**:
+   - Update `addon/blender_usd_multiexport/__init__.py` → `bl_info["version"]`
+   - Use semantic versioning: `(MAJOR, MINOR, PATCH)`
+
+2. **Update documentation**:
+   - Update `README.md` → Version references and changelog
+   - Update `PROJECT_PROGRESS_LOG.md` → Version and date
+   - Update any implementation plan documents with version references
+
+3. **Rebuild ZIP file**:
+   ```bash
+   python build_extension.py
+   ```
+
+4. **Test installation**:
+   - Uninstall old version in Blender
+   - Restart Blender
+   - Install new ZIP file
+   - Restart Blender again
+   - Verify functionality and version display
+
+5. **Verify consistency**:
+   - Check version appears correctly in Extensions list
+   - Verify all documentation references match
+   - Confirm no version mismatches
+
 ### Blender Version Support
 
-This addon is developed for **Blender 5.0** (officially released November 18, 2025). Blender 4.x versions are not supported. See the [Research Document](Blender_USD_MultiExport_RESEARCH.md#blender-50-readiness-and-compatibility-planning) for API compatibility details.
+This addon is developed for **Blender 5.0** (officially released November 18, 2025). Blender 4.x versions are not supported. See the [Research Document](docs/archive/Blender_USD_StableExport_RESEARCH.md#blender-50-readiness-and-compatibility-planning) for API compatibility details (Archived - historical reference).
 
 ## 🤝 Contributing
 
@@ -216,8 +322,8 @@ Contributions are welcome! However, please note that this project is currently i
 
 ### How to Contribute
 
-1. **Review Documentation**: Read the [Research Document](Blender_USD_MultiExport_RESEARCH.md) and [Implementation Process](README_Implementation.md)
-2. **Complete Questionnaire**: If you have use cases or requirements, complete the [Requirements Questionnaire](01_Requirements_Questionnaire.md)
+1. **Review Documentation**: Read the [Research Document](docs/archive/Blender_USD_StableExport_RESEARCH.md) and [Implementation Process](docs/archive/README_Implementation.md) (Archived - historical references)
+2. **Complete Questionnaire**: If you have use cases or requirements, complete the [Requirements Questionnaire](01_Requirements_Questionnaire.md) (Active reference)
 3. **Follow Development**: Check the implementation plan as it's developed
 4. **Stay Tuned**: Once implementation begins, contributions will be welcome!
 
@@ -228,11 +334,31 @@ Contributions are welcome! However, please note that this project is currently i
 - Test thoroughly with various scene configurations
 - Provide clear commit messages
 
-## 🐛 Known Limitations
+## 🐛 Known Limitations (Version 0.1.0)
+
+### Current MVP Limitations
 
 - **USD Composition**: Blender doesn't support USD composition arcs natively. This addon exports separate files that must be composed manually in the target application (e.g., Omniverse).
 - **Blender Version**: Targets Blender 5.0+ only. Blender 4.x versions are not supported.
 - **Scene Modification**: The addon temporarily modifies scene visibility during export but always restores the original state.
+- **Animation Export**: Static exports only. Animation export is not yet implemented (planned for v0.2.0).
+- **Export Options**: Limited export options per endpoint. Uses default settings for all exports (materials enabled, relative paths disabled).
+- **Pre-Flight Validation**: Basic validation only. No comprehensive pre-export checks or warnings (planned for v0.2.0+).
+
+### Future Enhancements (Post-MVP)
+
+**Planned for v0.2.0**:
+- Per-endpoint export settings (materials, UVs, normals, animation)
+- Pre-flight validation and warnings
+- Export presets
+- Advanced UI features (progress indicators, batch operations)
+
+**Planned for v0.3.0+**:
+- ASWF-compliant USD structure and metadata
+- Root prim path generation
+- Standards compliance verification
+
+See [HANDOFF.md](HANDOFF.md) for detailed technical limitations and future roadmap.
 
 ## 📝 License
 
@@ -248,7 +374,7 @@ Contributions are welcome! However, please note that this project is currently i
 - **Academy Software Foundation (ASWF)** for fostering open source software in the motion picture and media industries
 - **OpenUSD community** for documentation, resources, and ongoing development
 
-**Note on Project Name**: This project was renamed from "Blender USD Stable Export" to "Blender USD Multi Export" to better reflect its core functionality: multi-endpoint batch export capabilities. The previous name "Stable" referred to reliable endpoint management and consistent export workflows, but it led to confusion as it could imply that Blender's built-in USD export is unstable (which is not the case). See `NAMING_AND_APPLE_FEEDBACK.md` for the full naming discussion.
+**Note on Project Name**: This project was renamed from "Blender USD Stable Export" to "Blender USD Multi Export" to better reflect its core functionality: multi-endpoint batch export capabilities. The previous name "Stable" referred to reliable endpoint management and consistent export workflows, but it led to confusion as it could imply that Blender's built-in USD export is unstable (which is not the case). See `docs/archive/NAMING_AND_APPLE_FEEDBACK.md` for the full naming discussion (Archived - naming resolved).
 
 ## 🐛 Bug Reports & Feature Requests
 
@@ -291,5 +417,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 **Note**: This project is in active development. Features and APIs may change. See the [Project Status](#-project-status) section at the top for current development phase.
 
-**Last Updated**: December 23, 2025
+**Last Updated**: December 26, 2025
 

@@ -312,9 +312,9 @@ with state_mgr.safe_batch_operation():
 ## 🔗 References & Dependencies
 
 ### Project Documentation
-- `01_Requirements_Questionnaire.md` - Original requirements gathering
-- `02_Detailed_Requirements.md` - Detailed specifications
-- `03_Module_Design.md` - Architecture documentation
+- `01_Requirements_Questionnaire.md` - Original requirements gathering (Active reference)
+- `02_Detailed_Requirements.md` - Detailed specifications (Active reference)
+- `03_Module_Design.md` - Architecture documentation (Active reference)
 - `04_Implementation_Plan.md` - Development roadmap
 - `05_Testing_Plan.md` - Testing procedures and validation
 
