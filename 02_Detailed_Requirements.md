@@ -16,6 +16,36 @@ This document contains detailed requirements derived from confirmed questionnair
 
 **ASWF Compliance**: Requirements marked with ASWF references align with [USD-WG Asset Structure Guidelines](https://github.com/usd-wg/assets/blob/main/docs/asset-structure-guidelines.md) to ensure compatibility with VFX pipelines and Omniverse workflows. See `USD_ASSET_STRUCTURE_ANALYSIS.md` for detailed analysis.
 
+**System Architecture: Push vs Pull Workflows**
+
+**MVP Architecture: One-Way Push Model**
+
+The MVP focuses on a **one-way push model** for ComfyUI integration:
+
+**Push Phase (Blender Side)**:
+- **Blender** exports USD files to predefined destinations via export endpoints
+- Export happens independently in Blender (user-initiated or scripted)
+- USD files are written to specified file paths
+- **No ComfyUI involvement** in the export process
+
+**Pull Phase (ComfyUI Side)**:
+- **ComfyUI** reads the export path from endpoint definitions stored in .blend file
+- ComfyUI nodes (e.g., BlenderToUSD) load pre-generated USD files from specified locations
+- **Passive file loading** - ComfyUI does not trigger Blender exports
+- USD files are consumed downstream in ComfyUI workflows
+
+**Key Clarification**:
+- ❌ **NOT MVP**: Bidirectional execution (ComfyUI driving Blender exports)
+- ✅ **MVP**: One-way push (Blender exports → ComfyUI reads paths → ComfyUI loads files)
+- 🔮 **Future**: Bidirectional execution could be added as enhancement
+
+**Benefits of Push Model**:
+- Simple, focused architecture
+- No complex API integration required
+- Clear separation of concerns
+- Reliable file-based communication
+- Easy to debug and validate
+
 ---
 
 ## Document Structure
@@ -98,10 +128,19 @@ These requirements have been confirmed and do not require questionnaire validati
 
 #### REQ-EP-007: Remove Endpoint with Selection
 **Priority**: Medium  
-**Status**: Confirmed Requirement  
-**Date Added**: 28.12.2025
+**Status**: ⚠️ **PARTIALLY IMPLEMENTED** - Basic remove exists, dropdown selection NOT implemented  
+**Date Added**: 28.12.2025  
+**Implementation Status**: v0.1.0 MVP
 
 **Requirement**: Users MUST be able to remove specific endpoints using a remove button with a dropdown list to select which endpoint to remove.
+
+**Current Implementation (v0.1.0)**:
+- ✅ Remove button exists in UI
+- ✅ Removes last endpoint from list
+- ✅ Operation supports UNDO
+- ✅ Remove button works when endpoints exist
+- ❌ **NOT IMPLEMENTED**: Dropdown list to select which endpoint to remove
+- ❌ **NOT IMPLEMENTED**: Visual selection of endpoint before removal
 
 **Functional Requirements**:
 - Remove button with dropdown list showing all endpoints
@@ -112,12 +151,18 @@ These requirements have been confirmed and do not require questionnaire validati
 - If no endpoints exist, remove button is disabled or hidden
 
 **Acceptance Criteria**:
+- [x] Remove button exists (basic implementation)
+- [x] Remove operation supports UNDO
+- [x] Remove button works when endpoints exist
 - [ ] Remove button has a dropdown list of endpoints
 - [ ] Dropdown shows endpoint names clearly
-- [ ] User can select and remove a specific endpoint
-- [ ] Remove operation supports UNDO
-- [ ] Remove button is disabled/hidden when no endpoints exist
+- [ ] User can select and remove a specific endpoint (currently only removes last)
 - [ ] Removed endpoint is properly cleaned up from scene data
+
+**Implementation Notes**:
+- Current code: `USDME_OT_remove_endpoint` in `ui.py` (lines 313-326)
+- Currently removes: `settings.endpoints.remove(len(settings.endpoints) - 1)` (last endpoint only)
+- **TODO for v0.2.0+**: Implement dropdown selection UI for endpoint removal
 
 #### REQ-EP-003: Unified Collection/Object Selection
 **Priority**: High  
@@ -213,47 +258,146 @@ These requirements have been confirmed and do not require questionnaire validati
 
 #### REQ-EXP-001: Export Options Defaults
 **Priority**: High  
-**Status**: Confirmed Requirement
+**Status**: ⚠️ **PARTIALLY IMPLEMENTED** - Hardcoded defaults exist, per-endpoint options NOT implemented  
+**Version**: v0.2.0+ (Planned)  
+**Reference**: `09_Roadmap.md` - Comprehensive export options roadmap
 
-**Requirement**: All USD export options MUST be available per endpoint, with all options enabled by default.
+**Requirement**: All USD export options MUST be available per endpoint, with sensible defaults based on common workflows.
+
+**Current Implementation (v0.1.0)**:
+- ✅ Hardcoded export defaults exist in `ops_export.py` (lines 338-346)
+- ✅ Defaults include: `export_materials=True`, `export_uvmaps=True`, `export_normals=True`, `export_animation=False`, `export_lights=False`
+- ✅ Root prim path generation (sanitized from endpoint name)
+- ❌ **NOT IMPLEMENTED**: Per-endpoint export option overrides
+- ❌ **NOT IMPLEMENTED**: UI for configuring export options per endpoint
+- ❌ **NOT IMPLEMENTED**: Export options stored in endpoint properties
 
 **Functional Requirements**:
-- Export animation (default: enabled)
-- Export materials (default: enabled)
-- Export textures (default: enabled)
-- Export cameras (default: enabled)
-- Export lights (default: enabled)
-- Export armatures (default: enabled)
-- Export shape keys (default: enabled)
-- Export hair/curves (default: enabled)
-- Export UV maps (default: enabled)
-- Export normals (default: enabled)
-- Export mesh colors (default: enabled)
-- Export custom properties (default: enabled)
-- Use instancing (default: enabled)
-- Export subdivision (default: enabled, method: BEST_MATCH)
-- Evaluation mode (default: RENDER)
+
+**General Export Settings**:
+- Forward Axis (default: Y)
+- Up Axis (default: Z)
+- Selection Only (default: False)
+- Visible Only (default: True)
+- Convert Orientation (default: True)
+- Unit System (default: Use Scene Units) - See REQ-EXP-012 for details
+- Create ARKit Asset (default: False)
+- Relative Paths (default: True)
+- Export As Overs (default: False)
+- Merge Transform and Shape (default: True)
+- Xform Ops order (default: Scale, Rotate, Translate)
+
+**Stage Configuration**:
+- Default Prim Path (default: `/root`)
+- Root Prim Path (default: `/root`)
+- Material Prim Path (default: `/root/materials`)
+- Default Prim Kind (default: None)
+
+**Export Type Selection**:
+- Export Transforms (default: True)
+- Export Meshes (default: True)
+- Export Materials (default: True)
+- Export Lights (default: False)
+- Export Cameras (default: False)
+- Export Curves (default: False)
+
+**Geometry Options**:
+- Subdivision Scheme (default: Best Match)
+- Export Color Attributes (default: True)
+- Export Mesh Attributes (default: True)
+- Export Normals (default: True)
+- Export UV Maps (default: True)
+- Convert UV to ST (default: True)
+- Triangulate Meshes (default: False)
+- Quad Method (default: Shortest Diagonal)
+- N-gon Method (default: Beauty)
+
+**Material Export Options**:
+- Generate Preview Surface (default: True)
+- Export Cycles Shaders (default: False)
+- Convert to MDL (default: False)
+- Export Textures (default: True)
+- Overwrite Textures (default: False)
+- Use Original Texture Paths (default: False)
+- USDZ Texture Downscale (default: Keep)
+- USDZ Custom Downscale (default: 128)
+
+**Light Export Options**:
+- Light Intensity Scale (default: 1.0)
+- Convert Light Units to Nits (default: True)
+- Scale Light Radius (default: True)
+- Convert World Material (default: True)
+
+**Rigging Export Options**:
+- Export Armatures (default: True)
+- Only Deform Bones (default: False)
+- Export Shape Keys (default: True)
+
+**Animation Export Options**:
+- Export Animation (default: False)
+- Start Frame (default: 1)
+- End Frame (default: 250)
+- Frame Step (default: 1.0)
+
+**Particles & Instancing**:
+- Export Particles (default: True)
+- Export Hair (default: True)
+- Export Child Particles (default: False)
+
+**Current Implementation (v0.1.0 MVP)**:
+- Hardcoded export parameters in `ops_export.py` (lines 338-346):
+  ```python
+  export_params = {
+      "filepath": filepath,
+      "export_materials": True,      # Hardcoded
+      "export_uvmaps": True,          # Hardcoded
+      "export_normals": True,         # Hardcoded
+      "export_animation": False,      # Hardcoded
+      "export_lights": False,         # Hardcoded
+      "root_prim_path": f"/{sanitized_name}",  # Generated from endpoint name
+  }
+  ```
+- Additional per-endpoint options implemented:
+  - `export_subdivision` (BoolProperty in `props.py` line 103)
+  - `include_origin_metadata` (BoolProperty in `props.py` line 97)
+- **NOT IMPLEMENTED**: All other export options are hardcoded and cannot be changed per endpoint
+
+**Note**: Current v0.1.0 MVP has hardcoded defaults. Per-endpoint export options will be implemented in v0.2.0+ as per roadmap phases.
 
 **Acceptance Criteria**:
-- [ ] All export options are available per endpoint
-- [ ] All options are enabled by default
-- [ ] Users can disable options per endpoint
+- [ ] All export options are available per endpoint (v0.2.0+)
+- [ ] Default values match common workflow needs
+- [ ] Users can override defaults per endpoint
+- [ ] Options are organized in logical UI sections
+- [ ] Version-aware compatibility wrapper handles Blender 5.0 API changes
 
 #### REQ-EXP-002: Export Presets
 **Priority**: Medium  
-**Status**: Confirmed Requirement
+**Status**: Confirmed Requirement  
+**Version**: v0.5.0+ (Planned)  
+**Reference**: `09_Roadmap.md` Section 10 - Export Presets System
 
-**Requirement**: The addon MUST support export presets (predefined and user-defined).
+**Requirement**: The addon MUST support export presets (predefined and user-defined) to simplify common workflows.
 
 **Functional Requirements**:
-- Predefined presets (e.g., "Full Export", "Geometry Only", "Materials Only")
-- User-defined presets
+- Predefined presets:
+  - **Default**: Balanced settings for general use
+  - **Omniverse**: Optimized for NVIDIA Omniverse
+  - **ARKit/USDZ**: Optimized for ARKit/USDZ export
+  - **VFX Pipeline**: ASWF-compliant settings
+  - **Game Engine**: Optimized for game engines
+- User-defined presets (save/load from JSON or YAML)
 - Presets can be applied to endpoints
+- Preset inheritance: Endpoints can override preset values
+- Preset management UI (create, edit, delete, import/export)
 
 **Acceptance Criteria**:
-- [ ] Predefined presets are available
+- [ ] Predefined presets are available (v0.5.0+)
 - [ ] Users can create custom presets
 - [ ] Presets can be applied to endpoints
+- [ ] Preset values can be overridden per endpoint
+- [ ] Presets can be imported/exported as files
+- [ ] Preset management UI is functional
 
 #### REQ-EXP-003: Export Options Scope
 **Priority**: High  
@@ -447,10 +591,16 @@ These requirements have been confirmed and do not require questionnaire validati
 
 #### REQ-EXP-010: Overwrite Confirmation Dialog
 **Priority**: High  
-**Status**: Confirmed Requirement  
-**Date Added**: 28.12.2025
+**Status**: ⚠️ **NOT IMPLEMENTED** - Files are overwritten without confirmation  
+**Date Added**: 28.12.2025  
+**Implementation Status**: v0.1.0 MVP
 
 **Requirement**: When exporting to an existing USD file, users MUST be prompted to confirm overwrite before the file is replaced.
+
+**Current Implementation (v0.1.0)**:
+- ❌ **NOT IMPLEMENTED**: No file existence check before export
+- ❌ **NOT IMPLEMENTED**: No confirmation dialog
+- ⚠️ **CURRENT BEHAVIOR**: Files are overwritten silently without user confirmation
 
 **Functional Requirements**:
 - Check if target USD file exists before export
@@ -471,6 +621,105 @@ These requirements have been confirmed and do not require questionnaire validati
 - [ ] User can confirm or cancel overwrite
 - [ ] Export proceeds only after confirmation
 - [ ] Export is cancelled if user chooses not to overwrite
+
+**Implementation Notes**:
+- Current code: `USDME_OT_export_endpoints` in `ops_export.py` (line 547)
+- Export proceeds directly: `bpy.ops.wm.usd_export(**export_params)` without file existence check
+- **TODO for v0.2.0+**: Add file existence check and confirmation dialog before export
+
+#### REQ-EXP-011: Version-Aware API Compatibility
+**Priority**: Critical  
+**Status**: Confirmed Requirement  
+**Version**: v0.2.0 (Required for all export options)  
+**Date Added**: 2025-12-28  
+**Reference**: `09_Roadmap.md` Section 12.1 - Blender API Compatibility
+
+**Requirement**: The addon MUST implement a version-aware compatibility wrapper to handle Blender 5.0 API changes and ensure safe USD export parameter handling.
+
+**Functional Requirements**:
+- Query Blender 5.0 USD exporter RNA properties to get valid parameter names
+- Filter out unsupported parameters before passing to `bpy.ops.wm.usd_export()`
+- Map old parameter names to new ones via lookup table (as discovered)
+- Log warnings for ignored parameters instead of crashing
+- Use `bpy.app.version` to detect Blender version
+- Provide safe fallbacks for unsupported parameters
+- Optionally use USDHook extension points for stable features
+
+**Technical Implementation**:
+- Implement `_get_usd_export_properties()` to query valid RNA properties
+- Implement `_get_parameter_rename_map()` for parameter name mapping
+- Implement `build_usd_export_params()` to filter and validate parameters
+- Implement `export_usd_safe()` wrapper function
+- Enable verbose logging to catch unsupported parameters during development
+
+**Acceptance Criteria**:
+- [ ] Version-aware wrapper is implemented (v0.2.0)
+- [ ] All export parameters are validated against Blender 5.0 API
+- [ ] Unsupported parameters are filtered out with warnings
+- [ ] Parameter rename mapping is functional
+- [ ] No `TypeError: keyword not recognized` errors occur
+- [ ] Warnings are logged for ignored parameters
+- [ ] Exported USD files are valid and open correctly
+
+#### REQ-EXP-012: Unit System Control
+**Priority**: High  
+**Status**: Confirmed Requirement  
+**Version**: v0.2.0 (Planned)  
+**Date Added**: 2025-12-28  
+**Reference**: `09_Roadmap.md` Section 1.4 - External Items Options
+
+**Requirement**: Users MUST be able to control the unit system used during USD export, with options to use scene units, force specific units, or use preset-based unit settings.
+
+**Functional Requirements**:
+- Per-endpoint unit system selection with the following options:
+  - **Use Scene Units** (default): Export using Blender scene's current unit system
+  - **Force Centimeters**: Convert all measurements to centimeters regardless of scene units
+  - **Force Meters**: Convert all measurements to meters regardless of scene units
+- Unit system setting persists with endpoint configuration
+- Unit conversion applies to:
+  - Object transforms (position, scale)
+  - Geometry dimensions
+  - Light intensity (if applicable)
+  - Camera settings (if applicable)
+- Global default unit system option in addon preferences (optional)
+- Preset-based unit selection (e.g., "Omniverse" preset uses centimeters, "VFX Pipeline" uses meters)
+
+**Technical Implementation**:
+- Add `unit_system` EnumProperty to `USDME_Endpoint` (props.py) with options:
+  - `SCENE_UNITS` - Use Blender scene units (default)
+  - `FORCE_CENTIMETERS` - Force centimeters
+  - `FORCE_METERS` - Force meters
+- Add UI dropdown in endpoint settings panel (ui.py)
+- Pass to `bpy.ops.wm.usd_export()` as `convert_to_centimeters` (when forcing centimeters)
+- For scene units: Query `bpy.context.scene.unit_settings.system` and `bpy.context.scene.unit_settings.scale_length`
+- For forced units: Apply appropriate conversion factor
+- Integration with export presets (v0.5.0+) for preset-based unit selection
+
+**Blender API**:
+```python
+export_params = {
+    "convert_to_centimeters": True,  # When unit_system == FORCE_CENTIMETERS
+    # Note: Blender may not have direct "force meters" option
+    # May require post-processing or scale factor application
+}
+```
+
+**Use Cases**:
+- **Omniverse Workflows**: Typically require centimeters (FORCE_CENTIMETERS)
+- **VFX Pipelines**: Often use meters (FORCE_METERS)
+- **General Use**: Use scene units for flexibility (SCENE_UNITS)
+- **Preset-Based**: Apply unit system based on selected export preset
+
+**Acceptance Criteria**:
+- [ ] Unit system selector is available per endpoint (v0.2.0)
+- [ ] "Use Scene Units" option respects Blender scene unit settings
+- [ ] "Force Centimeters" option converts all measurements to centimeters
+- [ ] "Force Meters" option converts all measurements to meters
+- [ ] Unit conversion applies to all relevant export data
+- [ ] Unit system setting persists with .blend file
+- [ ] Export presets can specify unit system (v0.5.0+)
+- [ ] Global default unit system can be set in preferences (optional)
+- [ ] Exported USD files have correct unit metadata
 
 ### User Interface Requirements
 
@@ -930,18 +1179,42 @@ These requirements have been confirmed and do not require questionnaire validati
 
 ### Current Implementation Status
 
-- ✅ MVP Complete (v0.1.0): Basic endpoint-based export functionality
+**v0.1.0 MVP (Complete)**:
+- ✅ MVP Complete: Basic endpoint-based export functionality
 - ✅ Collection selection implemented
+- ✅ Object selection implemented
 - ✅ Sub-collection recursive inclusion implemented
-- ⏳ Object selection: Implemented (bug fix needed - TypeError in state_manager.py)
-- ⏳ Type selector UI: Implemented (UI improvements needed)
-- ⏳ Sub-collection toggle: Implemented
-- ⏳ UI improvements: Planned (see REQ-UI-009)
-- ⏳ Filepath subfolder: Planned (see REQ-EXP-008)
-- ⏳ Origin metadata: Planned (see REQ-EXP-009)
+- ✅ Type selector UI implemented
+- ✅ Sub-collection toggle implemented
+- ✅ Filepath subfolder creation implemented
+- ✅ Origin metadata tracking implemented
+- ✅ Subdivision export (with duplicate preservation fix)
+- ✅ Light exclusion implemented
+- ✅ State management and scene isolation
+- ✅ Comprehensive logging system
+- ✅ Auto-naming endpoints (matches collection/object name)
+- ✅ Selection tracking button (Select button per endpoint)
+- ✅ Pre-flight validation (checks endpoint completeness before export)
+- ✅ Bug report generation
+- ✅ Add endpoint with auto-detection (collection/object from context)
+- ⚠️ Basic remove endpoint (removes last only, no dropdown selection)
+- ❌ Overwrite confirmation dialog (NOT implemented - files overwritten silently)
+- ❌ Per-endpoint export options (hardcoded defaults only)
+
+**v0.2.0+ (Planned - See Roadmap)**:
+- ⏳ Per-endpoint export options (General, Stage, Geometry, Materials, etc.)
+- ⏳ Version-aware compatibility wrapper for Blender 5.0 API
+- ⏳ Export presets system
+- ⏳ Animation export support
+- ⏳ Rigging export support
+- ⏳ Particles export support
+- ⏳ Enhanced validation and pre-flight checks
+
+**Reference**: See `09_Roadmap.md` for detailed feature breakdown and implementation phases.
 
 ---
 
-**Status**: ⏳ Requirements being refined and implemented  
-**Last Updated**: 28.12.2025
+**Status**: ✅ MVP Complete (v0.1.0) - Requirements for v0.2.0+ defined in Roadmap  
+**Last Updated**: 2025-12-28  
+**Roadmap Reference**: See `09_Roadmap.md` for comprehensive v0.2.0+ feature requirements and implementation plan
 

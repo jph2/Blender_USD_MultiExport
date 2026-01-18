@@ -13,8 +13,10 @@ import zipfile
 from pathlib import Path
 
 # Configuration
-ADDON_DIR = Path(__file__).parent / "blender_usd_multiexport_addon"
-OUTPUT_DIR = Path(__file__).parent / "dist"
+# Script is in scripts/ subdirectory, so go up one level to repo root
+REPO_ROOT = Path(__file__).parent.parent
+ADDON_DIR = REPO_ROOT / "blender_usd_multiexport_addon"
+OUTPUT_DIR = REPO_ROOT / "dist"
 ZIP_NAME = "blender_usd_multiexport.zip"
 
 # Files/directories to exclude from the zip

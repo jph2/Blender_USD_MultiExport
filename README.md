@@ -83,12 +83,14 @@ This addon is particularly useful for:
 
 **Build the ZIP file** (if you have the repository locally):
 
-1. **Build the extension ZIP**:
+See [`11_BUILD_INSTRUCTIONS.md`](11_BUILD_INSTRUCTIONS.md) for detailed build instructions.
+
+**Quick build**:
 ```bash
-   cd Blender_USD_MultiExport
-   python build_extension.py
-   ```
-   This creates `dist/blender_usd_multiexport.zip` ready for installation.
+cd Blender_USD_MultiExport
+python scripts/build_extension.py
+```
+This creates `dist/blender_usd_multiexport.zip` ready for installation.
 
 2. **Install in Blender 5.0+**:
    - Open Blender 5.0+
@@ -239,7 +241,8 @@ Blender_USD_MultiExport/
 │       └── logging_utils.py        # Logging & bug reports
 ├── dist/                           # Build output directory (generated)
 │   └── blender_usd_multiexport.zip # Distribution ZIP file
-├── build_extension.py              # Build script for creating ZIP
+├── scripts/
+│   └── build_extension.py          # Build script for creating ZIP (see 11_BUILD_INSTRUCTIONS.md)
 ├── README.md                       # This file
 └── [other project files...]
 ```
@@ -264,10 +267,11 @@ Blender_USD_MultiExport/
 
 ### Building the Extension
 
-To create a distribution ZIP file for installation:
+See [`11_BUILD_INSTRUCTIONS.md`](11_BUILD_INSTRUCTIONS.md) for detailed build instructions.
 
+**Quick build**:
 ```bash
-python build_extension.py
+python scripts/build_extension.py
 ```
 
 This will:
@@ -297,8 +301,9 @@ When releasing a new version, follow this checklist:
 
 3. **Rebuild ZIP file**:
    ```bash
-   python build_extension.py
+   python scripts/build_extension.py
    ```
+   Or see [`11_BUILD_INSTRUCTIONS.md`](11_BUILD_INSTRUCTIONS.md) for detailed instructions.
 
 4. **Test installation**:
    - Uninstall old version in Blender

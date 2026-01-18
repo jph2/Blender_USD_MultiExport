@@ -8,18 +8,13 @@
 
 ---
 
-## ⚠️ This document is a placeholder
+## ✅ Module Architecture Document
 
-This document will contain the module architecture and design derived from the Detailed Requirements (`02_Detailed_Requirements.md`).
+This document describes the actual module architecture and design as implemented in v0.1.0 MVP.
 
-**Important**: All module design must target **Blender 5.0+ only**. Blender 4.x versions are not supported.
+**Important**: All module design targets **Blender 5.0+ only**. Blender 4.x versions are not supported.
 
-**Next Step**: Complete the requirements document first, then populate this document with:
-- Module structure
-- Class diagrams
-- Component interactions
-- Data models
-- API design
+**Status**: Updated to reflect actual v0.1.0 MVP implementation (December 2025)
 
 ---
 
@@ -30,44 +25,80 @@ This document will contain the module architecture and design derived from the D
 - Design principles
 - Module organization
 
-### 2. Module Breakdown
-- **Core modules:**
-  - State Manager (`state_manager.py`) - **CRITICAL**: Handles scene state backup/restore for safe isolation
-  - Isolation Context (`isolation.py`) - Context manager for endpoint isolation
-- **UI modules:**
-  - Panel UI
-  - Endpoint management UI
-- **Export modules:**
-  - Export operators
-  - Pre-flight validation
-- **Utility modules:**
-  - Path handling (relative path resolution)
-  - Root prim path generation (with ASWF compliance)
-  - Coordinate system handling
-  - USD structure validation (ASWF guidelines compliance)
+### 2. Module Breakdown (v0.1.0 MVP Implementation)
+
+**Actual Module Structure:**
+
+**Core modules:**
+- `state_manager.py` - **IMPLEMENTED**: Handles scene state backup/restore for safe isolation
+  - `ScopedIsolation` class - Context manager for endpoint isolation
+  - `StateManager` class - Scene state management for batch operations
+- `props.py` - **IMPLEMENTED**: Data model definitions
+  - `USDME_EndpointPropertyGroup` - Endpoint property definitions
+  - `USDME_SceneProperties` - Scene-level container
+- `ops_export.py` - **IMPLEMENTED**: Export operations
+  - `USDME_OT_export_endpoints` - Main export operator
+  - Pre-flight validation logic
+  - Subdivision export with duplicate preservation
+  - Origin metadata injection
+
+**UI modules:**
+- `ui.py` - **IMPLEMENTED**: User interface
+  - `USDME_PT_main_panel` - Main panel in Scene Properties
+  - `USDME_OT_add_endpoint` - Add endpoint operator
+  - `USDME_OT_remove_endpoint` - Remove endpoint operator (removes last only)
+  - `USDME_OT_select_endpoint_target` - Selection tracking operator
+  - `USDME_OT_generate_bug_report` - Bug report generation
+
+**Utility modules:**
+- `path_resolver.py` - **IMPLEMENTED**: Path handling
+  - `PathResolver` class - Cross-platform path resolution
+  - `resolve_export_path()` - Convenience function
+- `logging_utils.py` - **IMPLEMENTED**: Logging system
+  - `USDME_Logger` class - Comprehensive logging with file rotation
+  - Bug report generation
+  - Performance timers and context tracking
+
+**Addon Registration:**
+- `__init__.py` - **IMPLEMENTED**: Addon registration and preferences
+  - `USDMultiExportPreferences` - Addon preferences (log level, default settings)
+  - Module registration and class registration
 
 ### 3. Class Design
 
 #### Critical Classes (Must Implement)
 
-**`ScopedIsolation` (Context Manager)**
+**`ScopedIsolation` (Context Manager)** - ✅ **IMPLEMENTED**
+- **Location**: `state_manager.py` (lines 15-169)
 - **Purpose**: Temporarily isolates a specific collection or object for export
 - **Responsibilities**:
   - Cache current selection/visibility state
   - Deselect all, hide all (efficiently)
   - Unhide/select ONLY target endpoint
   - Guarantee state restoration in `__exit__` (even on errors)
-- **Implementation**: Use `try...finally` pattern, cache exact state
+- **Implementation**: Uses `try...finally` pattern, caches exact state
+- **Features**:
+  - Supports Collection and Object types
+  - Recursive collection inclusion option (`include_subcollections`)
+  - Object hierarchy traversal for parent-child relationships
+  - Safe state restoration even on exceptions
 
-**`StateManager`**
+**`StateManager`** - ✅ **IMPLEMENTED**
+- **Location**: `state_manager.py` (lines 171-313)
 - **Purpose**: Manages scene state for batch exports
 - **Responsibilities**:
   - Backup scene state (selection, visibility, active object)
   - Restore scene state safely
   - Handle state corruption recovery
-- **Critical**: Must work even if export crashes mid-loop
+- **Critical**: Works even if export crashes mid-loop
+- **Features**:
+  - `safe_batch_operation()` context manager
+  - Multiple backup support (stack-based)
+  - Scene integrity validation
+  - Automatic rollback on exceptions
 
-**`PathResolver`**
+**`PathResolver`** - ✅ **IMPLEMENTED**
+- **Location**: `path_resolver.py` (lines 19-397)
 - **Purpose**: Handle file path resolution (cross-platform compatible)
 - **Responsibilities**:
   - Store paths relative to blend file (`//export/prop_a.usd`)
@@ -75,52 +106,73 @@ This document will contain the module architecture and design derived from the D
   - Auto-create directories if they don't exist
   - **Cross-platform**: Uses `bpy.path` utilities which handle Windows/Mac/Linux path differences automatically
   - Never use hardcoded path separators (`/` or `\`) - always use `bpy.path` or `pathlib.Path`
+- **Features**:
+  - `resolve_export_path()` - Main resolution function
+  - `validate_export_path()` - Path validation with detailed feedback
+  - `get_relative_path()` - Convert absolute to relative paths
+  - `ensure_directory_exists()` - Directory creation
+  - `get_safe_filename()` - Filename sanitization
+  - Handles `./` paths by converting to `//` format
 
-**`RootPrimPathGenerator`**
+**`RootPrimPathGenerator`** - ⚠️ **PARTIALLY IMPLEMENTED**
+- **Location**: `ops_export.py` (lines 330-336) - Inline implementation
 - **Purpose**: Generate consistent root prim paths following ASWF USD Working Group guidelines
-- **Responsibilities**:
-  - Default `root_prim_path` from endpoint name (e.g., "MyChair" -> `/MyChair`)
-  - Prevent name collisions when merging USDs (avoid `/World`, `/environment`, `/Mesh`, `/root`)
-  - Validate prim path format
-  - Ensure root prim will be Xform (not Scope) - validated before export
-  - **NEW**: Set `kind` metadata to `component` on root prim (via post-export processing or export parameters)
-  - **NEW**: Ensure `defaultPrim` is set to root prim path
-- **ASWF Compliance**: Follows [USD-WG Asset Structure Guidelines](https://github.com/usd-wg/assets/blob/main/docs/asset-structure-guidelines.md)
+- **Current Implementation**:
+  - ✅ Root prim path generated from endpoint name (sanitized)
+  - ✅ Name sanitization (removes invalid characters, replaces with underscores)
+  - ✅ Fallback to "RootPrim" if name becomes empty
+  - ❌ **NOT IMPLEMENTED**: Dedicated class/module (inline code only)
+  - ❌ **NOT IMPLEMENTED**: `kind` metadata setting (not set in v0.1.0)
+  - ❌ **NOT IMPLEMENTED**: `defaultPrim` setting (relies on Blender default)
+  - ❌ **NOT IMPLEMENTED**: Name collision prevention validation
+- **ASWF Compliance**: Basic path generation exists, full compliance deferred to v0.2.0+
 
-**`PreFlightValidator`**
+**`PreFlightValidator`** - ✅ **IMPLEMENTED** (inline in export operator)
+- **Location**: `ops_export.py` (lines 77-136)
 - **Purpose**: Validate endpoints before export
-- **Responsibilities**:
-  - Check if target collections are empty
-  - Verify file paths and directories exist
-  - Check render/viewport visibility settings
-  - Warn about hidden objects/collections
-  - **NEW**: Validate root prim path follows naming convention
-  - **NEW**: Validate root prim path doesn't conflict with reserved names (`/World`, `/environment`)
+- **Current Implementation**:
+  - ✅ Type-specific validation (Collection vs Object)
+  - ✅ Collection/object existence checks
+  - ✅ Filepath validation (not empty)
+  - ✅ Invalid endpoint detection and reporting
+  - ✅ Pre-flight validation before batch export starts
+  - ⚠️ **PARTIAL**: Empty collection check (not explicitly checked, but would fail during export)
+  - ❌ **NOT IMPLEMENTED**: Dedicated validator class (inline code)
+  - ❌ **NOT IMPLEMENTED**: Root prim path naming convention validation
+  - ❌ **NOT IMPLEMENTED**: Reserved name conflict checking
 
-**`USDStructureValidator`** (NEW)
+**`USDStructureValidator`** - ❌ **NOT IMPLEMENTED**
+- **Status**: Planned for v0.2.0+
 - **Purpose**: Validate exported USD structure against ASWF guidelines
-- **Responsibilities**:
+- **Responsibilities** (Future):
   - Verify root prim is Xform (not Scope)
   - Verify `kind` metadata is set to `component` on root prim
   - Verify `defaultPrim` is set correctly
   - Verify Purpose metadata is set appropriately
   - Verify materials are under root prim hierarchy
   - Compare structure against intent-vfx examples (optional, for testing)
-- **ASWF Compliance**: Validates against [USD-WG Asset Structure Guidelines](https://github.com/usd-wg/assets/blob/main/docs/asset-structure-guidelines.md)
+- **ASWF Compliance**: Full validation deferred to v0.2.0+
+- **Current State**: Basic root prim path generation exists, but no post-export validation
 
 - Class diagrams
 - Class relationships
 
 ### 4. Data Models
 
-**Endpoint Data Structure:**
-- Name (used for default `root_prim_path`)
-- Collection/Object reference
-- Filepath (stored as relative: `//export/prop_a.usd`)
-- Export configuration
-- **Root prim path** (auto-generated from name if not set, follows ASWF naming conventions)
-- **Root prim kind** (default: `component`, per ASWF guidelines)
-- **Root prim type** (must be Xform, not Scope, per ASWF guidelines)
+**Endpoint Data Structure** - ✅ **IMPLEMENTED** (`props.py` lines 16-124):
+- ✅ `name` (StringProperty) - Used for default `root_prim_path`
+- ✅ `endpoint_type` (EnumProperty) - 'COLLECTION' or 'OBJECT'
+- ✅ `collection_name` (StringProperty) - Collection reference
+- ✅ `object_name` (StringProperty) - Object reference
+- ✅ `filepath` (StringProperty) - Stored as relative: `//export/prop_a.usd`
+- ✅ `include_subcollections` (BoolProperty) - Sub-collection inclusion toggle
+- ✅ `create_subfolder` (BoolProperty) - Auto-create USD_Endpoint subfolder
+- ✅ `include_origin_metadata` (BoolProperty) - Add origin metadata to USD
+- ✅ `export_subdivision` (BoolProperty) - Bake subdivision modifiers
+- ✅ `enabled` (BoolProperty) - Enable/disable endpoint
+- ⚠️ **PARTIAL**: Root prim path (auto-generated from name, sanitized inline in export operator)
+- ❌ **NOT IMPLEMENTED**: Root prim kind (not set in v0.1.0)
+- ❌ **NOT IMPLEMENTED**: Per-endpoint export configuration (hardcoded defaults)
 
 **State Snapshot:**
 - Selection state (list of selected objects)
@@ -183,6 +235,7 @@ This document will contain the module architecture and design derived from the D
 
 ---
 
-**Status**: ✅ Updated with ASWF USD Guidelines compliance requirements  
-**Last Updated**: 25.11.2025
+**Status**: ✅ Updated to reflect actual v0.1.0 MVP implementation  
+**Last Updated**: 13.01.2026  
+**Implementation Review**: Completed - Documents actual code structure vs planned architecture
 

@@ -19,6 +19,29 @@ This roadmap defines the requirements and implementation plan for expanding the 
 
 **Scope**: This roadmap focuses on **export functionality only**. Nucleus connectivity and related features are explicitly excluded.
 
+**System Architecture: Push vs Pull Workflows**
+
+**MVP Architecture: One-Way Push Model**
+
+The MVP focuses on a **one-way push model** for ComfyUI integration:
+
+**Push Phase (Blender Side)**:
+- **Blender** exports USD files to predefined destinations via export endpoints
+- Export happens independently in Blender (user-initiated or scripted)
+- USD files are written to specified file paths
+- **No ComfyUI involvement** in the export process
+
+**Pull Phase (ComfyUI Side)**:
+- **ComfyUI** reads the export path from endpoint definitions stored in .blend file
+- ComfyUI nodes (e.g., BlenderToUSD) load pre-generated USD files from specified locations
+- **Passive file loading** - ComfyUI does not trigger Blender exports
+- USD files are consumed downstream in ComfyUI workflows
+
+**Key Clarification**:
+- ❌ **NOT MVP**: Bidirectional execution (ComfyUI driving Blender exports)
+- ✅ **MVP**: One-way push (Blender exports → ComfyUI reads paths → ComfyUI loads files)
+- 🔮 **Future**: Bidirectional execution could be added as enhancement
+
 ---
 
 ## 🎯 Roadmap Overview
@@ -168,7 +191,6 @@ export_params = {
 
 **Requirements**:
 - **Create ARKit Asset**: Per-endpoint toggle for ARKit-compatible USDZ export
-- **Convert to Centimeters**: Per-endpoint toggle to convert units to centimeters
 - **Relative Paths**: Per-endpoint toggle for relative vs absolute paths (default: True)
 - **Export As Overs**: Per-endpoint toggle for USD Over composition
 - **Merge Transform and Shape**: Per-endpoint toggle to merge transform and shape prims (default: True)
@@ -184,7 +206,6 @@ export_params = {
 ```python
 export_params = {
     "create_arkit_asset": False,
-    "convert_to_centimeters": False,
     "relative_paths": True,
     "export_as_overs": False,
     "merge_transform_and_shape": True,
@@ -193,7 +214,49 @@ export_params = {
 ```
 
 **Dependencies**: None  
-**Estimated Effort**: 3-4 hours
+**Estimated Effort**: 2-3 hours
+
+---
+
+### 1.5 Unit System Control
+**Priority**: High (v0.2.0)  
+**Category**: General  
+**Reference**: REQ-EXP-012
+
+**Requirements**:
+- Per-endpoint unit system selection:
+  - **Use Scene Units** (default): Export using Blender scene's current unit system
+  - **Force Centimeters**: Convert all measurements to centimeters regardless of scene units
+  - **Force Meters**: Convert all measurements to meters regardless of scene units
+- Unit conversion applies to object transforms, geometry dimensions, light intensity, camera settings
+- Global default unit system option in addon preferences (optional)
+- Preset-based unit selection (e.g., "Omniverse" preset uses centimeters, "VFX Pipeline" uses meters)
+
+**Implementation**:
+- Add `unit_system` EnumProperty to `USDME_Endpoint` (props.py) with options: `SCENE_UNITS`, `FORCE_CENTIMETERS`, `FORCE_METERS`
+- Add dropdown in endpoint settings panel (ui.py)
+- For scene units: Query `bpy.context.scene.unit_settings.system` and `bpy.context.scene.unit_settings.scale_length`
+- For forced centimeters: Pass `convert_to_centimeters=True` to `bpy.ops.wm.usd_export()`
+- For forced meters: May require post-processing or scale factor application (verify Blender API support)
+- Integration with export presets (v0.5.0+) for preset-based unit selection
+
+**Blender API**:
+```python
+export_params = {
+    "convert_to_centimeters": True,  # When unit_system == FORCE_CENTIMETERS
+    # Note: Blender may not have direct "force meters" option
+    # May require post-processing or scale factor application
+}
+```
+
+**Use Cases**:
+- **Omniverse Workflows**: Typically require centimeters (FORCE_CENTIMETERS)
+- **VFX Pipelines**: Often use meters (FORCE_METERS)
+- **General Use**: Use scene units for flexibility (SCENE_UNITS)
+- **Preset-Based**: Apply unit system based on selected export preset
+
+**Dependencies**: None  
+**Estimated Effort**: 2-3 hours
 
 ---
 
@@ -1065,7 +1128,7 @@ export_params = {
 **Goal**: Enable per-endpoint control over essential export parameters
 
 **Features**:
-1. General Export Settings (1.1-1.4)
+1. General Export Settings (1.1-1.5) - Includes new Unit System Control (1.5)
 2. Stage Configuration (2.1-2.2)
 3. Export Type Selection (3.1)
 4. Basic Geometry Options (4.1-4.5)
