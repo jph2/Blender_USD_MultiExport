@@ -91,13 +91,21 @@ class USDME_StartPointPropertyGroup(PropertyGroup):
 
     normalize_scale: BoolProperty(
         name="Normalize Scale",
-        description="Collection only: apply scale to geometry and reset scale to 1.0",
+        description=(
+            "Apply scale to geometry, reset to 1.0; "
+            "post-export bake sets child prim scale (1,1,1) in USD. "
+            "Currently disabled (upcoming): breaks collection/decals — see 04_Implementation_Plan.md"
+        ),
         default=False,
     )
 
     normalize_rotation: BoolProperty(
         name="Normalize Rotation",
-        description="Collection only: bake rotation into geometry and reset rotation to 0",
+        description=(
+            "Bake rotation into geometry, reset to 0; "
+            "post-export bake sets child prim rotation (0,0,0) in USD. "
+            "Currently disabled (upcoming): breaks collection/decals — see 04_Implementation_Plan.md"
+        ),
         default=False,
     )
 

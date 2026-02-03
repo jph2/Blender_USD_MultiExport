@@ -1,5 +1,74 @@
 # WIP Notes
 
+## 2026-02-03 v0.1.87 – Gray out Normalize Scale / Normalize Rotation (upcoming feature)
+
+**Context:** Normalize Scale and Normalize Rotation still caused broken decals (wrong position/scale/rotation). User requested to gray them out, label “Upcoming feature”, and document in the implementation plan with notes on why it breaks.
+
+**Changes:**
+- **UI (`ui.py`):** Normalize Scale and Normalize Rotation are in a disabled row (grayed out). Added row “Upcoming feature — 04_Implementation_Plan.md”.
+- **Props (`props.py`):** Descriptions for both options note they are disabled (upcoming) and reference 04_Implementation_Plan.md.
+- **Export (`ops_export.py`):** In `_apply_collection_normalization_quickfix`, `normalize_rotation` and `normalize_scale` are forced to `False`. In the bake call, `normalize_child_xforms` is always `False` (no post-export child-xform normalization until the feature is fixed).
+- **Implementation plan (`04_Implementation_Plan.md`):** New section “🔮 Upcoming: Normalize Scale / Normalize Rotation” with: why it breaks (Blender-side + USD post-pass), what needs to be done (Blender-side consistency, USD bake logic, testing, re-enable steps), and links to Discovery/WIP.
+- **Discovery / WIP:** Updated known limitation and added link to 04_Implementation_Plan.md.
+
+**Result:** Users see the options grayed out with “Upcoming feature”; export never uses Normalize Scale/Rotation; implementation plan documents root cause and fix path.
+
+**Fix (no version bump):** v0.1.86 was missing the transform on the default prim. An attempt to only add xform when `default_prim.IsA(UsdGeom.Xformable)` was reverted: it caused both object and collection default prims to lose their transform (everything 100× too small). Restored original logic: always use `UsdGeom.Xformable(default_prim)` and add translate/rotate/scale when the wrapper is valid.
+
+---
+
+## 2026-02-03 v0.1.86 – Disable USD child-xform normalization for COLLECTION exports
+
+**Context:** After v0.1.85, enabling **Normalize Scale** and **Normalize Rotation** for a collection (e.g. SHAKTI_Decals) still produced wrong decals: same broken position/rotation/scale (e.g. scale ~-0.3, tiny translate). The post-export bake no longer crashes but its result is incorrect for collection children.
+
+**Change:** In `ops_export.py`, when the start point is **COLLECTION**, `normalize_child_xforms` is now forced to `False` before calling `bake_usd_geometry()`. **OBJECT** exports are unchanged: they still use normalize rotation/scale to drive the USD post-pass when the user enables those options.
+
+**Result:** Collection exports no longer run the problematic USD child-xform normalization; decals rely on Blender’s pre-export `transform_apply` only. Object exports keep post-export normalization. Documented in WIP and (if present) discovery as a known limitation until the bake logic for collection hierarchies is fixed.
+
+**Follow-up (v0.1.87):** Normalize Scale and Normalize Rotation are grayed out in the UI and forced off in export logic (upcoming feature). Rationale and implementation plan: **04_Implementation_Plan.md** → section “🔮 Upcoming: Normalize Scale / Normalize Rotation”.
+
+---
+
+## 2026-02-03 v0.1.85 – GetDescendants crash (Blender USD) + collection scale
+
+**Context:** With all normalize options on for SHAKTI_Decals (collection), export crashed with `AttributeError: 'Prim' object has no attribute 'GetDescendants'`. The bake step never completed, so: (1) collection file was never saved with default-prim xform or scale → decals appeared 100× too small; (2) normalize rotation/scale in USD never ran.
+
+**Cause:** Blender 5.0’s bundled USD does not provide `Usd.Prim.GetDescendants()` (that API exists in newer USD only).
+
+**Fix (v0.1.85):**
+- **usd_bake.py:** Replaced all use of `prim.GetDescendants()` with a recursive helper `_iter_prim_descendants(prim)` that uses only `GetChildren()` so it works with Blender’s USD.
+- `_has_mesh_descendant` and `_get_descendant_meshes` now use `_iter_prim_descendants`.
+
+**Result:** Bake completes for collection exports; default prim gets translate/rotate/scale; mesh points get scale_factor; when Normalize Rotation/Scale are on, child prim xforms are normalized in USD. Decals should match boat scale when both use the same target units (e.g. CENTIMETERS).
+
+---
+
+## 2026-02-03 v0.1.84 – Post-export USD xform normalization
+
+**Context:** User reported that in Omniverse, exported child prims (e.g. `SPADE_2b_Outline_Petrol_LEFT`) showed non-zero rotation and non-unit scale (e.g. scale ~-0.30119), even when “normalize” was expected. Translate had a tiny rounding error (acceptable).
+
+**Cause:** Normalization ran only in Blender (`transform_apply` on the export set before USD export). If **Normalize Rotation** or **Normalize Scale** were unchecked, or apply was skipped, the USD kept original transforms. The post-export bake only set the **default prim**; it did not reset **child** prim xforms.
+
+**Changes (v0.1.84):**
+
+1. **Post-export USD normalization** (`usd_bake.py`):
+   - New parameter `normalize_child_xforms=False` on `bake_usd_geometry()`.
+   - When True (driven by start point **Normalize Rotation** or **Normalize Scale**): after the existing bake, traverse all non-default Xformable prims that have mesh descendants (post-order); for each, get local transform, bake it into descendant mesh points/normals, then set that prim’s xform to identity (translate 0, rotate 0, scale 1).
+   - Helpers: `_has_mesh_descendant`, `_get_descendant_meshes`, `_bake_matrix_into_mesh`, `_collect_xformable_with_mesh_descendants_postorder`.
+
+2. **Export operator** (`ops_export.py`):
+   - When calling `bake_usd_geometry()`, pass `normalize_child_xforms = (normalize_rotation or normalize_scale)` from the start point.
+
+3. **Docs and UI:**
+   - **00_Discovery.md:** New subsection “Why rotation/scale can look non-normalized in USD (Omniverse)” – user must enable Normalize Rotation and Normalize Scale for identity in USD; v0.1.84 adds post-export bake so child prims get identity when those options are on.
+   - **props.py:** Normalize Scale and Normalize Rotation descriptions updated to mention post-export bake (child prim scale/rotation set in USD).
+
+**Build:** `releases/blender_usd_multiexport_v0.1.84.zip` (8 files, ~52 KB).
+
+**Usage:** Enable **Normalize Rotation** and **Normalize Scale** (and **Normalize Position** if desired) on the start point; re-export. In Omniverse, child prims should show Rotate (0,0,0) and Scale (1,1,1).
+
+---
+
 ## 2026-02-03 Pivot Reset Script (Omniverse Kit) – BEP Notes
 
 **Context:** Standalone script `SANDBOX SCRIPTS/normalize_pivot_reset.py` to “reset” the default prim to identity while keeping children visually correct (wrapper trick: move children into a temp Xform, zero default prim, set wrapper to -90° X, copy children back with world transform baked). Script is run **inside Omniverse Kit** (Script Editor). Same overall goal as addon bake (default prim at identity, decals correct); this script is for testing/post-process on existing USDA.

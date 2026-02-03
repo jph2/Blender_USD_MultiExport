@@ -1,6 +1,6 @@
 # Clean Implementation Plan - Object/Collection Export Path Isolation
 
-**Version**: 1.1.0 | **Date**: 02.02.2026 | **Time**: 19:30 | **GlobalID**: 20260202_1930_Blender_USD_MultiExport_IMPLEMENTATION
+**Version**: 1.2.0 | **Date**: 03.02.2026 | **Time**: 17:20 | **GlobalID**: 20260203_1720_Blender_USD_MultiExport_22
 
 **Purpose**: Clear, actionable plan to restore object export to v0.1.48 behavior and isolate collection export path.
 
@@ -84,6 +84,63 @@
 **Objective**: Build collection export path as completely separate implementation.
 
 **Tasks:**
+
+#### 3.0 Quick-Fix: Use Blender Apply + Set Origin (Collection Only)
+**Status**: Proposed (fast path)  
+**Rationale**: Normalization checkboxes exist in UI/props but the collection normalization pipeline is currently disabled in code. This quick-fix uses Blender's built-in apply transforms + set origin to make the toggles functional without re-enabling the fake-parent system.
+
+**Scope**:
+- Collection start points only.
+- Object start points remain untouched.
+- Works with existing UI toggles:
+  - `normalize_position`
+  - `normalize_rotation`
+  - `normalize_scale`
+  - `collection_pivot_source` (WORLD/CUSTOM/CURSOR/OBJECT)
+  - `collection_pivot_only`
+
+**Implementation Notes**:
+- Use **temporary duplicates** of export objects to avoid destructive edits.
+- Operate only inside the export isolation context.
+- Always restore scene state and delete duplicates after export.
+- Use Blender ops for apply/transform and origin setting (fast, reliable).
+
+**Step-by-step plan (resume-friendly)**:
+1. **Locate collection export entry point**  
+   - File: `blender_usd_multiexport_addon/ops_export.py`  
+   - Find the collection export path and insert a guarded block for normalization.
+2. **Collect collection export objects (duplicates only)**  
+   - Ensure we work on duplicated objects (current export already duplicates for modifiers).  
+   - Build a list `export_objects` that represents exactly what will be exported.
+3. **Resolve pivot target**  
+   - WORLD: `(0,0,0)`  
+   - CUSTOM: `start_point.collection_pivot_xyz`  
+   - CURSOR: `context.scene.cursor.location`  
+   - OBJECT: `start_point.collection_pivot_object.matrix_world.to_translation()`  
+4. **Set origin (pivot)**  
+   - Select `export_objects`, set active object.  
+   - Use `bpy.ops.object.origin_set(type='ORIGIN_CURSOR', center='MEDIAN')`  
+   - For WORLD/CUSTOM/OBJECT: move 3D cursor to pivot, set origin to cursor.  
+5. **Apply transforms**  
+   - If `collection_pivot_only` is True: skip apply.  
+   - Else apply based on checkboxes:  
+     - `bpy.ops.object.transform_apply(location=normalize_position, rotation=normalize_rotation, scale=normalize_scale)`  
+6. **Restore cursor**  
+   - Save and restore the 3D cursor position to avoid user disruption.  
+7. **Export**  
+   - Use existing export selection logic; no changes to object export path.  
+8. **Cleanup**  
+   - Delete duplicates, restore selection/visibility states.
+
+**Logging**:
+- Add log steps for: pivot source, cursor move, origin set, apply transforms, and cleanup.
+
+**Potential pitfalls**:
+- Applying transforms is destructive: must be done only on duplicates.
+- Ensure objects are in OBJECT mode before calling ops.
+- Avoid applying transforms when `collection_pivot_only=True`.
+
+**Deliverable**: Collection normalization checkboxes produce visible transform changes in exported USD without re-enabling fake-parent logic.
 
 #### 3.1 Fake Parent Creation
 - [ ] Create Blender Empty (Plain Axes) as fake parent

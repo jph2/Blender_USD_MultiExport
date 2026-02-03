@@ -1,6 +1,6 @@
 # Blender USD Multi Export - Discovery Document
 
-**Version**: 1.8.1 | **Date**: 02.02.2026 | **Time**: 14:01 | **GlobalID**: 20260202_1401_Blender_USD_MultiExport_Discovery
+**Version**: 1.9.0 | **Date**: 03.02.2026 | **Time**: 12:00 | **GlobalID**: 20260203_1200_Blender_USD_MultiExport_Discovery
 
 ---
 
@@ -670,6 +670,102 @@ The Y-up conversion applies:
 
 ---
 
+## Session: NVIDIA Omniverse — Convert Orientation and Axis Conversion (Reference)
+
+**Date**: 03.02.2026  
+**Status**: Reference / discovery  
+**Related**: Unit conversion, Y-up, `convert_orientation` in `bpy.ops.wm.usd_export`
+
+### For NVIDIA Omniverse — internalize this
+
+For NVIDIA **Omniverse**, the key thing to internalize is: **"Convert Orientation" in Blender is not just a metadata flip**. It applies a **real axis-conversion transform** so the exported prim transforms land in the target convention (e.g., Y-up), because USD's `upAxis` metadata alone does **not** rotate existing objects. ([Set the Stage Up Axis — Omniverse][omniverse-upaxis])
+
+### What Blender's "Convert Orientation" actually does
+
+#### 1) Blender computes an axis-conversion matrix (rotation/sign flips)
+
+Blender's exporters use the standard axis conversion helper exposed to Python:
+
+- `bpy_extras.io_utils.axis_conversion(from_forward, from_up, to_forward, to_up)` ([Blender Python API: bpy_extras.io_utils][blender-io-utils])
+
+Blender's native convention is **Forward = +Y, Up = +Z** (that's what the USD exporter UI is describing). ([Blender Manual: USD][blender-usd-manual])
+
+For the common "Blender Z-up → Y-up" target (used by many USD pipelines), you typically end up with:
+
+- **to_up = +Y**
+- **to_forward = -Z**
+
+…and the conversion matrix is equivalent to **+90° about X** (plus the forward-axis choice to keep a right-handed basis). Example matrix for that mapping: ([Gist: Axis conversion matrix][gist-axis-matrix])
+
+```
+[ 1  0  0 ]
+[ 0  0  1 ]
+[ 0 -1  0 ]
+```
+
+which maps: **x′=x, y′=z, z′=−y**
+
+#### 2) Exporter applies that matrix to exported transforms
+
+Blender's exporters generally treat this as a "global matrix" that **pre-multiplies** object transforms (the exact location in the pipeline can differ, but the concept is consistent across exporters). You can see this same pattern in Blender's official add-on exporters (e.g., FBX) where `axis_conversion(...).to_4x4()` becomes the `global_matrix`. ([Blender add-ons: io_scene_fbx][blender-fbx-addon])
+
+#### 3) Blender may also set `upAxis` metadata — but that alone is not enough
+
+USD stages can declare `upAxis` as `Y` or `Z`, but **USD does not auto-rotate authored transforms to match**. So if Blender (or you) only changes `upAxis` without rotating transforms, different apps will show "wrong orientation." ([Set the Stage Up Axis — Omniverse][omniverse-upaxis])
+
+### How this lines up with Omniverse
+
+#### Omniverse apps can differ, but USD defaults to Y-up
+
+- USD's **fallback upAxis is Y**. ([Set the Stage Up Axis — Omniverse][omniverse-upaxis])
+- In Omniverse Kit apps, the "default up axis" can vary by app and is configurable in preferences (examples from NVIDIA staff: **Omniverse Code = Y-up**, **Isaac Sim = Z-up**; plus there's a "Stage > Default Up Axis" preference). ([NVIDIA Forums: Set Up Axis to Z][nvidia-forums-upaxis])
+
+#### A good "Omniverse-friendly" Blender setting (most common)
+
+If your target is **USD Composer / general Omniverse viewing**, a very common expectation is:
+
+- **Up = Y**
+- **Forward = -Z**
+- **Convert Orientation = ON**
+
+This matches the common USD camera/view conventions seen in Omniverse-related docs (e.g., Isaac Sim explicitly calls out USD axes using **+Y up, -Z forward**). ([Isaac Sim: Conventions][isaac-sim-conventions])
+
+#### But if you're targeting Sim/robotics workflows
+
+NVIDIA's SimReady guidance often recommends exporting assets **Z-up**. ([Omniverse SimReady: Modeling Best Practices][simready-modeling])  
+So if your pipeline is "simulation first," you might instead keep Z-up and set your Omniverse stage/app preferences accordingly.
+
+### The most important practical implication for this exporter pipeline
+
+If you are *already* baking transforms (fake parent → bake → export), then **Blender's Convert Orientation becomes another matrix multiplication step**. If you apply a Z-up→Y-up conversion yourself *and* the exporter applies it again, you get "double-rotated / scattered" results.
+
+So pick **exactly one** place to do axis conversion:
+
+- **Option A (recommended for debugging):** disable `convert_orientation` in `bpy.ops.wm.usd_export(...)` and do any axis conversion in your own bake logic *or* later in USD.
+- **Option B:** keep Blender's `convert_orientation` ON and ensure your own bake logic stays entirely in Blender's native axes (no extra Y-up step).
+
+### How to confirm what Blender exported (in Omniverse terms)
+
+1. Export **USDA** (ASCII) once.
+2. Check:
+   - Stage metadata: `upAxis = "Y"` or `"Z"`
+   - Any root `xformOp` that looks like a ±90° X rotation or a matrix op
+
+If you paste a tiny snippet of your export operator call (the usd_export args you pass, especially `convert_orientation`, forward/up, and `xform_op_mode`) you can pinpoint exactly where the extra rotation is likely coming from in your current setup.
+
+### Reference links
+
+- [omniverse-upaxis]: https://docs.omniverse.nvidia.com/dev-guide/latest/programmer_ref/usd/stage/set-stage-up-axis.html "Set the Stage Up Axis — Omniverse Developer Guide"
+- [blender-io-utils]: https://docs.blender.org/api/current/bpy_extras.io_utils.html "bpy_extras.io_utils — Blender Python API"
+- [blender-usd-manual]: https://docs.blender.org/manual/en/latest/files/import_export/usd.html "Universal Scene Description — Blender Manual"
+- [gist-axis-matrix]: https://gist.github.com/atteneder/594d4d6ac8bbf88d3c4efd0564fea75e "Coordinate Space Axis Conversion Matrix from Blender"
+- [blender-fbx-addon]: https://github.com/blender/blender-addons/blob/master/io_scene_fbx/__init__.py "blender-addons io_scene_fbx"
+- [nvidia-forums-upaxis]: https://forums.developer.nvidia.com/t/set-up-axis-to-z-not-y/276969 "Set Up Axis to Z — NVIDIA Developer Forums"
+- [isaac-sim-conventions]: https://docs.isaacsim.omniverse.nvidia.com/4.5.0/reference_material/reference_conventions.html "Isaac Sim Conventions"
+- [simready-modeling]: https://docs.omniverse.nvidia.com/simready/latest/simready-asset-creation/modeling-best-practices.html "Modeling Best Practices — Omniverse SimReady"
+
+---
+
 ## Session: Unit Label UI Fix (v0.1.21 IMPLEMENTED)
 
 **Date**: 26 January 2026  
@@ -764,6 +860,20 @@ These options will be exposed in the Collection export UI to let users preserve 
 - **Use Collection** when exporting multiple related objects in bulk (e.g., decals). Collection exports need an explicit pivot selection to keep alignment consistent.
 - **Use Object** when exporting a single asset that already has a clear, deliberate transform and pivot in Blender.
 - **Performance Tip**: Normalizing position/scale to a single pivot (world or fake parent) reduces transform complexity downstream, but may not be desirable if you want to preserve authoring transforms.
+
+### Why Rotation/Scale Can Look Non-Normalized in USD (Omniverse)
+
+If you open the exported USD in Omniverse and see **non-zero rotation** or **non-unit scale** (e.g. scale ~0.3 or negative) on child prims:
+
+1. **Check the addon options**: For identity rotation and scale in USD you must enable **Normalize Rotation** and **Normalize Scale** on the start point. The addon then:
+   - **In Blender**: applies `transform_apply(rotation=True, scale=True)` to the export set before calling the USD exporter.
+   - **In USD (v0.1.84+)**: when either option is on, a post-export pass bakes each child prim’s transform into its mesh and sets that prim’s xform to identity (translate 0, rotate 0, scale 1). So the USD file ends up with normalized transforms even if Blender’s apply was skipped or only pivot was used.
+
+2. **Translate** can show a tiny rounding error (e.g. 0.00001) — that’s acceptable.
+
+3. **Summary**: Enable **Normalize Position**, **Normalize Rotation**, and **Normalize Scale** as needed so exported prims have the transforms you expect in Omniverse.
+
+**Known limitation (v0.1.86, tightened v0.1.87):** Normalize Scale and Normalize Rotation are **disabled** (grayed out in the UI and forced off in export). For COLLECTION exports the addon does not run the post-export USD child-xform normalization; enabling these options previously broke decals (wrong scale/position/rotation). Rationale and how to re-enable them are documented in **04_Implementation_Plan.md** → section “🔮 Upcoming: Normalize Scale / Normalize Rotation”.
 
 ---
 

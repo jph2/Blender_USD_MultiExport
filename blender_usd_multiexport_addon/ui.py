@@ -110,8 +110,14 @@ class USDME_PT_main_panel(Panel):
                     )
                     row_norm = box_norm.row(align=True)
                     row_norm.prop(start_point, "normalize_position", text="Normalize Position")
-                    row_norm.prop(start_point, "normalize_scale", text="Normalize Scale")
-                    row_norm.prop(start_point, "normalize_rotation", text="Normalize Rotation")
+                    row_norm_scale_rot = box_norm.row(align=True)
+                    row_norm_scale_rot.enabled = False
+                    row_norm_scale_rot.prop(start_point, "normalize_scale", text="Normalize Scale")
+                    row_norm_scale_rot.prop(start_point, "normalize_rotation", text="Normalize Rotation")
+                    row_upcoming = box_norm.row(align=True)
+                    row_upcoming.scale_y = 0.85
+                    row_upcoming.label(text="Upcoming feature", icon="INFO")
+                    row_upcoming.label(text="— 04_Implementation_Plan.md")
 
                     row_pivot = box_norm.row(align=True)
                     row_pivot.prop(start_point, "collection_pivot_source", text="Pivot")

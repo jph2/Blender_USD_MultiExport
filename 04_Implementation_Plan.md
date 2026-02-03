@@ -1,6 +1,6 @@
 # Blender USD Multi Export - Complete Implementation Plan
 
-**Version**: 2.12.1 | **Date**: 02.02.2026 | **Time**: 14:01 | **GlobalID**: 20260202_1401_Blender_USD_MultiExport_01
+**Version**: 2.12.2 | **Date**: 03.02.2026 | **Time**: 17:28 | **GlobalID**: 20260203_1728_Blender_USD_MultiExport_01
 **Status**: ✅ MVP Complete - v0.1.31 Released (Perspective: start point as pipeline origin)
 **Date Created**: 25.11.2025
 **Last Updated**: 01.02.2026
@@ -978,6 +978,11 @@ Choose one of:
    - Collections = bulk export with pivot selection
    - Objects = single explicit asset export
 
+**Quick-Fix (Immediate Path)**:
+- Use Blender's built-in **Apply Transform** + **Set Origin** tools on **temporary duplicates** during export.
+- This makes the existing UI toggles (`normalize_position`, `normalize_scale`, `normalize_rotation`, and pivot source) functional without re-enabling the fake-parent system.
+- Full step-by-step implementation lives in `22_IMPLEMENTATION_PLAN_CLEAN_Phase_14D.md` (Phase 3.0).
+
 **Acceptance Criteria**:
 - [ ] Omniverse shows **no Resolve transforms** (ScaleunitsResolve/RotateunitsResolve = 0)
 - [ ] Geometry size matches target units
@@ -1657,4 +1662,35 @@ Per `Master_Rules/080_Framework_RULES/documentation/usd_multiexport_uix_pattern.
 - **Future Vision**: Bidirectional capabilities (ComfyUI triggering Blender exports) planned for v0.4.0+
 - **Implementation Strategy**: Follow Rhino plan's Phase 3 approach for ComfyUI integration
 - **Benefits**: Leverages proven architecture pattern from Rhino implementation
+
+---
+
+## 🔮 Upcoming: Normalize Scale / Normalize Rotation (disabled in UI as of v0.1.87)
+
+**Status**: 🟡 Upcoming — UI options grayed out; export logic treats both as off.  
+**Reference**: Discovery `00_Discovery.md` (Session: Collection Normalization & Pivot Strategy); WIP `80_WIP_notes.md` (v0.1.86, v0.1.85, v0.1.84).
+
+### Why these options are disabled
+
+Enabling **Normalize Scale** or **Normalize Rotation** for collection exports (e.g. decals) currently **breaks** the result:
+
+1. **Symptom**: In Omniverse, child prims show wrong transform — e.g. scale ~−0.3, non-zero rotation, tiny or wrong translate. Decals appear ~100× too small or in the wrong place/orientation.
+2. **Blender-side**: Pre-export `transform_apply(rotation=..., scale=...)` on the export set runs, but collection hierarchy / pivot handling can still produce inconsistent local transforms that then get written into USD.
+3. **USD post-export bake**: The addon runs a post-export pass (`usd_bake.py`) that bakes each child prim’s local transform into its mesh and sets the prim’s xform to identity. For collection exports this pass produces **incorrect** results:
+   - The “local” matrix used for baking may not match the actual hierarchy (e.g. default-prim scale/rotation vs child prims).
+   - Mesh points may already have been scaled by `scale_factor` (unit conversion); baking again with the wrong matrix leads to double transform or wrong scale/rotation.
+   - Order of operations (default-prim xform, then child xforms) and coordinate spaces (Blender vs USD, Y-up, etc.) are easy to get wrong for collection roots with many children.
+
+So both the **Blender-side** normalize and the **USD post-pass** can contribute to the broken decals. Disabling Normalize Scale and Normalize Rotation in the UI and in export logic avoids the broken behaviour until the pipeline is fixed.
+
+### What needs to be done (implementation plan)
+
+- **Blender-side**: Ensure collection normalization (transform_apply with pivot/origin) produces consistent local transforms for all objects in the collection before USD export; validate with a multi-object collection (e.g. decals).
+- **USD post-pass**: Revisit `usd_bake.py` child-xform normalization:
+  - Compute each child prim’s local-to-world (or local) transform in the **same** space as the mesh points (after default-prim and scale_factor are applied).
+  - Bake that transform into mesh points/normals, then set the prim’s xform to identity, without double-applying scale_factor or parent xform.
+- **Testing**: Re-enable the UI options behind a flag or branch; test COLLECTION exports (decals) and OBJECT exports; verify in Omniverse that scale, rotation, and position match expectations.
+- **Re-enable**: Once the above is validated, remove the forced `normalize_rotation = False` / `normalize_scale = False` in `_apply_collection_normalization_quickfix`, restore `normalize_child_xforms` from start point options in the bake call, and un-gray the Normalize Scale / Normalize Rotation UI.
+
+**Links**: `00_Discovery.md` (Why Rotation/Scale Can Look Non-Normalized; Known limitation v0.1.86), `80_WIP_notes.md` (v0.1.86, v0.1.85, v0.1.84).
 

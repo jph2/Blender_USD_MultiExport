@@ -12,16 +12,20 @@ def bake_usd_geometry(
     meters_per_unit: float,
     logger=None,
     start_point_context: Optional[Dict[str, Any]] = None,
+    normalize_child_xforms: bool = False,
 ) -> Dict[str, Any]:
     """Bake scale/rotation into USD mesh geometry and set stage metadata.
 
     v0.1.70: Fixed to preserve spatial positions for collections.
-    
+    v0.1.84: Optional normalize_child_xforms bakes each non-root xform into
+    mesh and sets prim to identity (translate 0, rotate 0, scale 1).
+
     This is a post-process step that:
     - Applies rotation (Z-up -> Y-up) and scale directly to mesh points (LOCAL coords only)
     - Rotates normals only (no scaling), then normalizes
     - Updates xformOp values (scale translate, rotate orientation) instead of clearing them
     - Sets metersPerUnit and upAxis to match baked geometry
+    - If normalize_child_xforms: bakes each child prim's transform into its mesh and zeros xform
     """
     context = start_point_context or {}
     result: Dict[str, Any] = {
@@ -33,6 +37,7 @@ def bake_usd_geometry(
         "points_baked": 0,
         "normals_baked": 0,
         "xforms_updated": 0,
+        "child_xforms_normalized": 0,
     }
 
     try:
@@ -57,26 +62,35 @@ def bake_usd_geometry(
         return result
 
     # v0.1.75: Add -90° X rotation to DEFAULT PRIM for Z-up → Y-up conversion
-    # This is the key fix! The rotation must be on the root/default prim,
-    # not baked into geometry or applied to child xformOps.
+    # v0.1.83: Ensure default prim is set and has a transform. Object export
+    # often has no default prim set by Blender → root had no transform (100x
+    # too small vs collection). Use root prim when default is missing.
     default_prim = stage.GetDefaultPrim()
-    if default_prim and default_prim.IsValid() and y_is_up:
+    if not default_prim or not default_prim.IsValid():
+        # Object export: Blender may not set defaultPrim. Use first root prim.
+        pseudo_root = stage.GetPseudoRoot()
+        children = pseudo_root.GetChildren()
+        if children:
+            default_prim = children[0]
+            stage.SetDefaultPrim(default_prim)
+            result["default_prim_set_from_root"] = True
+    if default_prim and default_prim.IsValid():
         xformable = UsdGeom.Xformable(default_prim)
         if xformable:
-            # Clear any existing xformOps and add our own
+            # Clear any existing xformOps and add our own so default prim
+            # always has translate, rotate, scale (matches collection export).
             xformable.ClearXformOpOrder()
-            
-            # Add translate, rotate, scale ops in standard order
             translate_op = xformable.AddTranslateOp()
             translate_op.Set(Gf.Vec3d(0, 0, 0))
-            
             rotate_op = xformable.AddRotateXYZOp()
-            rotate_op.Set(Gf.Vec3f(-90, 0, 0))  # Z-up → Y-up conversion
-            
+            rotate_op.Set(
+                Gf.Vec3f(-90, 0, 0) if y_is_up else Gf.Vec3f(0, 0, 0)
+            )  # Z-up → Y-up when requested
             scale_op = xformable.AddScaleOp()
             scale_op.Set(Gf.Vec3f(1, 1, 1))
-            
-            result["default_prim_rotation_added"] = True
+            result["default_prim_xform_added"] = True
+            if y_is_up:
+                result["default_prim_rotation_added"] = True
 
     # v0.1.75: Only scale geometry for unit conversion (meters → centimeters)
     # NO rotation here - the default prim rotation handles coordinate conversion
@@ -148,6 +162,27 @@ def bake_usd_geometry(
                     result["xforms_updated"] += 1
             ancestor = ancestor.GetParent()
 
+    # v0.1.84: Post-export normalization of child prim xforms (bake into mesh, set to identity)
+    if normalize_child_xforms and default_prim and default_prim.IsValid():
+        default_path = default_prim.GetPath()
+        time = Usd.TimeCode.Default()
+        postorder = _collect_xformable_with_mesh_descendants_postorder(
+            stage, default_path, time, UsdGeom, Gf
+        )
+        for prim, local in postorder:
+            xformable = UsdGeom.Xformable(prim)
+            if not xformable:
+                continue
+            xformable.ClearXformOpOrder()
+            xformable.AddTranslateOp().Set(Gf.Vec3d(0, 0, 0))
+            xformable.AddRotateXYZOp().Set(Gf.Vec3f(0, 0, 0))
+            xformable.AddScaleOp().Set(Gf.Vec3f(1, 1, 1))
+            for mesh_prim in _get_descendant_meshes(prim, UsdGeom):
+                _bake_matrix_into_mesh(mesh_prim, local, UsdGeom, Gf)
+            result["child_xforms_normalized"] = (
+                result.get("child_xforms_normalized", 0) + 1
+            )
+
     UsdGeom.SetStageMetersPerUnit(stage, meters_per_unit)
     UsdGeom.SetStageUpAxis(
         stage, UsdGeom.Tokens.y if y_is_up else UsdGeom.Tokens.z
@@ -208,6 +243,111 @@ def _update_xform_ops(xformable, scale_factor: float, y_is_up: bool, Gf) -> None
         # Leave scale, rotation, orient COMPLETELY unchanged
 
 
+def _iter_prim_descendants(prim):
+    """Yield all descendants of prim (recursive GetChildren). Blender USD has no GetDescendants."""
+    for child in prim.GetChildren():
+        yield child
+        for desc in _iter_prim_descendants(child):
+            yield desc
+
+
+def _has_mesh_descendant(prim, UsdGeom) -> bool:
+    """Return True if prim has any Mesh descendant."""
+    for p in _iter_prim_descendants(prim):
+        if p.IsA(UsdGeom.Mesh):
+            return True
+    return False
+
+
+def _get_descendant_meshes(prim, UsdGeom) -> list:
+    """Return list of all Mesh prims under prim (direct or indirect)."""
+    out = []
+    for p in _iter_prim_descendants(prim):
+        if p.IsA(UsdGeom.Mesh):
+            out.append(p)
+    return out
+
+
+def _bake_matrix_into_mesh(mesh_prim, local, UsdGeom, Gf) -> None:
+    """Apply 4x4 local matrix to mesh points and normals (in-place)."""
+    mesh_geom = UsdGeom.Mesh(mesh_prim)
+    points_attr = mesh_geom.GetPointsAttr()
+    points = points_attr.Get()
+    if points:
+        new_points = []
+        for point in points:
+            p4 = Gf.Vec4d(point[0], point[1], point[2], 1.0)
+            p4 = local * p4
+            new_points.append(Gf.Vec3f(p4[0], p4[1], p4[2]))
+        points_attr.Set(new_points)
+    normals_attr = mesh_geom.GetNormalsAttr()
+    normals = normals_attr.Get()
+    if normals:
+        row0 = local.GetRow(0)
+        row1 = local.GetRow(1)
+        row2 = local.GetRow(2)
+        normal_m = Gf.Matrix3d(
+            row0[0], row0[1], row0[2],
+            row1[0], row1[1], row1[2],
+            row2[0], row2[1], row2[2],
+        )
+        try:
+            normal_m = normal_m.GetInverse().GetTranspose()
+        except Exception:
+            pass
+        new_normals = []
+        for n in normals:
+            n3 = Gf.Vec3d(n[0], n[1], n[2])
+            n3 = normal_m * n3
+            try:
+                n3.Normalize()
+            except Exception:
+                pass
+            new_normals.append(Gf.Vec3f(n3[0], n3[1], n3[2]))
+        normals_attr.Set(new_normals)
+
+
+def _collect_xformable_with_mesh_descendants_postorder(
+    stage, default_path, time, UsdGeom, Gf
+) -> list:
+    """Collect (prim, local_matrix) for non-default Xformables with mesh descendants, post-order."""
+    result = []
+
+    def recurse(prim):
+        if prim.GetPath() == default_path:
+            for child in prim.GetChildren():
+                recurse(child)
+            return
+        if not prim.IsA(UsdGeom.Xformable):
+            for child in prim.GetChildren():
+                recurse(child)
+            return
+        for child in prim.GetChildren():
+            recurse(child)
+        if not _has_mesh_descendant(prim, UsdGeom):
+            return
+        parent = prim.GetParent()
+        xf = UsdGeom.Xformable(prim)
+        prim_world = xf.ComputeLocalToWorldTransform(time)
+        if parent and not parent.IsPseudoRoot() and parent.IsA(UsdGeom.Xformable):
+            parent_world = UsdGeom.Xformable(parent).ComputeLocalToWorldTransform(
+                time
+            )
+            try:
+                parent_inv = parent_world.GetInverse()
+                local = parent_inv * prim_world
+            except Exception:
+                local = prim_world
+        else:
+            local = prim_world
+        result.append((prim, local))
+
+    pseudo_root = stage.GetPseudoRoot()
+    for child in pseudo_root.GetChildren():
+        recurse(child)
+    return result
+
+
 def _cleanup_temp_usd_file(message: str, logger, context: Dict[str, Any]) -> None:
     match = re.search(r"temporary file '([^']+)' to", message)
     if not match:
@@ -217,15 +357,15 @@ def _cleanup_temp_usd_file(message: str, logger, context: Dict[str, Any]) -> Non
         if os.path.exists(temp_path):
             os.remove(temp_path)
             if logger:
-                logger.log_info(
+                logger.info(
                     "Removed temporary USD file after save failure.",
-                    context={**context, "temp_path": temp_path},
+                    extra={**context, "temp_path": temp_path},
                 )
     except Exception as exc:
         if logger:
-            logger.log_warning(
+            logger.warning(
                 "Failed to remove temporary USD file.",
-                context={
+                extra={
                     **context,
                     "temp_path": temp_path,
                     "exception": str(exc),
