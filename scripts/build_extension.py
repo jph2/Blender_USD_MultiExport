@@ -10,14 +10,28 @@ Usage:
 """
 
 import zipfile
+import re
 from pathlib import Path
 
 # Configuration
 # Script is in scripts/ subdirectory, so go up one level to repo root
 REPO_ROOT = Path(__file__).parent.parent
 ADDON_DIR = REPO_ROOT / "blender_usd_multiexport_addon"
-OUTPUT_DIR = REPO_ROOT / "dist"
-ZIP_NAME = "blender_usd_multiexport.zip"
+OUTPUT_DIR = REPO_ROOT / "releases"
+
+def get_version():
+    """Extract version from __init__.py."""
+    init_file = ADDON_DIR / "__init__.py"
+    if not init_file.exists():
+        return None
+    
+    with open(init_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+        # Look for version tuple like (0, 1, 9)
+        match = re.search(r'"version":\s*\((\d+),\s*(\d+),\s*(\d+)\)', content)
+        if match:
+            return f"{match.group(1)}.{match.group(2)}.{match.group(3)}"
+    return None
 
 # Files/directories to exclude from the zip
 EXCLUDE_PATTERNS = [
@@ -54,35 +68,41 @@ def build_extension_zip():
     """Build the extension zip file."""
     print("Building Blender USD Multi Export Extension...")
     print(f"Source: {ADDON_DIR}")
-    print(f"Output: {OUTPUT_DIR / ZIP_NAME}")
     
     # Verify addon directory exists
     if not ADDON_DIR.exists():
         print(f"ERROR: Addon directory not found: {ADDON_DIR}")
         return False
     
-    # Verify __init__.py exists
+    # Verify __init__.py exists and get version
     init_file = ADDON_DIR / "__init__.py"
     if not init_file.exists():
         print(f"ERROR: __init__.py not found in {ADDON_DIR}")
         return False
     
+    # Get version from __init__.py
+    version = get_version()
+    if not version:
+        print("WARNING: Could not extract version from __init__.py, using 'unknown'")
+        version = "unknown"
+    
     # Create output directory
     OUTPUT_DIR.mkdir(exist_ok=True)
     
+    # Create versioned zip filename
+    zip_name = f"blender_usd_multiexport_v{version}.zip"
+    zip_path = OUTPUT_DIR / zip_name
+    print(f"Output: {zip_path}")
+    
     # Handle existing zip file
-    zip_path = OUTPUT_DIR / ZIP_NAME
     if zip_path.exists():
         print(f"Existing zip found: {zip_path}")
         try:
             zip_path.unlink()
             print("Removed existing zip")
         except PermissionError:
-            # File is locked (probably by Blender), create with timestamp instead
-            import time
-            timestamp = int(time.time())
-            zip_path = OUTPUT_DIR / f"blender_usd_multiexport_{timestamp}.zip"
-            print(f"File is locked, creating new zip: {zip_path.name}")
+            print(f"WARNING: Could not remove existing zip (file may be locked)")
+            return False
     
     # Create zip file
     print("\nPackaging files...")

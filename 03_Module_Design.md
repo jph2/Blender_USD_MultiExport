@@ -2,8 +2,9 @@
 
 **Status**: ✅ Updated - Incorporating ASWF USD Guidelines compliance  
 **Date Created**: 25.11.2025  
-**Version**: v1.1.0  
-**Last Updated**: 25.11.2025 - Added ASWF USD structure compliance requirements  
+**Version**: v1.2.1  
+**Last Updated**: 02.02.2026 14:01 - v0.1.52 bake rotation fix documented  
+**GlobalID**: 20260202_1401_Blender_USD_MultiExport_03  
 **Target Platform**: Blender 5.0+ (officially released November 18, 2025)
 
 ---
@@ -31,13 +32,13 @@ This document describes the actual module architecture and design as implemented
 
 **Core modules:**
 - `state_manager.py` - **IMPLEMENTED**: Handles scene state backup/restore for safe isolation
-  - `ScopedIsolation` class - Context manager for endpoint isolation
+  - `ScopedIsolation` class - Context manager for start point isolation
   - `StateManager` class - Scene state management for batch operations
 - `props.py` - **IMPLEMENTED**: Data model definitions
-  - `USDME_EndpointPropertyGroup` - Endpoint property definitions
+  - `USDME_StartPointPropertyGroup` - Start point property definitions
   - `USDME_SceneProperties` - Scene-level container
 - `ops_export.py` - **IMPLEMENTED**: Export operations
-  - `USDME_OT_export_endpoints` - Main export operator
+  - `USDME_OT_export_start_points` - Main export operator
   - Pre-flight validation logic
   - Subdivision export with duplicate preservation
   - Origin metadata injection
@@ -45,9 +46,9 @@ This document describes the actual module architecture and design as implemented
 **UI modules:**
 - `ui.py` - **IMPLEMENTED**: User interface
   - `USDME_PT_main_panel` - Main panel in Scene Properties
-  - `USDME_OT_add_endpoint` - Add endpoint operator
-  - `USDME_OT_remove_endpoint` - Remove endpoint operator (removes last only)
-  - `USDME_OT_select_endpoint_target` - Selection tracking operator
+  - `USDME_OT_add_start point` - Add start point operator
+  - `USDME_OT_remove_start_point` - Remove start point operator (removes last only)
+  - `USDME_OT_select_start_point_target` - Selection tracking operator
   - `USDME_OT_generate_bug_report` - Bug report generation
 
 **Utility modules:**
@@ -74,7 +75,7 @@ This document describes the actual module architecture and design as implemented
 - **Responsibilities**:
   - Cache current selection/visibility state
   - Deselect all, hide all (efficiently)
-  - Unhide/select ONLY target endpoint
+  - Unhide/select ONLY target start point
   - Guarantee state restoration in `__exit__` (even on errors)
 - **Implementation**: Uses `try...finally` pattern, caches exact state
 - **Features**:
@@ -118,7 +119,7 @@ This document describes the actual module architecture and design as implemented
 - **Location**: `ops_export.py` (lines 330-336) - Inline implementation
 - **Purpose**: Generate consistent root prim paths following ASWF USD Working Group guidelines
 - **Current Implementation**:
-  - ✅ Root prim path generated from endpoint name (sanitized)
+  - ✅ Root prim path generated from start point name (sanitized)
   - ✅ Name sanitization (removes invalid characters, replaces with underscores)
   - ✅ Fallback to "RootPrim" if name becomes empty
   - ❌ **NOT IMPLEMENTED**: Dedicated class/module (inline code only)
@@ -129,12 +130,12 @@ This document describes the actual module architecture and design as implemented
 
 **`PreFlightValidator`** - ✅ **IMPLEMENTED** (inline in export operator)
 - **Location**: `ops_export.py` (lines 77-136)
-- **Purpose**: Validate endpoints before export
+- **Purpose**: Validate start points before export
 - **Current Implementation**:
   - ✅ Type-specific validation (Collection vs Object)
   - ✅ Collection/object existence checks
   - ✅ Filepath validation (not empty)
-  - ✅ Invalid endpoint detection and reporting
+  - ✅ Invalid start point detection and reporting
   - ✅ Pre-flight validation before batch export starts
   - ⚠️ **PARTIAL**: Empty collection check (not explicitly checked, but would fail during export)
   - ❌ **NOT IMPLEMENTED**: Dedicated validator class (inline code)
@@ -159,20 +160,27 @@ This document describes the actual module architecture and design as implemented
 
 ### 4. Data Models
 
-**Endpoint Data Structure** - ✅ **IMPLEMENTED** (`props.py` lines 16-124):
+**Start point Data Structure** - ✅ **IMPLEMENTED** (`props.py` lines 16-124):
 - ✅ `name` (StringProperty) - Used for default `root_prim_path`
-- ✅ `endpoint_type` (EnumProperty) - 'COLLECTION' or 'OBJECT'
+- ✅ `start point_type` (EnumProperty) - 'COLLECTION' or 'OBJECT'
 - ✅ `collection_name` (StringProperty) - Collection reference
 - ✅ `object_name` (StringProperty) - Object reference
 - ✅ `filepath` (StringProperty) - Stored as relative: `//export/prop_a.usd`
 - ✅ `include_subcollections` (BoolProperty) - Sub-collection inclusion toggle
-- ✅ `create_subfolder` (BoolProperty) - Auto-create USD_Endpoint subfolder
+- 🟡 `normalize_position` (BoolProperty) - Collection-only: bake translation to geometry
+- 🟡 `normalize_scale` (BoolProperty) - Collection-only: apply scale to 1.0
+- 🟡 `normalize_rotation` (BoolProperty) - Collection-only: bake rotation to geometry
+- 🟡 `collection_pivot_source` (EnumProperty) - World / Custom XYZ / 3D Cursor / Object Pivot
+- 🟡 `collection_pivot_xyz` (FloatVectorProperty) - Custom pivot vector (XYZ)
+- 🟡 `collection_pivot_object` (PointerProperty) - Fake parent object reference
+- 🟡 `object_pivot_normalize` (BoolProperty) - Object-only: normalize pivot to origin (off by default)
+- ✅ `create_subfolder` (BoolProperty) - Auto-create USD_Start point subfolder
 - ✅ `include_origin_metadata` (BoolProperty) - Add origin metadata to USD
 - ✅ `export_subdivision` (BoolProperty) - Bake subdivision modifiers
-- ✅ `enabled` (BoolProperty) - Enable/disable endpoint
+- ✅ `enabled` (BoolProperty) - Enable/disable start point
 - ⚠️ **PARTIAL**: Root prim path (auto-generated from name, sanitized inline in export operator)
 - ❌ **NOT IMPLEMENTED**: Root prim kind (not set in v0.1.0)
-- ❌ **NOT IMPLEMENTED**: Per-endpoint export configuration (hardcoded defaults)
+- ❌ **NOT IMPLEMENTED**: Per-start point export configuration (hardcoded defaults)
 
 **State Snapshot:**
 - Selection state (list of selected objects)
@@ -184,6 +192,9 @@ This document describes the actual module architecture and design as implemented
 - Must respect Blender 5.0 USD export limitations
 - Coordinate system settings (Z-Up vs Y-Up)
 - Unit scale (Meters vs Centimeters)
+- Bake rotation uses -90° around X for Z-up → Y-up conversion
+- Collection normalization controls (position/scale/rotation), pivot source selection, and pivot-only mode
+- Object pivot normalization (optional, off by default)
 - Material export mode (USD Preview Surface - Phase 1, MDL - Phase 2)
 - **USD Structure Settings** (ASWF compliance):
   - Root prim kind: `component` (default)
@@ -214,7 +225,7 @@ This document describes the actual module architecture and design as implemented
 **Reference**: [USD-WG Asset Structure Guidelines](https://github.com/usd-wg/assets/blob/main/docs/asset-structure-guidelines.md)
 
 **Key Requirements**:
-- Exported endpoints are **Component models** (self-contained assets)
+- Exported start points are **Component models** (self-contained assets)
 - Root prim MUST be Xform with `kind` metadata set to `component`
 - Root prim MUST be set as `defaultPrim`
 - Structure MUST follow ASWF naming conventions

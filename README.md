@@ -5,9 +5,9 @@
 [![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-blue.svg)](HANDOFF.md)
 [![Status: MVP Complete](https://img.shields.io/badge/Status-MVP%20Complete-green.svg)](HANDOFF.md)
 
-A Blender Python addon that enables users to define specific endpoints (collections or objects) in Blender's scene hierarchy and export them as separate USD files, compensating for Blender's lack of native USD composition arc support.
+A Blender Python addon that enables users to define **start points** (collections or objects) in Blender's scene hierarchy and export them as separate USD files. Start points are the stable DCC origins for the downstream USD pipeline and composition arcs; exported USD files are the **beginning** of further pipelining, not the terminus.
 
-> **📝 Note on Project Name**: This project was previously named "Blender USD Stable Export". The name was changed to "Multi Export" to better reflect its core functionality: **multi-endpoint batch export capabilities**. The previous name "Stable" referred to reliable endpoint management and consistent export workflows, but it led to confusion as it could imply that Blender's built-in USD export is unstable (which is not the case - Blender's native USD export is stable and well-maintained). This addon enhances workflow by adding endpoint-based batch export functionality on top of Blender's solid foundation.
+> **📝 Note on Project Name**: This project was previously named "Blender USD Stable Export". The name was changed to "Multi Export" to better reflect its core functionality: **multi–start point batch export capabilities**. Start points are the pipeline origins in the DCC; the previous "endpoint" framing referred to the DCC perspective. The addon now consistently uses "start point" to reflect that exported USD is the start of downstream pipeline and composition arcs.
 >
 > **🔗 Repository Note**: This GitHub repository was renamed from `Blender_USD_StableExport` to `Blender_USD_MultiExport`. Old links still work thanks to GitHub's automatic redirects, but if you're cloning the repository, use the new name: `git clone https://github.com/jph2/Blender_USD_MultiExport.git`
 
@@ -38,7 +38,7 @@ See the [Implementation Process](docs/archive/README_Implementation.md) for deta
 
 ### MVP v0.1.0 Key Features
 
-- ✅ **Endpoint-Based Export**: Define collections or objects as export endpoints
+- ✅ **Start point-Based Export**: Define collections or objects as export endpoints
 - ✅ **Batch Export**: Export multiple endpoints in a single operation
 - ✅ **Scene State Safety**: Non-destructive export with automatic state restoration
 - ✅ **Cross-Platform Paths**: Relative path storage with absolute resolution
@@ -156,15 +156,15 @@ For development or testing, you can install directly from the repository:
 
 1. **Open Your Scene**: Load your Blender scene with organized collections
 2. **Access the Addon**: Go to Scene Properties tab → "USD Multi Export" panel
-3. **Define Endpoints**:
+3. **Define Start points**:
    - Click "Add" to create a new endpoint
    - Set endpoint name (used for root prim path)
    - Enter collection name (must match existing collection exactly)
    - Set filepath (use `//export/filename.usd` for relative paths)
    - Enable/disable endpoints as needed
-4. **Export**: Click "Export Endpoints" to batch export all enabled endpoints
+4. **Export**: Click "Export Start points" to batch export all enabled endpoints
 
-### Defining Endpoints
+### Defining Start points
 
 An **endpoint** is a collection or set of objects that you want to export as a single USD file. For example:
 - A "Characters" collection → exports to `//export/characters.usd`

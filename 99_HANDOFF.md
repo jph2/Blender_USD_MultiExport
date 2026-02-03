@@ -1,386 +1,229 @@
-# Agent Handoff Summary - Blender USD Multi Export
+## HANDOFF — Blender USD MultiExport
 
-**Date**: 2025-12-28  
-**Version**: 0.1.0  
-**MVP Progress**: 100% Complete  
-**Status**: MVP COMPLETE - Core endpoint-based USD export functionality implemented  
-**Recent Enhancements**: Subdivision export (NVIDIA pattern), origin metadata (object/collection names), light exclusion, NVIDIA best practices integration  
+### Domain / Context
+- **Domain:** Blender + OpenUSD + Omniverse
+- **Type:** Programming / addon dev
+- **Goal:** Restore object export behavior to match `v0.1.48` (known-good), and keep collection export as a separate path using a “fake parent” empty with optional normalization.
 
----
+### Required Tooling
+- **Use MCPs:** `usd codeNIM` MCP and `synopgarden` MCP (both are required).
+- **Environment:** Windows, Blender 5.0, pxr USD Python API used by `usd_bake.py`.
 
-## 🎯 Current State Overview
+Documentation
+E:\SynologyDrive\9999_LocalRepo\Blender_USD_MultiExport\02_Detailed_Requirements.md
+REQ-EXP-022 - REQ-EXP-025
+E:\SynologyDrive\9999_LocalRepo\Blender_USD_MultiExport\03_Module_Design.md
+E:\SynologyDrive\9999_LocalRepo\Blender_USD_MultiExport\04_Implementation_Plan.md -> **Phase 14D: Collection Normalization & Pivot Controls (Planned)**
 
-### What We Have (Complete MVP)
-- ✅ **Add-on installs and registers** - Fully functional in Blender 5.0+
-- ✅ **UI Panel** - Scene Properties → USD Multi Export panel with endpoint management
-- ✅ **Endpoint Management** - Add, Remove, Validate endpoints
-- ✅ **Batch Export** - Export multiple endpoints in a single operation
-- ✅ **Scene State Safety** - Non-destructive export with automatic state restoration
-- ✅ **Data Models** - Endpoint storage with validation
-- ✅ **Logging System** - Enhanced logging with file rotation, context tracking, performance timers, and preferences integration
-- ✅ **Build System** - Creates installation-ready zip files
-- ✅ **Addon Preferences** - User-configurable settings (log level, default export settings)
-- ✅ **Subdivision Export** - Bake subdivision surfaces into mesh (NVIDIA pattern with `single_user=True`)
-- ✅ **Origin Metadata** - Object name and collection name metadata in exported USD files
-- ✅ **Light Exclusion** - Automatic light exclusion from exports (`export_lights=False` + safety deselection)
+### Current State Summary
+- Object export path has drifted away from `v0.1.48` and now produces **broken normals** when modifiers are enabled.
+- Collection export path (decals) is partially implemented (fake parent pivot + normalization) but currently breaks and appears to leak into object export path.
+- **v0.1.48** is last known working version for object export.
+- Recent versions (`v0.1.53+`) show:
+  - Modifiers enabled → normals broken.
+  - Modifiers disabled → normals OK.
+- Two USDA files were compared:
+  - **Working:** `... - Normals Working v0148.usda`"D:\SPADEKAYAKS\070_RuD_Product development\Hard Goods\Boats\SP_W012_2025Shakti\010_ASS_USD\USD_Startpoint\FULL HOUSE_SMALL_SP W012_v07 270x68.002_PRODUCTION251207_SHAKTI.002 - Normals Working v0148.usda"
+  - **Broken:** `... - NORMALS BROKEN_V0153.usda`"D:\SPADEKAYAKS\070_RuD_Product development\Hard Goods\Boats\SP_W012_2025Shakti\010_ASS_USD\USD_Startpoint\FULL HOUSE_SMALL_SP W012_v07 270x68.002_PRODUCTION251207_SHAKTI.002 - NORMALS BROKEN_V0153.usda"
+  - Same topology/indices/points counts, but **normal values differ**, indicating normals are being altered.
 
-### ✅ COMPLETE: Core Multi Export Functionality
-- ✅ **Core Modules** - 100% implemented
-  - `props.py` - Data models and scene properties (includes `export_subdivision` property)
-  - `ui.py` - User interface panels and operators (includes subdivision checkbox)
-  - `ops_export.py` - Export operations and batch processing (NVIDIA pattern subdivision export)
-  - `state_manager.py` - Scene state management and restoration
-  - `path_resolver.py` - Cross-platform path resolution
-  - `logging_utils.py` - Comprehensive logging and bug reporting
-- ✅ **Endpoint-Based Export** - Define collections/objects as export endpoints
-- ✅ **Batch Operations** - Export multiple endpoints in single operation
-- ✅ **State Management** - Safe scene isolation during export
-- ✅ **Error Handling** - Comprehensive validation and user feedback
-- ✅ **Addon Preferences** - User-configurable log level and default export settings
-- ✅ **Subdivision Export** - NVIDIA pattern: Apply modifiers with `single_user=True`, remove shape keys first
-- ✅ **Origin Metadata** - Includes `usdme:origin_object_name` and `usdme:origin_collection_name` in exported USD
-- ✅ **Light Exclusion** - Automatic exclusion of lights from exports
+### What Must Be Done
+1. **Object export path**
+   - Must exactly match behavior of `v0.1.48`.
+   - Treat as fully isolated (no collection/pivot/normalization logic).
+   - All post-processing (e.g., bake) should replicate `v0.1.48` pipeline. E:\SynologyDrive\9999_LocalRepo\Blender_USD_MultiExport\releases\blender_usd_multiexport_v0.1.48
 
----
+2. **Collection export path**
+   - Use a **fake parent empty** (Blender Empty / Plain Axes).
+   - Parent should be placed based on pivot mode: world origin, custom XYZ, 3D cursor, object pivot, preserve.
+   - Optional normalization (position/scale/rotation) should apply only to collection path.
+   - Should not influence object export path.
 
-## 🎉 MVP COMPLETE: Full Multi Export Functionality
+### Key Files
+- `blender_usd_multiexport_addon/ops_export.py`
+- `blender_usd_multiexport_addon/usd_bake.py`
+- `blender_usd_multiexport_addon/props.py`
+- `blender_usd_multiexport_addon/state_manager.py`
+- `blender_usd_multiexport_addon/ui.py`
+- `80_WIP_notes.md` (latest findings)
+- `releases/blender_usd_multiexport_v0.1.48` (reference baseline)
 
-**The add-on now implements complete endpoint-based USD export workflow.**
+### Evidence / Notes
+- **Bug reports:** see `80_WIP_notes.md`
+- Modifier-enabled exports produce broken normals.
+- Modifier-disabled exports look correct.
 
-The core functionality is **fully implemented**:
-- ✅ Endpoint definition and management
-- ✅ Batch export operations
-- ✅ Scene state protection and restoration
-- ✅ Cross-platform path handling
-- ✅ Comprehensive logging and error handling
-- ✅ User-friendly UI with preferences
-
----
-
-## 📁 Key Files & Structure
-
-### Working Files (100% Complete)
-- `blender_usd_multiexport_addon/__init__.py` - Registration (version 0.1.0) with preferences
-- `blender_usd_multiexport_addon/props.py` - Data models and scene properties (includes `export_subdivision`)
-- `blender_usd_multiexport_addon/ui.py` - UI panels and endpoint management operators (includes subdivision checkbox)
-- `blender_usd_multiexport_addon/ops_export.py` - Export operations and batch processing (NVIDIA pattern subdivision export)
-- `blender_usd_multiexport_addon/state_manager.py` - Scene state management ✅
-- `blender_usd_multiexport_addon/path_resolver.py` - Path resolution ✅
-- `blender_usd_multiexport_addon/logging_utils.py` - Logging system ✅
-- `build_extension.py` - Build script ✅
-
-### Documentation Files (100% Up to Date)
-- `README.md` - User-facing documentation (version 0.1.0) with version badges
-- `PROJECT_PROGRESS_LOG.md` - Complete development history
-- `04_Implementation_Plan.md` - Implementation roadmap
-- `05_Testing_Plan.md` - Testing procedures
-- `06_USER_GUIDE.md` - User guide with workflows
-- `HANDOFF.md` - This file
-- `docs/archive/BUILD_STATUS_COMPARISON.md` - Build infrastructure comparison (Archived - gaps resolved, now 100% compliant)
+### Next Agent: Action Plan
+- Diff `v0.1.48` against current for **object export path** and revert behavior.
+- Split code paths so object exports bypass collection pivot/normalization.
+- Re-implement collection fake-parent logic cleanly after object export is fixed.
+- Ensure the bake step does not overwrite authored normals for object path.
+- Verify with modifier-enabled test (same hull asset).
 
 ---
 
-## 🔧 Technical Details
+## Appendix: Collection Export Issue - Expert Consultation Prompt
 
-### Current Export Implementation
-The `USDME_OT_export_endpoints` operator:
-1. Validates all enabled endpoints
-2. Uses `ScopedIsolation` for safe scene state management
-3. Iterates through enabled endpoints
-4. **Applies subdivision modifiers** (if enabled) - NVIDIA pattern: removes shape keys first, applies with `single_user=True`
-5. **Deselects lights** - Safety check to ensure lights are not exported
-6. Isolates target collection/objects for each endpoint
-7. Calls Blender's native USD export (`bpy.ops.wm.usd_export()` with `export_lights=False`)
-8. **Adds origin metadata** - Object name, collection name, file info, timestamp, computer, username
-9. Restores original scene state after each export
-10. Provides progress feedback and error handling
-11. Generates comprehensive logs for debugging
-
-### Blender Version Requirements
-- **Blender 5.0+ only** (4.x support not planned)
-- Python 3.11+ (included with Blender 5.0+)
-
-### USD Export Operator Parameters (Blender 5.0)
-```python
-export_params = {
-    "filepath": export_path,      # Required
-    "export_materials": True,      # Optional
-    "export_uvmaps": True,        # Optional
-    "export_normals": True,       # Optional
-    "export_animation": False,    # Optional
-    "export_lights": False,       # Lights excluded (always)
-    "root_prim_path": f"/{sanitized_name}",  # Sanitized prim path
-    # Subdivision export (if enabled):
-    # "export_subdivision": "BEST_MATCH",  # When export_subdivision=True
-    # "evaluation_mode": "RENDER",         # When export_subdivision=True
-}
-```
-
-### Subdivision Export (NVIDIA Pattern)
-When `export_subdivision` is enabled:
-1. **Removes shape keys first** - Prevents conflicts when applying modifiers
-2. **Applies subdivision modifiers** - Uses `bpy.ops.object.modifier_apply(modifier=mod.name, single_user=True)`
-3. **Bakes geometry** - Subdivision geometry is computed and stored as actual mesh data
-4. **Logs each step** - Tracks which modifiers were applied
-
-**Key Points**:
-- Uses NVIDIA pattern: `single_user=True` prevents mesh data sharing issues
-- Shape keys removed before modifiers to prevent conflicts
-- Geometry is baked into mesh (USD exports actual geometry, not modifier stacks)
-- Reference: `NVIDIA_BLender_BestPractise.md` section 6.1
-
-### Origin Metadata
-Exported USD files include custom `usdme:` attributes on root prim:
-- `usdme:export_timestamp` - ISO format timestamp
-- `usdme:origin_computer` - Computer hostname
-- `usdme:origin_file` - Full path to source .blend file
-- `usdme:origin_filename` - Name of source .blend file
-- `usdme:origin_username` - Username who exported
-- `usdme:origin_object_name` - Object name (if OBJECT endpoint)
-- `usdme:origin_collection_name` - Collection name (if COLLECTION endpoint)
-
-### Addon Preferences
-- **Log Level**: User-configurable console log level (DEBUG, INFO, WARNING, ERROR)
-- **Default Export Settings**: Default values for import_materials and relative_path
-- **Access**: Edit → Preferences → Add-ons → USD Multi Export → Preferences
+**Purpose**: This prompt is designed to get an expert second opinion on our collection export implementation approach. It explains the problem, what we've tried, why we do it this way, and what's still not working.
 
 ---
 
-## ⚠️ Known Limitations (Version 0.1.0)
+### The Problem
 
-### Current MVP Limitations
-- **USD Composition**: Blender doesn't support USD composition arcs natively. This addon exports separate files that must be composed manually in the target application (e.g., Omniverse).
-- **Animation**: Static exports only (animation export not yet implemented)
-- **Export Options**: Limited export options per endpoint (uses default settings)
-- **Validation**: Basic validation only (no pre-flight checks)
-- **Subdivision Modifiers**: Must be applied before export (baked into mesh). Modifier stacks are not exported.
-- **Light Exclusion**: Lights are always excluded (no option to include them)
+We're building a Blender addon that exports collections to USD format. Collections in Blender don't have transforms (they're just organizational containers), but in USD we need a Scope prim with a transform to position the collection spatially. Our solution is to create a "fake parent" Empty object in Blender, parent all collection objects to it, apply optional normalization to the parent, then export.
 
-### Subdivision Export Notes
-- **Subdivision is baked**: When `export_subdivision=True`, modifiers are applied to the mesh before export
-- **Shape keys removed**: Shape keys are removed before applying modifiers (prevents conflicts)
-- **Mesh data safety**: Uses `single_user=True` to prevent mesh data sharing issues (NVIDIA pattern)
-- **File size increase**: Subdivided geometry increases file size significantly
-- **Performance**: High subdivision levels create dense geometry that increases export time
+**Current Issue**: Despite implementing what we believe is the correct workflow, exported objects appear scattered/misaligned/rotated incorrectly in the USD file, even though they look correct in Blender's viewport before export.
 
-### Future Enhancements (Post-MVP)
-- Per-endpoint export settings (materials, UVs, normals, animation)
-- Pre-flight validation and warnings
-- ASWF-compliant USD structure and metadata
-- Advanced UI features (presets, batch operations, progress indicators)
+**Test Case**: Collection named `SHAKTI_Decals` containing 6 mesh objects (decals/logos). All objects have Shrinkwrap modifiers that need to be applied before export. Export completes successfully, but objects are misaligned in the resulting USD file.
 
 ---
 
-## 🚀 Next Steps (Priority Order)
+### Why We Do It This Way
 
-### Priority 1: Testing & Validation (IMMEDIATE)
-1. **Comprehensive Testing** - Follow `05_Testing_Plan.md` procedures
-2. **User Feedback** - Gather real-world usage feedback
-3. **Bug Fixes** - Address any issues discovered during testing
-4. **Performance Optimization** - Optimize for large scenes and many endpoints
+**1. The "Fake Parent" Concept**
+- Collections in Blender have no transform - they're just organizational containers
+- USD Scopes need transforms to position collections spatially
+- We create a temporary Blender Empty object as a "fake parent" to provide the transform hierarchy
+- This allows us to normalize position/scale/rotation at the collection level without modifying individual object geometry (which would break normals)
 
-### Priority 2: Enhanced Export Options (v0.2.0)
-- Per-endpoint export settings
-- Animation export support
-- Advanced USD export parameters
-- Export presets
+**2. Avoiding Geometry Manipulation**
+- We learned from previous failures that directly transforming geometry in Blender before export breaks normals
+- Our best practice (documented) is: "Export with Blender native, then bake transforms in USD space"
+- The fake parent approach lets us manipulate transforms without touching geometry
 
-### Priority 3: Pre-Flight Validation (v0.2.0+)
-- Pre-export validation and warnings
-- Collection/object existence checks
-- File path validation
-- Export readiness checks
-
-### Priority 4: ASWF Compliance (v0.3.0+)
-- ASWF-compliant USD structure
-- Metadata and asset information
-- Root prim path generation
-- Standards compliance
+**3. Blender USD Exporter Limitation**
+- Blender's USD exporter with `selected_objects_only=True` exports objects with their **world matrices**, not respecting parent-child hierarchies
+- This is why we must bake the fake parent's transform into children's world matrices before export
 
 ---
 
-## 📝 Important Notes for Next Agent
+### What We've Tried (Version History)
 
-### Version Management
-- **Current Version**: 0.1.0
-- **Version Location**: `blender_usd_multiexport_addon/__init__.py` → `bl_info["version"] = (0, 1, 0)`
-- **Update version** when making significant changes (e.g., bug fixes → 0.1.1, new features → 0.2.0)
-- **Version Update Checklist**: See README.md → Version Update Workflow section
-- **Last Updated**: 2025-12-28 (subdivision export, metadata, light exclusion, NVIDIA patterns)
+**v0.1.60 - Initial Fake Parent Implementation**
+- Created fake parent Empty object
+- Parented collection objects to fake parent
+- Applied normalization (position/scale/rotation) to fake parent
+- **Problem**: Objects exported at wrong positions - exporter ignored parent hierarchy
+- **Fix**: Added `_bake_fake_parent_transform_to_children()` to bake parent transform into children's world matrices before export
 
-### Build & Installation
-- **Build Command**: `python build_extension.py`
-- **Output**: `dist/blender_usd_multiexport.zip`
-- **Installation**: Edit → Preferences → Extensions → Install from Disk
-- **⚠️ IMPORTANT**: Users must **restart Blender** after uninstalling/reinstalling (documented in README)
+**v0.1.61 - Y-up Transform Skipping**
+- **Problem**: Y-up coordinate system transform (Z-up → Y-up) was running AFTER baking, overwriting baked transforms
+- **Fix**: Skip Y-up transform step for collection exports when fake parent exists
 
-### Code Quality Standards
-- Python ≥3.11 (Blender 5.0+ includes Python 3.11+)
-- Type hints throughout
-- PEP 8 style (4-space indentation)
-- Comprehensive error handling
-- Clear docstrings (Google style)
-- Modular, testable functions
-
-### Known Working Patterns
-- **Registration**: `__init__.py` registration pattern with preferences and error handling is correct
-- **Logging**: `logging_utils.py` is production-ready with preferences integration
-- **Build Script**: `build_extension.py` creates correct zip structure (tested and verified)
-- **Installation**: Zip installation via Extensions system works correctly
-- **State Management**: `ScopedIsolation` and `StateManager` work correctly
-- **Path Resolution**: Cross-platform path handling works
-- **Documentation**: Follows best practices from FAKE References project
-- **Version Management**: Systematic version update workflow documented and implemented
-- **Subdivision Export**: NVIDIA pattern implemented - applies modifiers with `single_user=True`, removes shape keys first
-- **Metadata Export**: Origin metadata (object/collection names) successfully added to USD files
-- **Light Exclusion**: Automatic light exclusion working correctly
-
-### Common Issues Fixed
-- ✅ Build script creates correct ZIP structure
-- ✅ Addon preferences system integrated
-- ✅ Error handling comprehensive
-- ✅ State management prevents scene corruption
-- ✅ Version badges added to README
-- ✅ Enhanced known issues documentation (version-specific)
-- ✅ Build infrastructure compliant with best practices
-- ✅ Subdivision export working (NVIDIA pattern with `single_user=True`)
-- ✅ Origin metadata includes object and collection names
-- ✅ Lights automatically excluded from exports
+**v0.1.62 - matrix_parent_inverse Update**
+- **Problem**: When fake parent is normalized (location/rotation/scale reset), Blender does NOT automatically update children's `matrix_parent_inverse` property
+- **Root Cause**: `matrix_parent_inverse` defines the inverse of parent's transform at parenting time. When parent transforms change, this becomes stale, causing incorrect world matrix calculations
+- **Fix**: Explicitly update `matrix_parent_inverse` for all children after normalization:
+  ```python
+  context.view_layer.update()  # Force update
+  for child in children:
+      child.matrix_parent_inverse = fake_parent.matrix_world.inverted()
+  context.view_layer.update()  # Force update after changes
+  ```
+- **Result**: Still misaligned - "There is no difference"
 
 ---
 
-## 🎯 Success Criteria for Next Phase
+### Current Implementation Workflow (from Implementation Plan)
 
-### For Testing (Priority 1)
-- ✅ All MVP features tested and validated
-- ✅ No critical bugs discovered
-- ✅ Performance acceptable for typical use cases
-- ✅ User feedback collected and documented
+Based on `22_IMPLEMENTATION_PLAN_CLEAN_Phase_14D.md`, our collection export flow is:
 
-### For v0.2.0 (Enhanced Export Options)
-- Per-endpoint export settings working
-- Animation export support implemented
-- Advanced USD export parameters available
-- Export presets functional
+1. **Create fake parent** (if pivot mode != PRESERVE)
+   - Blender Empty (Plain Axes) object
+   - Positioned based on pivot mode (WORLD_ORIGIN, CUSTOM_XYZ, CURSOR, OBJECT, PRESERVE)
 
-### For v0.3.0 (ASWF Compliance)
-- ASWF-compliant USD structure
-- Metadata and asset information
-- Root prim path generation
-- Standards compliance verified
+2. **Parent collection objects to fake parent**
+   - All collection objects become children of fake parent
+   - Store original parent relationships for restoration
 
----
+3. **Apply normalization** (if enabled)
+   - `normalize_position` → Reset fake parent location to (0,0,0)
+   - `normalize_scale` → Reset fake parent scale to (1,1,1)
+   - `normalize_rotation` → Reset fake parent rotation to (0,0,0)
 
-## 📚 Key Resources
+4. **CRITICAL: Update `matrix_parent_inverse`** (v0.1.62)
+   - After normalization, explicitly update all children's `matrix_parent_inverse`
+   - Force `context.view_layer.update()` before and after
 
-1. **Implementation Plan**: `04_Implementation_Plan.md`
-   - Complete roadmap and phase-by-phase guide
-   - Current status: MVP complete
-   - Future phases documented
+5. **Bake fake parent transform to children's world matrices**
+   - Compute world matrix for each child (after parenting and normalization)
+   - Unparent each child
+   - Apply computed world matrix directly to child object
+   - This is necessary because Blender USD exporter ignores parent hierarchies
 
-2. **Testing Plan**: `05_Testing_Plan.md`
-   - Comprehensive testing procedures
-   - Bug reporting guidelines
-   - Validation checklists
+6. **Export collection**
+   - Use Blender's `bpy.ops.wm.usd_export()` with `selected_objects_only=True`
+   - Objects now have correct world transforms baked in
 
-3. **User Guide**: `06_USER_GUIDE.md`
-   - Complete user guide with workflows
-   - Troubleshooting and best practices
-   - Step-by-step instructions
+7. **Restore original parent relationships**
+   - Restore each object's original parent
+   - Restore original world matrices
 
-4. **Build Guides**: `OV_USD_Scripts/best_practise_Blender Extensions_addons/`
-   - `building_for_Blender.md` - Comprehensive user guide with troubleshooting and explanations
-   - `AGENTS_Blender_Addons.yml` - YAML format code patterns and templates for AI agents (includes NVIDIA patterns)
-   - `NVIDIA_LEARNINGS_ANALYSIS.md` - Complete analysis of NVIDIA Omniverse Blender add-ons patterns
-   - Complete framework for building Blender add-ons
-   - Best practices from FAKE References project and NVIDIA patterns integrated
-
-5. **Build Status**: `docs/archive/BUILD_STATUS_COMPARISON.md` (Archived - build infrastructure gaps resolved)
-   - Historical comparison with best practices
-   - Identified missing build script and dist directory (now implemented)
-   - All high-priority recommendations implemented (build script, dist directory, installation instructions)
-
-6. **Learnings from FAKE References**: `docs/archive/LEARNINGS_FROM_FAKE_REFERENCES.md` (Archived - learnings implemented)
-   - Comprehensive analysis of patterns from Blender USD FAKE References project
-   - Logging system enhancements (file rotation, context tracking, performance timers)
-   - Preferences integration improvements
-   - Path resolution enhancements
-   - Documentation patterns established
-   - Prioritized implementation recommendations
-
-7. **Troubleshooting Guide**: `TROUBLESHOOTING.md` ⭐ NEW
-   - Platform-specific console access instructions (Windows/macOS/Linux)
-   - Common issues and solutions
-   - Debugging procedures
-   - Log file locations
-   - Performance troubleshooting
+8. **Cleanup fake parent**
+   - Delete the temporary Empty object
 
 ---
 
-## 🔍 What Makes This a "Multi Export" System?
+### What's Still Not Working
 
-**Current State (0.1.0)**: ✅ **TRUE MULTI EXPORT SYSTEM** - Fully implemented
+**Current Status (v0.1.62)**:
+- Export completes successfully (no errors)
+- All steps execute (fake parent created, objects parented, normalization applied, `matrix_parent_inverse` updated, transforms baked, export succeeds)
+- Bug report shows all operations completed: `fake_parent_created`, `objects_parented_to_fake_parent`, `fake_parent_transform_baked`, `usd_export_success`
+- **BUT**: Objects still appear scattered/misaligned/rotated incorrectly in exported USD file
+- User feedback: "There is no difference" (between v0.1.61 and v0.1.62)
 
-**Implementation**:
-- ✅ Endpoint-based export definitions
-- ✅ Batch export operations
-- ✅ Scene state protection during export
-- ✅ Multiple USD files from single Blender scene
-- ✅ Non-destructive workflow
-- ✅ Comprehensive error handling
-
-**The difference**: Instead of exporting the entire scene as one USD file, users define specific endpoints (collections or objects) and export them as separate USD files. This enables USD composition workflows where different parts of a scene become separate USD assets that can be composed in target applications like Omniverse.
-
----
-
-## ✅ MVP COMPLETE - Ready for Testing and Enhancement
-
-**MVP is 100% complete with full multi-export functionality implemented.**
-
-**Latest Zip File**: `dist/blender_usd_multiexport.zip` (version 0.1.0)
-
-**Recent Changes (0.1.0 - Updated 2025-12-28)**:
-- Complete MVP implementation
-- Addon preferences system added (log level, default export settings)
-- Build script created and tested (`build_extension.py`)
-- Comprehensive documentation (README with version badges, HANDOFF, etc.)
-- Enhanced registration pattern with error handling
-- Version badges in README (version, status, Blender version)
-- Enhanced known issues documentation (version-specific, multiple locations)
-- Build infrastructure compliant with best practices (100% compliance achieved)
-- **Subdivision Export** - NVIDIA pattern implementation (applies modifiers with `single_user=True`)
-- **Origin Metadata** - Added `usdme:origin_object_name` and `usdme:origin_collection_name` to exported USD files
-- **Light Exclusion** - Automatic exclusion of lights from exports (`export_lights=False` + safety deselection)
-- **NVIDIA Patterns Integration** - Best practices from NVIDIA Omniverse Blender add-ons integrated into codebase
-
-**Immediate Next Steps**:
-1. **Testing** (Priority 1) - Follow testing plan and gather user feedback
-2. **Enhanced Export Options** (v0.2.0) - Per-endpoint settings and animation
-3. **Pre-Flight Validation** (v0.2.0+) - Validation and warnings
-4. **ASWF Compliance** (v0.3.0+) - Standards compliance
+**Key Questions**:
+1. Is our understanding of `matrix_parent_inverse` correct? Are we updating it at the right time?
+2. Is our baking approach correct? Are we computing world matrices correctly after normalization?
+3. Are we missing a step? Is there something Blender requires that we're not doing?
+4. Is our fundamental approach flawed? Should we be doing this differently?
 
 ---
 
-## 🎯 Quick Start for Next Agent
+### Technical Context
 
-1. **Read this handoff** - Understand current state and known limitations
-2. **Review testing plan** - Check `05_Testing_Plan.md` for validation procedures
-3. **Test current functionality** - Install add-on and verify what works
-4. **Gather user feedback** - Test with real-world use cases
-5. **Address issues** - Fix any bugs discovered during testing
-6. **Plan enhancements** - Prioritize features for v0.2.0+
-7. **Update documentation** - Document changes in implementation plan and changelog
-8. **Rebuild zip** - Run `python build_extension.py` after changes
+**Blender Version**: 5.0.0
+**Python Version**: 3.11.13
+**USD API**: pxr (Pixar USD Python bindings)
+**Test Collection**: `SHAKTI_Decals` (6 mesh objects with Shrinkwrap modifiers)
+
+**Key Blender API Usage**:
+- `bpy.data.objects.new()` - Create fake parent Empty
+- `obj.parent = fake_parent` - Parent objects
+- `obj.matrix_world` - Get world matrix
+- `obj.matrix_parent_inverse` - Parent inverse matrix
+- `context.view_layer.update()` - Force view layer update
+- `bpy.ops.wm.usd_export()` - Export to USD
+
+**Key Code Locations**:
+- `ops_export.py` lines ~250-380: `_create_fake_parent_for_collection()`
+- `ops_export.py` lines ~362-420: `_bake_fake_parent_transform_to_children()`
+- `ops_export.py` lines ~423-470: `_restore_baked_transforms()`
 
 ---
 
-**Status**: MVP COMPLETE - Full endpoint-based USD export functionality implemented with subdivision export, origin metadata, and light exclusion. **Ready for testing and user feedback.**
+### What We Need
 
-**Recent Enhancements (2025-12-28)**:
-- ✅ Subdivision export with NVIDIA pattern (`single_user=True`, shape key removal)
-- ✅ Origin metadata includes object and collection names
-- ✅ Automatic light exclusion from exports
-- ✅ NVIDIA best practices integrated into codebase
+**Expert Opinion On**:
+1. Is our workflow correct? Are we missing a critical step?
+2. Is our `matrix_parent_inverse` update correct? Are we doing it at the right time?
+3. Is our world matrix baking approach correct? Are we computing matrices correctly?
+4. Are there Blender-specific gotchas we're missing?
+5. Should we be using a different approach entirely?
 
-**Good luck! 🚀**
+**Specific Technical Questions**:
+- When should `matrix_parent_inverse` be updated relative to normalization?
+- How do we verify that world matrices are correct before export?
+- Is there a way to debug/visualize what Blender thinks the world matrices are?
+- Are we correctly understanding how Blender computes world matrices from parent hierarchies?
 
+---
+
+**Files for Reference**:
+- Implementation Plan: `22_IMPLEMENTATION_PLAN_CLEAN_Phase_14D.md`
+- Quick Reference: `23_QUICK_REFERENCE_Phase_14D.md`
+- Bug Report: `c:\Users\jan\AppData\Local\Temp\blender_a34232\usdme_bug_report_20260202_190302.json`
+- Code: `blender_usd_multiexport_addon/ops_export.py`
+- Best Practices: `Domain_Blender_Guardrails/080_Framework_RULES/best_practices/best_practices.yml`
+- Anti-Patterns: `Domain_Blender_Guardrails/080_Framework_RULES/best_practices/anti_patterns.yml`

@@ -1,10 +1,10 @@
 bl_info = {
     "name": "USD Multi Export",
     "author": "Blender USD Multi Export Project",
-    "version": (0, 1, 0),
+    "version": (0, 1, 81),
     "blender": (5, 0, 0),
     "location": "Scene Properties; 3D Viewport > N-Panel",
-    "description": "Export multiple USD component assets from Blender scenes using endpoint definitions.",
+    "description": "Export multiple USD component assets from Blender scenes using start point definitions (pipeline origins for composition arcs).",
     "category": "Import-Export",
     "support": "COMMUNITY",
     "doc_url": "https://github.com/jph2/Blender_USD_MultiExport",
@@ -77,7 +77,7 @@ class USDMultiExportPreferences(AddonPreferences):
         box.label(text="Default Export Settings", icon='EXPORT')
         box.prop(self, "default_import_materials", text="Import Materials")
         box.prop(self, "default_relative_path", text="Use Relative Paths")
-        box.label(text="These settings apply to new endpoints by default")
+        box.label(text="These settings apply to new start points by default")
 
 
 def _reload_modules() -> None:
@@ -88,13 +88,14 @@ def _reload_modules() -> None:
 
 
 classes: List[Type[bpy.types.PropertyGroup | bpy.types.Operator | bpy.types.Panel]] = (
-    props.USDME_EndpointPropertyGroup,
+    props.USDME_StartPointPropertyGroup,
     props.USDME_SceneProperties,
-    ops_export.USDME_OT_export_endpoints,
-    ui.USDME_OT_add_endpoint,
+    ops_export.USDME_OT_export_start_points,
+    ui.USDME_OT_add_start_point,
+    ui.USDME_OT_detect_source_unit,
     ui.USDME_OT_generate_bug_report,
-    ui.USDME_OT_remove_endpoint,
-    ui.USDME_OT_select_endpoint_target,
+    ui.USDME_OT_remove_start_point,
+    ui.USDME_OT_select_start_point_target,
     ui.USDME_PT_main_panel,
 )
 

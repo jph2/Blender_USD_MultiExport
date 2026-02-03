@@ -131,6 +131,18 @@ This testing plan provides comprehensive procedures for validating the Blender U
 - [ ] View layer settings preserved
 - [ ] Render engine unchanged
 
+#### 2.4 USD Bake Validation (Post-Process Pipeline)
+- [ ] Baseline export: Blender USD file is meters, Z-up, no transforms baked
+- [ ] Bake script runs without errors on a single-mesh USD file
+- [ ] Baked file has correct `metersPerUnit` metadata (e.g., 0.01 for cm)
+- [ ] Baked file has correct `upAxis` metadata (Y)
+- [ ] Omniverse shows **no Resolve transforms** (ScaleunitsResolve/RotateunitsResolve = 0)
+- [ ] Geometry size matches target unit (e.g., 2.7m → 270cm)
+- [ ] Orientation is correct (Z-up → Y-up)
+- [ ] Object position preserved (no world-space drift)
+- [ ] Normals render correctly (no shading artifacts)
+- [ ] xformOps cleared or not required on baked file
+
 ### Phase 3: Error Handling & Recovery Testing
 
 **Objective**: Ensure robust error handling and recovery.
