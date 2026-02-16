@@ -1,5 +1,7 @@
 # Naming Conventions for Blender USD Stable Export
 
+**Version**: v0.1.3  
+**Last Updated**: 03.02.2026 23:27  
 **Purpose**: This document defines naming conventions and best practices for collection and endpoint names to avoid conflicts with USD/Omniverse reserved names and ensure smooth integration.
 
 **Last Updated**: 25.11.2025

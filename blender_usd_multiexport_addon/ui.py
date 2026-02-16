@@ -216,9 +216,9 @@ class USDME_PT_main_panel(Panel):
                     same_unit_row.scale_y = 0.8
                     same_unit_row.label(text="  No scaling (same units)", icon="INFO")
                 
-                # Up-axis conversion (Y is up for Omniverse)
+                # Z to Y up conversion for Omniverse
                 row_yup = box.row(align=True)
-                row_yup.prop(start_point, "y_is_up", text="Y is Up (for Omniverse - converts Z-up to Y-up)")
+                row_yup.prop(start_point, "y_is_up", text="Z to Y for Omniverse")
                 
                 # Selection button - allows user to track which start point belongs to what
                 row_select = box.row(align=True)

@@ -1,12 +1,149 @@
 # Blender USD Multi Export - Discovery Document
 
-**Version**: 1.9.0 | **Date**: 03.02.2026 | **Time**: 12:00 | **GlobalID**: 20260203_1200_Blender_USD_MultiExport_Discovery
+**Version**: 2.0.0 | **Date**: 06.02.2026 | **Time**: 19:50 | **GlobalID**: 20260206_0200_Blender_USD_MultiExport_Discovery
 
 ---
 
 ## Executive Summary
 
 This document captures the problems encountered during the development and testing of the Blender USD Multi Export addon, along with the solutions implemented. It serves as a learning resource and reference for future development.
+
+---
+
+## Session: Animation Export Research (Feature Request)
+
+**Date**: 06.02.2026  
+**Status**: 🔬 RESEARCH  
+**Reference**: REQ-EXP-028, REQ-EXP-029
+
+### Context
+
+User requested animation export support for the Blender USD MultiExport addon. Currently, animations (transform keyframes, shape keys, etc.) are NOT exported. Two distinct requirements were identified:
+
+1. **Basic Animation Export**: Bake animation data into the USD file alongside geometry (per-frame baking)
+2. **Separate Animation Layer Export**: Export animation to a separate USD file for use with USD composition arcs (sublayers/references)
+
+### Research: Blender Native USD Animation Export
+
+**Blender's `bpy.ops.wm.usd_export()` Animation Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `export_animation` | bool | `False` | When `True`, exports entire scene frame range. When `False`, only current frame is exported. |
+| `export_armatures` | bool | `True` | Export armatures as UsdSkel skeletons (Blender 4.0+) |
+| `export_shapekeys` | bool | `True` | Export shape keys as USD blend shapes |
+| `only_deform_bones` | bool | `False` | Only export deforming bones when exporting armatures |
+| (frame range) | — | Scene settings | Uses `scene.frame_start` and `scene.frame_end` from Blender scene settings (no custom parameters) |
+
+**Complete Animation Types Supported by Blender USD Exporter (Blender 5.0):**
+
+| Animation Type | Supported | USD Type | Notes |
+|----------------|-----------|----------|-------|
+| **Transform animations** | ✅ Yes | `xformOp` time-samples | Object loc/rot/scale keyframes, baked per-frame |
+| **Deforming meshes** | ✅ Yes | Animated points | Vertex positions that change (cloth, soft-body) |
+| **Arbitrarily animated meshes** | ✅ Yes | Topology changes | Fluid simulations, etc. |
+| **Armatures (Skeletal)** | ✅ Yes | UsdSkel | Requires `export_armatures=True` (Blender 4.0+) |
+| **Shape keys** | ✅ Yes | USD BlendShapes | Requires `export_shapekeys=True` |
+| **Animated volumes** | ✅ Yes | VDB time-samples | Static and animated volumes |
+| **Cameras** | ✅ Yes | UsdGeomCamera | FOV, position, rotation animation |
+| **Lights** | ✅ Yes | UsdLux lights | Intensity, position, rotation animation |
+| **Visibility** | ✅ Yes | `visibility` attr | Handled automatically when `export_animation=True` |
+
+**Limitations:**
+- **No animation curve export** - USD uses baked per-frame samples, not bezier curves
+- **Invisible objects not exported** - Only visible objects are included
+- **USD layers and variants not yet supported** in animation context
+- **Absolute shape keys not supported** (only relative)
+- **Bendy bones not supported** in armature export
+
+**Key Implementation Note (Frame Range):**
+Blender's USD exporter does NOT have parameters for custom frame range. It uses `scene.frame_start` and `scene.frame_end` directly. To use a custom range, we must temporarily modify scene settings before export and restore after.
+
+### Research: USD Animation Layer Pattern (Composition Arcs)
+
+**USD Composition Strength Order (LIVERPS):**
+1. **L**ocal Opinions / **S**ublayers (strongest)
+2. **I**nherits
+3. **V**ariants
+4. R**E**locates (new)
+5. **R**eferences
+6. **P**ayloads
+7. **S**pecializes (weakest)
+
+**Pattern for Separate Animation Layers:**
+
+```
+# Main asset file (geometry.usd)
+#usda 1.0
+def Xform "MyAsset" {
+    def Mesh "Body" { ... }
+}
+
+# Animation layer file (animation.usd)
+#usda 1.0
+over "MyAsset" {
+    double3 xformOp:translate.timeSamples = {
+        1: (0, 0, 0),
+        24: (10, 0, 0),
+        48: (10, 5, 0),
+    }
+}
+
+# Composition root (scene.usd) - uses SUBLAYER to combine
+#usda 1.0
+(
+    subLayers = [
+        @./animation.usd@,  # Animation layer (stronger)
+        @./geometry.usd@    # Geometry layer (weaker)
+    ]
+)
+```
+
+**Benefits of Separate Animation Layers:**
+1. **Non-destructive workflow**: Animation can be modified without touching geometry
+2. **Team collaboration**: Animators and modelers work on separate files
+3. **Reusability**: Same geometry can have multiple animation variants
+4. **Version control**: Easier diffing and merging of animation changes
+5. **Omniverse compatibility**: Follows NVIDIA's recommended layer structure
+
+### Implementation Considerations
+
+**For Basic Animation Export (REQ-EXP-028):**
+1. Add `export_animation` property to start point settings (default: `False`)
+2. Add frame range options: "Scene Range", "Custom Range"
+3. If custom range: add `frame_start`, `frame_end` integer properties
+4. Pass `export_animation=True` to `bpy.ops.wm.usd_export()` when enabled
+5. Our post-process bake step (`usd_bake.py`) must handle time-sampled data
+
+**For Separate Animation Layer Export (REQ-EXP-029):**
+1. Add "Export Animation as Separate Layer" checkbox
+2. When enabled, perform TWO exports:
+   - Export 1: Geometry only (current frame, `export_animation=False`) → `{name}.usd`
+   - Export 2: Animation only (frame range, `export_animation=True`) → `{name}_anim.usd`
+3. The animation layer uses `over` opinions to override transform values
+4. Optionally generate a composition root that sublayers both files
+5. Consider: Should geometry layer also be exported, or just animation?
+
+**Technical Challenges:**
+- Time-sampled attributes in post-processing: `usd_bake.py` currently bakes transforms into mesh points. With animation, we need to preserve `xformOp.timeSamples` instead.
+- Frame-by-frame vs. time-samples: Blender exports as time-samples, which is correct for USD.
+- Our scale/rotation bake may interfere with animated transforms - need to handle carefully.
+
+### Decision Points (For Implementation)
+
+1. **Frame range source**: Use scene range, custom per-start-point range, or both?
+2. **Animation types**: Start with transform-only, or include shape keys/armatures?
+3. **Bake behavior with animation**: Skip geometry bake when animation is enabled?
+4. **Separate layer naming**: `{name}_anim.usd` or user-configurable?
+5. **Composition root generation**: Auto-generate, optional, or leave to user?
+
+### Next Steps
+
+1. ✅ Document requirements (REQ-EXP-028, REQ-EXP-029)
+2. ⏳ Prototype basic animation export (pass-through to Blender exporter)
+3. ⏳ Test with simple keyframed objects
+4. ⏳ Investigate post-process compatibility with time-sampled data
+5. ⏳ Implement separate layer export pattern
 
 ---
 
@@ -678,7 +815,7 @@ The Y-up conversion applies:
 
 ### For NVIDIA Omniverse — internalize this
 
-For NVIDIA **Omniverse**, the key thing to internalize is: **"Convert Orientation" in Blender is not just a metadata flip**. It applies a **real axis-conversion transform** so the exported prim transforms land in the target convention (e.g., Y-up), because USD's `upAxis` metadata alone does **not** rotate existing objects. ([Set the Stage Up Axis — Omniverse][omniverse-upaxis])
+For NVIDIA **Omniverse**, the key thing to internalize is: **"Convert Orientation" in Blender is not just a metadata flip**. It applies a **real axis-conversion transform** so the exported prim transforms land in the target convention (e.g., Y-up), because USD's `upAxis` metadata alone does **not** rotate existing objects. ([docs.omniverse.nvidia.com][1])
 
 ### What Blender's "Convert Orientation" actually does
 
@@ -686,16 +823,16 @@ For NVIDIA **Omniverse**, the key thing to internalize is: **"Convert Orientatio
 
 Blender's exporters use the standard axis conversion helper exposed to Python:
 
-- `bpy_extras.io_utils.axis_conversion(from_forward, from_up, to_forward, to_up)` ([Blender Python API: bpy_extras.io_utils][blender-io-utils])
+- `bpy_extras.io_utils.axis_conversion(from_forward, from_up, to_forward, to_up)` ([docs.blender.org][2])
 
-Blender's native convention is **Forward = +Y, Up = +Z** (that's what the USD exporter UI is describing). ([Blender Manual: USD][blender-usd-manual])
+Blender's native convention is **Forward = +Y, Up = +Z** (that's what the USD exporter UI is describing). ([docs.blender.org][3])
 
 For the common "Blender Z-up → Y-up" target (used by many USD pipelines), you typically end up with:
 
 - **to_up = +Y**
 - **to_forward = -Z**
 
-…and the conversion matrix is equivalent to **+90° about X** (plus the forward-axis choice to keep a right-handed basis). Example matrix for that mapping: ([Gist: Axis conversion matrix][gist-axis-matrix])
+…and the conversion matrix is equivalent to **+90° about X** (plus the forward-axis choice to keep a right-handed basis). Example matrix for that mapping: ([Gist][4])
 
 ```
 [ 1  0  0 ]
@@ -707,18 +844,18 @@ which maps: **x′=x, y′=z, z′=−y**
 
 #### 2) Exporter applies that matrix to exported transforms
 
-Blender's exporters generally treat this as a "global matrix" that **pre-multiplies** object transforms (the exact location in the pipeline can differ, but the concept is consistent across exporters). You can see this same pattern in Blender's official add-on exporters (e.g., FBX) where `axis_conversion(...).to_4x4()` becomes the `global_matrix`. ([Blender add-ons: io_scene_fbx][blender-fbx-addon])
+Blender's exporters generally treat this as a "global matrix" that **pre-multiplies** object transforms (the exact location in the pipeline can differ, but the concept is consistent across exporters). You can see this same pattern in Blender's official add-on exporters (e.g., FBX) where `axis_conversion(...).to_4x4()` becomes the `global_matrix`. ([GitHub][5])
 
 #### 3) Blender may also set `upAxis` metadata — but that alone is not enough
 
-USD stages can declare `upAxis` as `Y` or `Z`, but **USD does not auto-rotate authored transforms to match**. So if Blender (or you) only changes `upAxis` without rotating transforms, different apps will show "wrong orientation." ([Set the Stage Up Axis — Omniverse][omniverse-upaxis])
+USD stages can declare `upAxis` as `Y` or `Z`, but **USD does not auto-rotate authored transforms to match**. So if Blender (or you) only changes `upAxis` without rotating transforms, different apps will show "wrong orientation." ([docs.omniverse.nvidia.com][1])
 
 ### How this lines up with Omniverse
 
 #### Omniverse apps can differ, but USD defaults to Y-up
 
-- USD's **fallback upAxis is Y**. ([Set the Stage Up Axis — Omniverse][omniverse-upaxis])
-- In Omniverse Kit apps, the "default up axis" can vary by app and is configurable in preferences (examples from NVIDIA staff: **Omniverse Code = Y-up**, **Isaac Sim = Z-up**; plus there's a "Stage > Default Up Axis" preference). ([NVIDIA Forums: Set Up Axis to Z][nvidia-forums-upaxis])
+- USD's **fallback upAxis is Y**. ([docs.omniverse.nvidia.com][1])
+- In Omniverse Kit apps, the "default up axis" can vary by app and is configurable in preferences (examples from NVIDIA staff: **Omniverse Code = Y-up**, **Isaac Sim = Z-up**; plus there's a "Stage > Default Up Axis" preference). ([NVIDIA Developer Forums][6])
 
 #### A good "Omniverse-friendly" Blender setting (most common)
 
@@ -728,11 +865,11 @@ If your target is **USD Composer / general Omniverse viewing**, a very common ex
 - **Forward = -Z**
 - **Convert Orientation = ON**
 
-This matches the common USD camera/view conventions seen in Omniverse-related docs (e.g., Isaac Sim explicitly calls out USD axes using **+Y up, -Z forward**). ([Isaac Sim: Conventions][isaac-sim-conventions])
+This matches the common USD camera/view conventions seen in Omniverse-related docs (e.g., Isaac Sim explicitly calls out USD axes using **+Y up, -Z forward**). ([docs.isaacsim.omniverse.nvidia.com][7])
 
 #### But if you're targeting Sim/robotics workflows
 
-NVIDIA's SimReady guidance often recommends exporting assets **Z-up**. ([Omniverse SimReady: Modeling Best Practices][simready-modeling])  
+NVIDIA's SimReady guidance often recommends exporting assets **Z-up**. ([docs.omniverse.nvidia.com][8])  
 So if your pipeline is "simulation first," you might instead keep Z-up and set your Omniverse stage/app preferences accordingly.
 
 ### The most important practical implication for this exporter pipeline
@@ -753,16 +890,16 @@ So pick **exactly one** place to do axis conversion:
 
 If you paste a tiny snippet of your export operator call (the usd_export args you pass, especially `convert_orientation`, forward/up, and `xform_op_mode`) you can pinpoint exactly where the extra rotation is likely coming from in your current setup.
 
-### Reference links
+### Appendix: Reference links
 
-- [omniverse-upaxis]: https://docs.omniverse.nvidia.com/dev-guide/latest/programmer_ref/usd/stage/set-stage-up-axis.html "Set the Stage Up Axis — Omniverse Developer Guide"
-- [blender-io-utils]: https://docs.blender.org/api/current/bpy_extras.io_utils.html "bpy_extras.io_utils — Blender Python API"
-- [blender-usd-manual]: https://docs.blender.org/manual/en/latest/files/import_export/usd.html "Universal Scene Description — Blender Manual"
-- [gist-axis-matrix]: https://gist.github.com/atteneder/594d4d6ac8bbf88d3c4efd0564fea75e "Coordinate Space Axis Conversion Matrix from Blender"
-- [blender-fbx-addon]: https://github.com/blender/blender-addons/blob/master/io_scene_fbx/__init__.py "blender-addons io_scene_fbx"
-- [nvidia-forums-upaxis]: https://forums.developer.nvidia.com/t/set-up-axis-to-z-not-y/276969 "Set Up Axis to Z — NVIDIA Developer Forums"
-- [isaac-sim-conventions]: https://docs.isaacsim.omniverse.nvidia.com/4.5.0/reference_material/reference_conventions.html "Isaac Sim Conventions"
-- [simready-modeling]: https://docs.omniverse.nvidia.com/simready/latest/simready-asset-creation/modeling-best-practices.html "Modeling Best Practices — Omniverse SimReady"
+[1]: https://docs.omniverse.nvidia.com/dev-guide/latest/programmer_ref/usd/stage/set-stage-up-axis.html "Set the Stage Up Axis — Omniverse Developer Guide"
+[2]: https://docs.blender.org/api/current/bpy_extras.io_utils.html "bpy_extras.io_utils — Blender Python API"
+[3]: https://docs.blender.org/manual/en/latest/files/import_export/usd.html "Universal Scene Description — Blender Manual"
+[4]: https://gist.github.com/atteneder/594d4d6ac8bbf88d3c4efd0564fea75e "Coordinate Space Axis Conversion Matrix from Blender"
+[5]: https://github.com/blender/blender-addons/blob/master/io_scene_fbx/__init__.py "blender-addons io_scene_fbx"
+[6]: https://forums.developer.nvidia.com/t/set-up-axis-to-z-not-y/276969 "Set Up Axis to Z — NVIDIA Developer Forums"
+[7]: https://docs.isaacsim.omniverse.nvidia.com/4.5.0/reference_material/reference_conventions.html "Isaac Sim Conventions"
+[8]: https://docs.omniverse.nvidia.com/simready/latest/simready-asset-creation/modeling-best-practices.html "Modeling Best Practices — Omniverse SimReady"
 
 ---
 
@@ -1176,10 +1313,401 @@ Your implementation plan and quick reference are well structured for isolating p
 
 ---
 
+## Session: Animation Layer Separation Research (REQ-EXP-029)
+
+**Date**: 06.02.2026  
+**Topic**: Separate Animation Layer Export - USD Composition Strategy  
+**Status**: Research Complete - Ready for Implementation
+
+### Research Question
+
+How should we implement separate animation layer export in the Blender USD MultiExport addon, so that animation can be composed with geometry using USD sublayers?
+
+### Proposed Approach (Pre-Research)
+
+1. **Dual Export**: Perform TWO Blender USD exports:
+   - Export 1: Geometry only (`export_animation=False`) → `MyAsset.usd`
+   - Export 2: Animation only (`export_animation=True`) → `MyAsset_anim.usd`
+
+2. **Animation Layer Post-Processing**: Convert all prim specifiers from `def` to `over`
+
+3. **Generate Composition Root**: Create a third file that sublayers both (animation first = stronger)
+
+### Research Findings
+
+#### Internal Documentation Review
+
+**USD_GoodStart Project Pattern**:
+The `USD_GoodStart` project already defines an `ANIM_LYR.usda` layer in the composition structure, confirming that animation as a separate sublayer is the established pattern.
+
+**NVIDIA LearnOpenUSD Sublayer Documentation**:
+> "Sublayers are a list of USD layers that are ordered by opinion strength. Each workstream can work independently without blocking each other."
+
+Animation sublayer should be **stronger** (listed first) so its transform opinions override static geometry.
+
+**Pixar Tutorial ("Transformations, Animation, and Layer Offsets")**:
+> "Use 'over' specifiers to provide neutral prim containers when authoring overriding opinions in stronger layers without changing the resolved prim specifier."
+
+This validates the `def` → `over` conversion approach for animation layers.
+
+#### NVIDIA USDcode NIM Second Opinion
+
+Consulted the NVIDIA USDcode NIM (LLM specialized in USD) for validation:
+
+**Q1: Is the dual-export + sublayer approach correct?**
+> "Separating animation layers is a common practice in USD, and using sublayers to combine them is a good way to manage complexity."
+
+**Q2: Selective def→over for SkelAnimation?**
+> "Your approach of keeping SkelAnimation prims as `def` and converting other prims to `over` is correct. SkelAnimation prims define new animation data, so they should remain as `def`."
+
+**Q3: What about Skeleton, SkelRoot, and Mesh prims?**
+> "It's recommended to use 'over' for Skeleton, SkelRoot, and Mesh prims in the animation layer. This is because the animation layer is intended to override or augment the existing prims, rather than re-defining them. Using 'over' ensures that the animation layer's opinions are layered on top of the existing geometry layer's opinions."
+
+**Q4: Stripping geometry properties?**
+> "Stripping geometry properties from the animation layer is generally correct. However, be careful not to strip any properties that are required for the animation to work correctly (e.g., `skel:animationSource`)."
+
+**Q5: Sublayer order confirmation?**
+> "Yes, your sublayer order is correct. By appending the animation layer first, its opinions will override the prims in the geometry layer."
+
+**Key Validation Points from NIM:**
+1. ✅ Dual-export approach is valid
+2. ✅ `def→over` conversion is correct strategy
+3. ✅ Keep only `SkelAnimation` as `def`, convert everything else to `over`
+4. ✅ Animation layer first (stronger) in sublayer order
+5. ✅ Strip geometry properties from animation layer
+6. ⚠️ Be careful not to strip `skel:animationSource` property
+
+**NIM Code Pattern (Sdf API):**
+```python
+def process_prim(prim_spec):
+    # Process properties - strip non-animation data
+    for prop_name in list(prim_spec.properties.keys()):
+        if prim_spec.typeName != 'SkelAnimation':
+            if prop_name in ['faceVertexCounts', 'faceVertexIndices', 
+                             'subdivisionScheme', 'normals']:
+                del prim_spec.properties[prop_name]
+            elif prop_name.startswith('primvars:'):
+                del prim_spec.properties[prop_name]
+            elif prop_name.startswith('material:'):
+                del prim_spec.properties[prop_name]
+    
+    # Recursively process children
+    for child in prim_spec.nameChildren:
+        process_prim(child)
+
+# Set specifiers - only SkelAnimation stays as 'def'
+for prim_spec in all_prims:
+    if prim_spec.typeName != 'SkelAnimation':
+        prim_spec.specifier = Sdf.SpecifierOver
+```
+
+---
+
+#### Second Opinion Analysis (External Review - ChatGPT)
+
+**Key Insight 1: `def` → `over` Conversion Must Be Selective**
+
+> "Using an 'overlay' layer that only contributes opinions on already-defined prims is exactly what `over` is for. However, a blanket `def → over` can break legitimate cases where the animation file must **define new prims** (most notably `SkelAnimation` prims)."
+
+**Recommendation**: Convert only the *existing scene prims you want to animate* to `over`, but **keep any newly introduced animation prims as `def`** (e.g., `/Animations/Walk` as a `def SkelAnimation`).
+
+**Key Insight 2: `over` Does NOT Ignore Geometry Data**
+
+> "`over` does **not** magically 'ignore geometry data.' It only changes whether the prim is a defining site; the layer can still author **properties** (attributes/relationships), and if your anim layer is stronger it can **override** the base layer."
+
+**Problems this causes**:
+- Geometry changes later (topology/primvars), but the stronger anim layer still carries older mesh data → conflicts/overrides
+- Accidental override of materials or other lookdev
+
+**Key Insight 3: Strip Non-Animated Attributes**
+
+If the goal is "animation-only," then you should strip anything you don't intend to override.
+
+**Keep only**:
+- For xform animation: `xformOp:*` + `xformOpOrder`
+- For point-cache/deform animation: `points` timeSamples (and possibly `extent`)
+- For UsdSkel: `SkelAnimation` data
+
+**Remove**:
+- `faceVertexCounts`, `faceVertexIndices`, `subdivisionScheme`
+- `normals`, `primvars:*` (UVs, colors)
+- `material:binding` (unless explicitly supporting animated binding swaps)
+- Any default (non-timesampled) values that would "redefine" the base
+
+**Key Insight 4: Material Bindings Must Be Stripped**
+
+> "`material:binding` is a relationship, and relationships are fully capable of overriding via layer strength. So an animation sublayer that includes `material:binding` can unexpectedly override lookdev."
+
+**Key Insight 5: UsdSkel Designed for Separation**
+
+UsdSkel is actually *designed* for this separation: animation data lives in a `SkelAnimation` prim.
+
+**Clean separation pattern**:
+
+**Geometry file (`MyAsset.usd`)**:
+- `def SkelRoot`
+- `def Skeleton`
+- Skinned meshes + weights/bindings (static)
+
+**Animation file (`MyAsset_animWalk.usd`)**:
+- `def SkelAnimation "/Animations/Walk"` (keep as `def`!)
+- `over` the `Skeleton` to set/bind: `rel skel:animationSource = </Animations/Walk>`
+- Optionally `over` any animated xforms above the rig
+
+**Critical**: If you blanket-convert all prims to `over`, you may accidentally convert the `SkelAnimation` to `over` too — and if it doesn't exist in the base, you've lost your animation definition.
+
+**Key Insight 6: Alternative - Single Export Then Split**
+
+> "This can be the best long-term solution if you want correctness and minimal bloat, but it's more work."
+
+**Pros**:
+- Guarantees identical prim paths/specs between geo + anim
+- Lets you extract only the timeSample opinions you want
+- Avoids Blender export doing heavy work twice
+
+**Cons**:
+- Must implement a "layer diff/extract" routine
+- More complex code
+
+**Recommendation for v0.1.88**: Stick with dual-export + post-processing cleanup. The programmatic splitting can be a v0.2.x enhancement.
+
+### Validated Implementation Strategy
+
+Based on combined research, here is the refined implementation:
+
+#### Phase 1: Basic Animation Export (REQ-EXP-028) - No changes needed
+
+#### Phase 2: Separate Animation Layer (REQ-EXP-029) - Refined Approach
+
+**Step 1: Dual Export**
+```python
+# Export 1: Geometry only
+geometry_params = {..., "export_animation": False}
+bpy.ops.wm.usd_export(**geometry_params)
+
+# Export 2: Animation (full frame range)
+anim_params = {..., "export_animation": True}
+bpy.ops.wm.usd_export(**anim_params)
+```
+
+**Step 2: Clean Animation Layer (NEW - Refined)**
+```python
+def clean_animation_layer(filepath: str) -> Dict[str, Any]:
+    """Clean animation layer: selective over + strip non-animated data."""
+    from pxr import Usd, Sdf, UsdGeom, UsdShade
+    
+    stage = Usd.Stage.Open(filepath)
+    layer = stage.GetRootLayer()
+    
+    # Collect prims that are SkelAnimation (keep as def)
+    skel_anim_paths = set()
+    for prim in stage.Traverse():
+        if prim.GetTypeName() == "SkelAnimation":
+            skel_anim_paths.add(prim.GetPath())
+    
+    # Convert def → over EXCEPT for SkelAnimation prims
+    def convert_selective(prim_spec):
+        if prim_spec.path not in skel_anim_paths:
+            if prim_spec.specifier == Sdf.SpecifierDef:
+                prim_spec.specifier = Sdf.SpecifierOver
+        for child in prim_spec.nameChildren:
+            convert_selective(child)
+    
+    for prim_spec in layer.rootPrims:
+        convert_selective(prim_spec)
+    
+    # Strip non-animated properties
+    properties_to_keep = {
+        # Transform animation
+        "xformOpOrder",
+        # Visibility animation
+        "visibility",
+        # Extent (if animated)
+        "extent",
+    }
+    # Also keep any property starting with "xformOp:" or having timeSamples
+    
+    for prim in stage.Traverse():
+        prim_spec = layer.GetPrimAtPath(prim.GetPath())
+        if not prim_spec:
+            continue
+        
+        # Skip SkelAnimation prims - keep all their data
+        if prim.GetPath() in skel_anim_paths:
+            continue
+        
+        # Collect properties to remove
+        props_to_remove = []
+        for prop_spec in prim_spec.properties:
+            prop_name = prop_spec.name
+            
+            # Keep xformOp properties
+            if prop_name.startswith("xformOp:"):
+                continue
+            # Keep allowed properties
+            if prop_name in properties_to_keep:
+                continue
+            # Keep properties with timeSamples (animated)
+            if hasattr(prop_spec, 'GetInfo') and prop_spec.HasInfo('timeSamples'):
+                continue
+            # Keep skel-related properties
+            if prop_name.startswith("skel:"):
+                continue
+            
+            # Remove everything else (geometry, materials, primvars)
+            props_to_remove.append(prop_name)
+        
+        for prop_name in props_to_remove:
+            prim_spec.RemoveProperty(prim_spec.properties[prop_name])
+    
+    # Remove material:binding relationships
+    for prim in stage.Traverse():
+        prim_spec = layer.GetPrimAtPath(prim.GetPath())
+        if prim_spec and "material:binding" in prim_spec.relationships:
+            del prim_spec.relationships["material:binding"]
+    
+    layer.Save()
+    return {"success": True}
+```
+
+**Step 3: Generate Composition Root**
+```python
+# Animation first (stronger), then geometry
+root_layer.subLayerPaths.append("MyAsset_anim.usd")
+root_layer.subLayerPaths.append("MyAsset.usd")
+```
+
+### Clean Layer Checklist (Implementation Reference)
+
+When cleaning animation layer, ensure:
+
+- [ ] Convert `def` → `over` **selectively** (keep `SkelAnimation` as `def`)
+- [ ] Remove `material:binding` relationships
+- [ ] Remove topology properties: `faceVertexCounts`, `faceVertexIndices`, `subdivisionScheme`
+- [ ] Remove `normals` (unless animated point-cache)
+- [ ] Remove `primvars:*` (UVs, vertex colors)
+- [ ] Keep `xformOp:*` + `xformOpOrder`
+- [ ] Keep `points` only if has timeSamples (deforming mesh)
+- [ ] Keep `visibility` if animated
+- [ ] Keep all `skel:*` properties
+- [ ] Keep `SkelAnimation` prim data intact
+
+### Reference Links
+
+#### Internal Documentation
+- **USD_GoodStart ANIM_LYR pattern**: `USD_GoodStart/020_BASE_LYR/ANIM_LYR.usda`
+- **OmniUSD Crucial Resources**: `Domain_OmniUSD_Guardrails/080_Framework_RULES/best_practices/omniusd_domain_crucial_resources.md`
+
+#### NVIDIA / OpenUSD Documentation
+- **Specifiers (def/over/class)**: [https://docs.nvidia.com/learn-openusd/latest/composition-basics/specifiers.html](https://docs.nvidia.com/learn-openusd/latest/composition-basics/specifiers.html)
+- **Sublayers**: [https://docs.nvidia.com/learn-openusd/latest/creating-composition-arcs/sublayers/what-are-sublayers.html](https://docs.nvidia.com/learn-openusd/latest/creating-composition-arcs/sublayers/what-are-sublayers.html)
+- **Working with Sublayers (Exercise)**: [https://docs.nvidia.com/learn-openusd/latest/creating-composition-arcs/sublayers/working-with-sublayers.html](https://docs.nvidia.com/learn-openusd/latest/creating-composition-arcs/sublayers/working-with-sublayers.html)
+
+#### Pixar OpenUSD Documentation
+- **Transformations, Animation, and Layer Offsets**: [https://openusd.org/release/tut_xforms.html](https://openusd.org/release/tut_xforms.html)
+- **UsdSkel Schemas In-Depth**: [https://openusd.org/docs/api/_usd_skel__schemas.html](https://openusd.org/docs/api/_usd_skel__schemas.html)
+- **Sdf: Scene Description Foundations**: [https://openusd.org/docs/api/sdf_page_front.html](https://openusd.org/docs/api/sdf_page_front.html)
+
+#### Blender Documentation
+- **Blender USD Export/Import**: [https://docs.blender.org/manual/en/4.0/files/import_export/usd.html](https://docs.blender.org/manual/en/4.0/files/import_export/usd.html)
+
+#### Community / Issues
+- **Specifying multiple SkelAnimations for UsdSkel (GitHub Issue #2246)**: [https://github.com/PixarAnimationStudios/USD/issues/2246](https://github.com/PixarAnimationStudios/USD/issues/2246)
+
+### Implementation Priority
+
+| Phase | Requirement | Complexity | Notes |
+|-------|-------------|------------|-------|
+| 1 | REQ-EXP-023 (Materials→Looks) | Low | Simple post-process |
+| 2 | REQ-EXP-028 (Animation Export) | Medium | Pass-through to Blender |
+| 3 | REQ-EXP-029 (Separate Layers) | **Medium-High** | Refined with clean layer logic |
+
+**Note**: The refined `clean_animation_layer()` function adds complexity but is essential for correct behavior. Consider this a v0.1.88 stretch goal - basic dual-export with simple `def→over` can ship first, with full cleanup as v0.1.89.
+
+---
+
+## All external links referenced in this document
+
+Here are **all external links referenced/footnoted in your document** (deduplicated, with clean URLs and titles). The two different `[1]` blocks in the doc are kept as separate entries because they point to different pages.
+
+### Omniverse / NVIDIA
+
+1. **Set the Stage Up Axis — Omniverse Developer Guide**
+   [https://docs.omniverse.nvidia.com/dev-guide/latest/programmer_ref/usd/stage/set-stage-up-axis.html](https://docs.omniverse.nvidia.com/dev-guide/latest/programmer_ref/usd/stage/set-stage-up-axis.html)
+
+2. **USD Fundamentals — Omniverse “DANG” guide** (cited in the “Scope can’t carry a transform” note)
+   [https://docs.omniverse.nvidia.com/dang/latest/guide/usd/usd-fundamentals.html](https://docs.omniverse.nvidia.com/dang/latest/guide/usd/usd-fundamentals.html)
+
+3. **Omniverse Connect — Blender User Manual** (for `xform_op_mode`, etc.)
+   [https://docs.omniverse.nvidia.com/connect/latest/blender/manual.html](https://docs.omniverse.nvidia.com/connect/latest/blender/manual.html)
+
+4. **Set Up Axis to Z (not Y) — NVIDIA Developer Forums**
+   [https://forums.developer.nvidia.com/t/set-up-axis-to-z-not-y/276969](https://forums.developer.nvidia.com/t/set-up-axis-to-z-not-y/276969)
+
+5. **Isaac Sim Conventions** (axes: +Y up, -Z forward, etc.)
+   [https://docs.isaacsim.omniverse.nvidia.com/4.5.0/reference_material/reference_conventions.html](https://docs.isaacsim.omniverse.nvidia.com/4.5.0/reference_material/reference_conventions.html)
+
+6. **SimReady — Modeling Best Practices** (mentions Z-up guidance in SimReady context)
+   [https://docs.omniverse.nvidia.com/simready/latest/simready-asset-creation/modeling-best-practices.html](https://docs.omniverse.nvidia.com/simready/latest/simready-asset-creation/modeling-best-practices.html)
+
+### Blender docs / Blender-related references
+
+7. **`bpy_extras.io_utils` — Blender Python API** (axis conversion helper)
+   [https://docs.blender.org/api/current/bpy_extras.io_utils.html](https://docs.blender.org/api/current/bpy_extras.io_utils.html)
+
+8. **Blender Manual — USD Export/Import**
+   [https://docs.blender.org/manual/en/latest/files/import_export/usd.html](https://docs.blender.org/manual/en/latest/files/import_export/usd.html)
+
+9. **Blender Add-ons repo — FBX exporter `global_matrix` usage**
+   [https://github.com/blender/blender-addons/blob/master/io_scene_fbx/__init__.py](https://github.com/blender/blender-addons/blob/master/io_scene_fbx/__init__.py)
+
+10. **Coordinate Space Axis Conversion Matrix from Blender — atteneder gist**
+    [https://gist.github.com/atteneder/594d4d6ac8bbf88d3c4efd0564fea75e](https://gist.github.com/atteneder/594d4d6ac8bbf88d3c4efd0564fea75e)
+
+11. **Parenting (matrix_parent_inverse concepts) — Surf Visualization course notes**
+    [https://surf-visualization.github.io/blender-course/api/parenting/](https://surf-visualization.github.io/blender-course/api/parenting/)
+
+12. **“Parent (keep transform) via Python API?” — Blender Stack Exchange**
+    [https://blender.stackexchange.com/questions/152781/how-to-make-object-a-a-parentkeep-transform-of-object-b-via-blenders-python-a](https://blender.stackexchange.com/questions/152781/how-to-make-object-a-a-parentkeep-transform-of-object-b-via-blenders-python-a)
+
+13. **`bpy.ops.wm` (USD export operator params; `convert_orientation`, etc.) — UPBGE docs**
+    [https://upbge.org/docs/latest/api/bpy.ops.wm.html](https://upbge.org/docs/latest/api/bpy.ops.wm.html)
+
+### Pixar OpenUSD Documentation (Animation Layer Research)
+
+14. **Transformations, Animation, and Layer Offsets** — Pixar Tutorial
+    [https://openusd.org/release/tut_xforms.html](https://openusd.org/release/tut_xforms.html)
+
+15. **UsdSkel Schemas In-Depth** — OpenUSD API
+    [https://openusd.org/docs/api/_usd_skel__schemas.html](https://openusd.org/docs/api/_usd_skel__schemas.html)
+
+16. **Sdf: Scene Description Foundations** — OpenUSD API
+    [https://openusd.org/docs/api/sdf_page_front.html](https://openusd.org/docs/api/sdf_page_front.html)
+
+### NVIDIA Learn OpenUSD (Animation Layer Research)
+
+17. **Specifiers (def/over/class)** — Learn OpenUSD Composition Basics
+    [https://docs.nvidia.com/learn-openusd/latest/composition-basics/specifiers.html](https://docs.nvidia.com/learn-openusd/latest/composition-basics/specifiers.html)
+
+18. **What are Sublayers** — Learn OpenUSD
+    [https://docs.nvidia.com/learn-openusd/latest/creating-composition-arcs/sublayers/what-are-sublayers.html](https://docs.nvidia.com/learn-openusd/latest/creating-composition-arcs/sublayers/what-are-sublayers.html)
+
+19. **Working with Sublayers** — Learn OpenUSD Exercise
+    [https://docs.nvidia.com/learn-openusd/latest/creating-composition-arcs/sublayers/working-with-sublayers.html](https://docs.nvidia.com/learn-openusd/latest/creating-composition-arcs/sublayers/working-with-sublayers.html)
+
+### GitHub Issues / Community
+
+20. **Specifying multiple SkelAnimations for UsdSkel** — Pixar USD Issue #2246
+    [https://github.com/PixarAnimationStudios/USD/issues/2246](https://github.com/PixarAnimationStudios/USD/issues/2246)
+
+---
 
 ## Related Documents
 
 - `02_Detailed_Requirements.md` - Updated with new requirements
 - `04_Implementation_Plan.md` - Updated with implementation details
 - `Domain_Blender_Guardrails/080_Framework_RULES/best_practices/` - Best practices documentation
+- `99B_Handoff_20260206_Animation_Export_Feature.md` - Original animation research (superseded by 99D)
+- `99C_Handoff_20260206_REQ_ID_Duplicate_Fix.md` - REQ-EXP-025 → REQ-EXP-030 renumbering
+- `99D_Handoff_20260206_Animation_And_Looks_Implementation.md` - **PRIMARY HANDOFF** for implementation
 

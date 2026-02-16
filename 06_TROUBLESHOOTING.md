@@ -2,6 +2,9 @@
 
 This guide covers troubleshooting for the Blender USD Multi Export add-on, including installation issues, debugging, and common problems.
 
+**Version**: v0.1.3  
+**Last Updated**: 03.02.2026 23:27
+
 ## Quick Checks
 
 ### 1. Check Blender Console for Errors

@@ -1,7 +1,8 @@
 # Blender USD Multi Export - User Guide
 
-**Version**: v0.1.0 (MVP Release)  
+**Version**: v0.1.3 (MVP Release)  
 **Date**: 23.12.2025  
+**Last Updated**: 03.02.2026 23:27  
 **Target Platform**: Blender 5.0+
 
 ---
@@ -23,9 +24,9 @@
 
 ## Overview
 
-**Blender USD Multi Export v0.1.0** is a Blender addon that enables you to define multiple export endpoints (collections or objects) in a single Blender scene and export them as separate USD files in batch operations. This is particularly useful for workflows where you need to export different parts of a scene separately, such as for use in NVIDIA Omniverse or other USD-based pipelines.
+**Blender USD Multi Export v0.1.3** is a Blender addon that enables you to define multiple export endpoints (collections or objects) in a single Blender scene and export them as separate USD files in batch operations. This is particularly useful for workflows where you need to export different parts of a scene separately, such as for use in NVIDIA Omniverse or other USD-based pipelines.
 
-### Key Features (MVP v0.1.0)
+### Key Features (MVP v0.1.3)
 
 - ✅ **Endpoint-Based Export**: Define collections as export endpoints
 - ✅ **Batch Export**: Export multiple endpoints in a single operation
@@ -305,7 +306,7 @@ This addon uses **Scene Properties** because:
 
 **Use Case**: Export multiple levels of detail for the same asset
 
-**Current Limitation**: MVP v0.1.0 exports collections as-is. For LOD workflows:
+**Current Limitation**: MVP v0.1.3 exports collections as-is. For LOD workflows:
 - Create separate collections for each LOD (e.g., "Character_LOD0", "Character_LOD1")
 - Create separate endpoints for each LOD collection
 - Export all LOD endpoints
@@ -445,14 +446,14 @@ This addon uses **Scene Properties** because:
 
 ### Q: Can I export individual objects instead of collections?
 
-**A**: MVP v0.1.0 supports collections only. For individual objects:
+**A**: MVP v0.1.3 supports collections only. For individual objects:
 - Create a collection containing the object(s)
 - Export the collection
 - **Future Enhancement**: Direct object export (planned for v0.2.0+)
 
 ### Q: Can I customize export settings per endpoint?
 
-**A**: MVP v0.1.0 uses default export settings for all endpoints:
+**A**: MVP v0.1.3 uses default export settings for all endpoints:
 - Materials: Enabled
 - UV Maps: Enabled
 - Normals: Enabled
@@ -462,7 +463,7 @@ This addon uses **Scene Properties** because:
 
 ### Q: How do I export animations?
 
-**A**: MVP v0.1.0 exports static geometry only (animation disabled). For animated exports:
+**A**: MVP v0.1.3 exports static geometry only (animation disabled). For animated exports:
 - Use Blender's native USD export (`File > Export > USD`)
 - **Future Enhancement**: Animation support per endpoint (planned for v0.2.0+)
 
@@ -501,7 +502,7 @@ This addon uses **Scene Properties** because:
 
 ### Q: Can I use this addon in production?
 
-**A**: MVP v0.1.0 is released for **testing and evaluation**. It provides core functionality but:
+**A**: MVP v0.1.3 is released for **testing and evaluation**. It provides core functionality but:
 - Some features are planned for future versions
 - Thorough testing recommended before production use
 - Report issues and feedback to help improve the addon
@@ -510,7 +511,7 @@ This addon uses **Scene Properties** because:
 
 ## Limitations & Known Issues
 
-### MVP v0.1.0 Limitations
+### MVP v0.1.3 Limitations
 
 - **Collections Only**: Individual object export not supported (use collections)
 - **Fixed Export Settings**: All endpoints use same export settings (no per-endpoint options)
@@ -552,5 +553,5 @@ This addon uses **Scene Properties** because:
 ---
 
 **Last Updated**: December 23, 2025  
-**Version**: v0.1.0 (MVP Release)
+**Version**: v0.1.3 (MVP Release)
 

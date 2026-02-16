@@ -2,7 +2,8 @@
 
 **Status**: ✅ Ready for Implementation
 **Date Created**: 23.12.2025
-**Version**: v0.1.0 (MVP Release)
+**Version**: v0.1.3 (MVP Release)
+**Last Updated**: 03.02.2026 23:27
 **Target Platform**: Blender 5.0+ (officially released November 18, 2025)
 
 ---
@@ -71,6 +72,18 @@ This testing plan provides comprehensive procedures for validating the Blender U
 3. **Enable addon** in Blender:
    - Install from ZIP or enable from development directory
    - Verify "USD Multi Export" panel appears in Scene Properties
+
+---
+
+## Automated testing (Z-up / Y-up)
+
+Optional checks for the **Z to Y for Omniverse** option (no test suite in repo yet):
+
+1. **Stage metadata:** After exporting with the option enabled, open the USDA with pxr (e.g. `Usd.Stage.Open(filepath)`), read stage metadata: `UsdGeom.GetStageUpAxis(stage)` should be `UsdGeom.Tokens.y`.
+2. **Default prim rotation:** Get the default prim, read its `xformOp:rotateXYZ` (or equivalent); when Z-to-Y is on, the root Xform should have rotation equivalent to -90° about X (e.g. `(-90, 0, 0)` in degrees).
+3. **With option off:** Export with the option disabled; `upAxis` should be Z and default prim rotation (0,0,0).
+
+These can be implemented as a small Python script (run with Blender’s USD Python or standalone pxr) or as pytest/Blender test operators when you add a test harness.
 
 ---
 
@@ -322,7 +335,7 @@ The generated JSON file contains:
 ### Environment
 - **Blender Version**: 5.0.x
 - **OS**: Windows/macOS/Linux [version]
-- **Addon Version**: v0.1.0
+- **Addon Version**: v0.1.3
 
 ### Steps to Reproduce
 1. [Step 1]

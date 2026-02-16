@@ -261,12 +261,9 @@ class USDME_StartPointPropertyGroup(PropertyGroup):
     
     # Up-axis conversion (for Omniverse compatibility)
     y_is_up: BoolProperty(
-        name="Y is Up",
-        description=(
-            "Convert from Blender's Z-up to Y-up (for Omniverse compatibility). "
-            "Rotates scene -90° around X axis during export."
-        ),
-        default=False,
+        name="Z to Y for Omniverse",
+        description="Z to Y is up for Omniverse (conversion). Applies -90° X on default prim and sets stage upAxis.",
+        default=True,
     )
 
     filepath: StringProperty(

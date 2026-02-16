@@ -1,7 +1,8 @@
 # Building Blender USD Multi Export Add-on
 
-**Version**: 0.1.0  
+**Version**: 0.1.3  
 **Date**: 18.01.2026  
+**Last Updated**: 03.02.2026 23:27  
 **Purpose**: Step-by-step guide for building the Blender USD Multi Export add-on from source
 
 ---

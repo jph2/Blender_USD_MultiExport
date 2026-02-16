@@ -1,5 +1,8 @@
 # Contributing to Blender USD Multi Export
 
+**Version**: v0.1.3  
+**Last Updated**: 03.02.2026 23:27  
+
 Thank you for your interest in contributing to Blender USD Stable Export! This document provides guidelines and instructions for contributing.
 
 ## 🐛 Reporting Bugs

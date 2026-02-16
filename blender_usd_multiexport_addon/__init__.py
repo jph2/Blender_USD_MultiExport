@@ -1,7 +1,7 @@
 bl_info = {
     "name": "USD Multi Export",
     "author": "Blender USD Multi Export Project",
-    "version": (0, 1, 88),
+    "version": (0, 1, 3),
     "blender": (5, 0, 0),
     "location": "Scene Properties; 3D Viewport > N-Panel",
     "description": "Export multiple USD component assets from Blender scenes using start point definitions (pipeline origins for composition arcs).",

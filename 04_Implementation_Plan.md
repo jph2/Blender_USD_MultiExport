@@ -1,17 +1,17 @@
 # Blender USD Multi Export - Complete Implementation Plan
 
-**Version**: 2.12.2 | **Date**: 03.02.2026 | **Time**: 17:28 | **GlobalID**: 20260203_1728_Blender_USD_MultiExport_01
-**Status**: ✅ MVP Complete - v0.1.31 Released (Perspective: start point as pipeline origin)
+**Version**: 2.12.3 | **Date**: 05.02.2026 | **Time**: 00:35 | **GlobalID**: 20260205_0035_Blender_USD_MultiExport_01
+**Status**: ✅ MVP Complete - v0.1.3 Released (Perspective: start point as pipeline origin)
 **Date Created**: 25.11.2025
-**Last Updated**: 01.02.2026
+**Last Updated**: 03.02.2026
 **Target Platform**: Blender 5.0+ (officially released November 18, 2025)
-**MVP Release**: v0.1.0 - December 23, 2025
+**MVP Release**: v0.1.3 - December 23, 2025
 
 ---
 
 ## 📋 Executive Summary
 
-**Blender USD Multi Export v0.1.0** is a functional MVP (Minimum Viable Product) that provides the core **start point**-based USD export workflow. Start points are the stable DCC origins for downstream USD pipeline and composition arcs. This version establishes the fundamental architecture and proves the concept works, while deferring advanced features for future iterations based on testing feedback and user needs.
+**Blender USD Multi Export v0.1.3** is a functional MVP (Minimum Viable Product) that provides the core **start point**-based USD export workflow. Start points are the stable DCC origins for downstream USD pipeline and composition arcs. This version establishes the fundamental architecture and proves the concept works, while deferring advanced features for future iterations based on testing feedback and user needs.
 
 **Perspective: Start Point (Pipeline Origin)**  
 The addon defines **start points** in the DCC—the stable origins for the USD pipeline. Exported USD files are the **beginning** of further pipelining (composition arcs, references, layers), not the terminus. Naming (start point, USD_StartPoint folder) reflects this pipeline-origin perspective.
@@ -87,7 +87,7 @@ This implementation follows a **MVP-first strategy** focusing on core functional
 ### Timeline
 - **Planning**: November 25-30, 2025 (Research and requirements gathering)
 - **Implementation**: December 23, 2025 (Single-session MVP development)
-- **MVP Release**: December 23, 2025 (v0.1.0)
+- **MVP Release**: December 23, 2025 (v0.1.3)
 - **Future**: v0.2.0+ Advanced features (Post-MVP validation)
 
 ---
@@ -1148,7 +1148,7 @@ with state_mgr.safe_batch_operation():
 
 ## 🎯 Project Status & Next Steps
 
-### Current Status (v0.1.0 MVP)
+### Current Status (v0.1.3 MVP)
 **Development Phase**: ✅ **MVP COMPLETE - Ready for Initial Testing**
 - Functional addon with core start point-based export workflow
 - Safe scene state management and automatic restoration
@@ -1158,13 +1158,13 @@ with state_mgr.safe_batch_operation():
 - Testing framework and procedures documented
 
 ### MVP Approach Decision
-**Why MVP for v0.1.0**: Focus on validating the core concept before investing in advanced features
+**Why MVP for v0.1.3**: Focus on validating the core concept before investing in advanced features
 - **Risk Mitigation**: Prove basic functionality works before adding complexity
 - **User Feedback**: Get real-world testing feedback to guide feature priorities
 - **Incremental Development**: Build confidence with working core, then enhance based on needs
 - **Quality Focus**: Ensure solid foundation before adding advanced USD manipulation features
 
-### Completed in v0.1.0 MVP ✅
+### Completed in v0.1.3 MVP ✅
 1. **Start point Management**: Add/remove start points with basic properties
    - ✅ Add start point with auto-detection (collection/object from context)
    - ⚠️ Remove start point (removes last only, no dropdown selection)
@@ -1209,7 +1209,7 @@ with state_mgr.safe_batch_operation():
 13. **Subfolder Creation**: Auto-create USD_Start point subfolder with target name
 14. **Addon Preferences**: Log level control and default export settings
 
-### Planned for Future Versions (NOT in v0.1.0) 🔄
+### Planned for Future Versions (NOT in v0.1.3) 🔄
 **Reference**: See `09_Roadmap.md` for comprehensive feature breakdown and implementation phases.
 **Cross-Platform Pattern Reference**: `Master_Rules/080_Framework_RULES/documentation/usd_multiexport_uix_pattern.md`
 **Architecture Alignment**: Future versions should follow the Rhino USD Multi Export plan's phased approach for bidirectional capabilities.
@@ -1517,12 +1517,12 @@ The Rhino plan defines a comprehensive approach for bidirectional ComfyUI integr
 
 ---
 
-**Consolidated Implementation Plan - Version 2.5.0**
+**Consolidated Implementation Plan - Version 2.5.3**
 **Date Created**: 25.11.2025
-**Last Updated**: 26.01.2026 20:30 (OBJECT Export Selection Fix)
+**Last Updated**: 06.02.2026 02:15 (Added REQ-EXP-028/029 Animation Export)
 **Next Update**: After v0.2.0 completion
 
-**Status**: ✅ **MVP Complete (v0.1.27)** | 🟡 **v0.2.0 Cross-Platform Alignment Pending**
+**Status**: ✅ **MVP Complete (v0.1.27)** | 🟡 **v0.2.0 Cross-Platform Alignment Pending** | 🐛 **REQ-EXP-030 Unit Bug Open** | 🔬 **Animation Export Planned**
 **Cross-Platform Pattern Reference**: `Master_Rules/080_Framework_RULES/documentation/usd_multiexport_uix_pattern.md`
 **Roadmap Reference**: See `09_Roadmap.md` for comprehensive feature requirements and implementation details
 **Architecture Reference**: Aligned with `Rhino_USD_MultiExport/04_Implementation_Plan.md` for future bidirectional capabilities
@@ -1535,19 +1535,22 @@ Per `Master_Rules/080_Framework_RULES/documentation/usd_multiexport_uix_pattern.
 
 | Pattern Requirement | Current Status | Target Version | Notes |
 |---------------------|----------------|----------------|-------|
-| Single Enable Checkbox | ✅ Implemented | v0.1.0 | Aligned |
-| Type Icon | ✅ Implemented | v0.1.0 | Collection/Object icons |
-| Status Icon | ✅ Implemented | v0.1.0 | Check/Error icons |
-| Context-Aware Add | ✅ Implemented | v0.1.0 | Auto-detect from selection |
-| Select Target Button | ✅ Implemented | v0.1.0 | Per-start point select |
-| Export All Enabled | ✅ Implemented | v0.1.0 | Main export button |
-| Selective Export | ✅ Implemented | v0.1.0 | Via enable/disable checkbox |
-| **Unit Conversion** | ✅ Implemented | **v0.1.20** | mm/cm/m/km with auto-detect |
+| Single Enable Checkbox | ✅ Implemented | v0.1.3 | Aligned |
+| Type Icon | ✅ Implemented | v0.1.3 | Collection/Object icons |
+| Status Icon | ✅ Implemented | v0.1.3 | Check/Error icons |
+| Context-Aware Add | ✅ Implemented | v0.1.3 | Auto-detect from selection |
+| Select Target Button | ✅ Implemented | v0.1.3 | Per-start point select |
+| Export All Enabled | ✅ Implemented | v0.1.3 | Main export button |
+| Selective Export | ✅ Implemented | v0.1.3 | Via enable/disable checkbox |
+| **Unit Conversion** | 🐛 BUG | **v0.1.88+** | mm/cm/m/km - target unit ineffective (REQ-EXP-025) |
 | **Y-Up Axis** | ✅ Implemented | **v0.1.20** | Omniverse compatibility |
 | **OBJECT Export** | ✅ Implemented | **v0.1.27** | Selection bug fixed |
 | **Progress Bar** | ❌ Missing | **v0.2.0** | **HIGH PRIORITY** |
 | **Remove Selection-Based** | ⚠️ Last only | **v0.2.0** | Change to selected |
 | **Export Results Summary** | ❌ Missing | **v0.2.0** | Add summary popup |
+| **Materials→Looks Scope** | ❌ Missing | **v0.2.0** | Omniverse convention (REQ-EXP-023) |
+| **Animation Export** | 🔬 Research | **v0.2.x** | REQ-EXP-028 baked per-frame |
+| **Animation Layer** | 🔬 Research | **v0.2.x** | REQ-EXP-029 separate USD layer |
 | Keyboard Shortcuts | ❌ Missing | v0.2.1+ | Optional |
 | Cancel Export | ❌ Missing | v0.2.1+ | Future |
 
@@ -1693,4 +1696,201 @@ So both the **Blender-side** normalize and the **USD post-pass** can contribute 
 - **Re-enable**: Once the above is validated, remove the forced `normalize_rotation = False` / `normalize_scale = False` in `_apply_collection_normalization_quickfix`, restore `normalize_child_xforms` from start point options in the bake call, and un-gray the Normalize Scale / Normalize Rotation UI.
 
 **Links**: `00_Discovery.md` (Why Rotation/Scale Can Look Non-Normalized; Known limitation v0.1.86), `80_WIP_notes.md` (v0.1.86, v0.1.85, v0.1.84).
+
+---
+
+## 🎬 Animation Export Support (REQ-EXP-028, REQ-EXP-029)
+
+**Status**: 🔬 **Research Complete / Ready for Implementation**  
+**Priority**: Medium  
+**Date Added**: 06.02.2026  
+**Updated**: 06.02.2026 (expanded scope based on Blender 5.0 native support research)  
+**Target Version**: v0.2.x+
+
+### Overview
+
+Animation export enables users to export animations into USD files. Two distinct capabilities are planned:
+
+1. **REQ-EXP-028: Basic Animation Export** - Export all animation types supported by Blender's native USD exporter
+2. **REQ-EXP-029: Separate Animation Layer** - Export animation to a separate USD file for composition
+
+### Blender 5.0 Native USD Animation Support (Research Complete)
+
+**Supported Animation Types** (pass-through to Blender's exporter):
+
+| Animation Type | USD Type | Blender Parameter | Notes |
+|----------------|----------|-------------------|-------|
+| Transform (loc/rot/scale) | `xformOp` time-samples | `export_animation=True` | Baked per-frame |
+| Deforming meshes | Animated points | `export_animation=True` | Cloth, soft-body |
+| Topology-changing meshes | Animated topology | `export_animation=True` | Fluid sims |
+| Armatures (skeletal) | UsdSkel | `export_armatures=True` | Blender 4.0+ |
+| Shape keys (morph) | USD BlendShapes | `export_shapekeys=True` | Relative only |
+| Animated volumes | VDB time-samples | `export_animation=True` | OpenVDB |
+| Cameras | UsdGeomCamera | `export_animation=True` | FOV, transform |
+| Lights | UsdLux | `export_animation=True` | Intensity, transform |
+| Visibility | `visibility` attr | `export_animation=True` | Auto when animated |
+
+**Key Finding**: Blender does NOT have parameters for custom frame range. It uses `scene.frame_start` / `scene.frame_end` directly. We must temporarily modify scene settings.
+
+### Phase 1: Basic Animation Export (REQ-EXP-028)
+
+**Goal**: Enable export of all animation types supported by Blender's native USD exporter.
+
+**Implementation Tasks**:
+
+| Task | File(s) | Description |
+|------|---------|-------------|
+| 1.1 | `props.py` | Add `export_animation` BoolProperty (default: `False`) |
+| 1.2 | `props.py` | Add `animation_frame_range` EnumProperty (`SCENE`, `CUSTOM`) |
+| 1.3 | `props.py` | Add `animation_frame_start`, `animation_frame_end` IntProperty |
+| 1.4 | `props.py` | Add `export_armatures` BoolProperty (default: `True`) |
+| 1.5 | `props.py` | Add `export_shapekeys` BoolProperty (default: `True`) |
+| 1.6 | `props.py` | Add `only_deform_bones` BoolProperty (default: `False`) |
+| 1.7 | `ui.py` | Add animation export UI section with all options |
+| 1.8 | `ops_export.py` | Pass animation parameters to `bpy.ops.wm.usd_export()` |
+| 1.9 | `ops_export.py` | Handle custom frame range (temp scene modification + restore) |
+| 1.10 | `usd_bake.py` | Add `animation_mode` flag - skip mesh point baking when True |
+| 1.11 | Test | Verify all animation types play back in Omniverse/usdview |
+
+**Technical Considerations**:
+1. **Post-process bake conflict**: When animation is enabled, `usd_bake.py` must NOT bake transforms into mesh points (destroys time-sampled animation). Add `animation_mode=True` flag.
+2. **Frame range handling**: Temporarily set `scene.frame_start`/`scene.frame_end` before export, restore in `finally` block.
+3. **Parameter pass-through**: Simply pass `export_armatures`, `export_shapekeys`, `only_deform_bones` to Blender's exporter.
+
+### Phase 2: Separate Animation Layer Export (REQ-EXP-029)
+
+**Goal**: Export animation to a separate USD file for non-destructive composition.
+
+**Implementation Tasks**:
+
+| Task | File(s) | Description |
+|------|---------|-------------|
+| 2.1 | `props.py` | Add `export_animation_separate_layer` BoolProperty |
+| 2.2 | `props.py` | Add `animation_layer_suffix` StringProperty (default: `_anim`) |
+| 2.3 | `props.py` | Add `generate_composition_root` BoolProperty (default: `True`) |
+| 2.4 | `ops_export.py` | Implement dual-export: geometry file + animation file |
+| 2.5 | `usd_bake.py` or new | Post-process animation file to use `over` specifiers |
+| 2.6 | New function | Generate composition root file with sublayers |
+| 2.7 | Test | Verify composed scene plays animation correctly |
+
+**USD Pattern**:
+```usda
+# geometry.usd - Static geometry
+def Xform "MyAsset" { ... }
+
+# geometry_anim.usd - Animation overrides
+over "MyAsset" {
+    double3 xformOp:translate.timeSamples = { 1: (0,0,0), 24: (10,0,0) }
+}
+
+# geometry_composed.usd - Composition root
+(
+    subLayers = [ @./geometry_anim.usd@, @./geometry.usd@ ]
+)
+```
+
+### Research Findings (Complete - 06.02.2026)
+
+**Blender 5.0 Native USD Animation Support**:
+- `export_animation=True` exports entire scene frame range as time-samples (not curves)
+- Frame range uses `scene.frame_start` / `scene.frame_end` (no custom parameters)
+- `export_armatures=True` exports armatures as UsdSkel (Blender 4.0+)
+- `export_shapekeys=True` exports shape keys as USD BlendShapes
+- `only_deform_bones=False` controls which bones are exported
+- Supports: transform animation, deforming meshes, topology-changing meshes, volumes, cameras, lights, visibility
+
+**Limitations** (Blender native):
+- No animation curve export (baked samples only)
+- Invisible objects not exported
+- Absolute shape keys not supported (relative only)
+- Bendy bones not supported
+
+**Implementation Approach**: Pass-through to Blender's native exporter for all animation types. The addon only needs to:
+1. Expose the relevant parameters in the UI
+2. Handle custom frame range via temporary scene modification
+3. Skip mesh baking in post-process when animation is enabled
+
+**References**: See `00_Discovery.md` - "Session: Animation Export Research" for full research notes.
+
+---
+
+## 🐛 BUG FIX: Unit Conversion - Target Unit Selection Ineffective (REQ-EXP-025)
+
+**Status**: 🔴 **BUG - Open**  
+**Priority**: High  
+**Date Reported**: 05.02.2026  
+**Target Fix**: v0.1.88+
+
+### Problem Description
+
+When a Blender scene is set to millimeters (or other non-meter units), selecting different Target Unit options in the addon has no effect on the exported USD scale. The export always produces the same scale regardless of what target unit is chosen.
+
+### Root Cause Analysis
+
+Investigation (05.02.2026) identified the following issues:
+
+1. **`source_unit` property not auto-synced with scene settings**:
+   - The `source_unit` property (default: `MILLIMETERS`) is stored per start point
+   - It is NOT automatically updated when the Blender scene unit changes
+   - Users must manually click the "Detect" button to sync with scene settings
+   - If `source_unit` is wrong, the `get_scale_factor()` calculation is incorrect
+
+2. **Potential double-scaling conflict**:
+   - Blender's built-in USD exporter (`bpy.ops.wm.usd_export()`) reads `scene.unit_settings.scale_length` and may already convert geometry to meters internally
+   - Our post-process bake step (`usd_bake.py`) applies `scale_factor` to mesh points
+   - If Blender already handled conversion, our additional scaling causes incorrect results
+
+3. **Scale factor flow**:
+   - `props.py`: `get_scale_factor()` returns `source_factor / target_factor`
+   - `ops_export.py` line 2870-2871: `scale_factor = start_point.get_scale_factor()`
+   - `usd_bake.py` line 98-99: `local_bake_matrix.SetScale(Gf.Vec3d(scale_factor, scale_factor, scale_factor))`
+
+### Implementation Tasks
+
+**Task 1: Add Auto-Detection at Export Time**
+- **File**: `ops_export.py` (around line 2869-2871)
+- **Change**: Before calling `start_point.get_scale_factor()`, auto-detect and update `source_unit`:
+  ```python
+  # Auto-detect source unit from scene settings at export time
+  detected_unit = start_point.detect_source_unit(context)
+  if detected_unit != start_point.source_unit:
+      logger.log_step("source_unit_auto_corrected", {
+          **start_point_context,
+          "stored_value": start_point.source_unit,
+          "detected_value": detected_unit,
+      })
+      start_point.source_unit = detected_unit
+  
+  scale_factor = start_point.get_scale_factor()
+  ```
+
+**Task 2: Investigate Blender USD Exporter Unit Handling**
+- Determine if `bpy.ops.wm.usd_export()` already converts to meters
+- If yes: Adjust our scale_factor calculation to avoid double-scaling
+- If no: Our current approach should work once source_unit is correct
+
+**Task 3: Add Logging for Debug Visibility**
+- Log the actual scale_factor being applied during export
+- Log detected vs stored source_unit
+- Log scene's `unit_settings.scale_length` value
+
+**Task 4: UI Warning for Mismatched Units**
+- Add visual indicator in UI when `source_unit` doesn't match detected scene unit
+- Consider auto-updating `source_unit` when scene units change (via `update` callback or poll)
+
+### Acceptance Criteria
+
+- [ ] Changing target unit produces correctly scaled USD output
+- [ ] Works correctly when Blender scene is in mm, cm, m, or km
+- [ ] No double-scaling occurs between Blender's exporter and our post-process
+- [ ] Source unit auto-detection runs at export time
+- [ ] Export logs show scale_factor being applied
+
+### References
+
+- **Requirement**: `02_Detailed_Requirements.md` → REQ-EXP-025
+- **Code Locations**:
+  - `props.py`: `detect_source_unit()`, `get_scale_factor()`, `source_unit`, `target_unit`
+  - `ops_export.py`: Line ~2869-2871 (scale_factor retrieval)
+  - `usd_bake.py`: Line ~98-99 (scale matrix application)
 

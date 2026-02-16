@@ -2,9 +2,10 @@
 
 **Status**: ✅ In Progress - Requirements being populated from confirmed questionnaire items  
 **Date Created**: 25.11.2025  
-**Version**: v2.5.1  
-**Last Updated**: 02.02.2026 14:01 - v0.1.52 bake rotation fix documented  
-**GlobalID**: 20260202_1401_Blender_USD_MultiExport_02  
+**Version**: v2.5.4  
+**Addon Version**: v0.1.3  
+**Last Updated**: 06.02.2026 02:15 - Added REQ-EXP-028/029 Animation Export Requirements  
+**GlobalID**: 20260206_0215_Blender_USD_MultiExport_02  
 **Target Platform**: Blender 5.0+ (officially released November 18, 2025)  
 **Cross-Platform Pattern Reference**: `Master_Rules/080_Framework_RULES/documentation/usd_multiexport_uix_pattern.md`
 
@@ -1235,7 +1236,80 @@ for obj in context.view_layer.objects:
 
 ---
 
-#### REQ-EXP-023: Collection Pivot Source
+#### REQ-EXP-023: Materials Scope Renamed to "Looks" (Omniverse/USD Convention)
+**Priority**: Medium  
+**Status**: Planned  
+**Date Added**: 05.02.2026  
+**Reference**: Omniverse pipeline conformance request
+
+**Requirement**: When Blender exports USD with materials, the Scope prim containing materials MUST be named "Looks" instead of "Materials" to conform with NVIDIA Omniverse standards and USD best practices.
+
+**Background**:
+- **Current State**: Blender's USD exporter creates a `/Materials` Scope prim to hold material definitions.
+- **USD/Omniverse Convention**: The standard convention (adopted by NVIDIA Omniverse and USD best practices) is to use `/Looks` as the Scope name for materials/shaders.
+- **Cross-Project Consistency**: The same requirement is being implemented in Rhino USD MultiExport (FR-P2-011).
+
+**Functional Requirements**:
+- Post-process exported USD to rename the `/Materials` Scope prim to `/Looks`
+- Update all `material:binding` relationships in the stage to reference `/Looks/...` instead of `/Materials/...`
+- If Blender's USD export API allows configuring the materials scope name, use that instead of post-processing
+
+**Technical Implementation**:
+- Add to `usd_bake.py` or create new function in post-processing pipeline
+- Use USD's `Sdf.BatchNamespaceEdit` or prim reparenting to rename `/Materials` → `/Looks`
+- Iterate all prims and update `material:binding` relationship targets
+- Handle edge cases: no materials in export, nested material scopes
+
+**Acceptance Criteria**:
+- [ ] Exported USD contains `/Looks` Scope (not `/Materials`)
+- [ ] All material bindings reference `/Looks/...` paths
+- [ ] Materials render correctly in NVIDIA Omniverse and other USD viewers
+- [ ] No regression in material appearance or binding functionality
+- [ ] Consistent with Rhino USD MultiExport implementation
+
+---
+
+#### REQ-EXP-030: Unit Conversion Bug - Target Unit Selection Ineffective (BUG)
+**Priority**: High  
+**Status**: 🐛 **BUG - Open**  
+**Date Added**: 05.02.2026  
+**Reference**: User report - mm scene exports with same scale regardless of target unit selection
+
+**Bug Description**: When a Blender scene is set to millimeters (or other non-meter units), selecting different Target Unit options in the addon has no effect on the exported USD scale. The export always produces the same scale regardless of what target unit is chosen.
+
+**Expected Behavior**: Selecting different target units (mm, cm, m, km) should produce correctly scaled geometry in the exported USD. For example:
+- Scene in mm → Target: m → geometry should be 0.001x scale
+- Scene in mm → Target: cm → geometry should be 0.01x scale
+
+**Actual Behavior**: Exports produce the same scale regardless of target unit selection when the scene is not in meters.
+
+**Root Cause Analysis** (Investigation 05.02.2026):
+1. **`source_unit` property not auto-synced**: The `source_unit` property (default: MILLIMETERS) is NOT automatically updated when the Blender scene unit changes. Users must manually click "Detect" button.
+2. **Blender's USD exporter already handles unit conversion**: Blender's built-in USD exporter reads `scene.unit_settings.scale_length` and likely converts geometry to meters internally.
+3. **Potential double-scaling**: Our addon's post-process bake step (`usd_bake.py`) applies `scale_factor` from `get_scale_factor()`, but this may conflict with Blender's internal unit handling.
+4. **Code location**: `ops_export.py` line 2870-2871 retrieves scale_factor, passed to `usd_bake.bake_usd_geometry()` at line 2880.
+
+**Relevant Code**:
+- `props.py`: `source_unit` default is MILLIMETERS, `target_unit` default is METERS
+- `props.py`: `get_scale_factor()` calculates `source_factor / target_factor`
+- `props.py`: `detect_source_unit()` reads `scene.unit_settings.scale_length` but requires manual invocation
+- `usd_bake.py`: `scale_factor` is applied to mesh points via `local_bake_matrix.SetScale()`
+
+**Proposed Fix Options**:
+1. **Auto-detect source unit at export time**: Call `detect_source_unit()` automatically before calculating scale_factor, instead of relying on stored property value
+2. **Investigate Blender's unit handling**: Determine if Blender's exporter already converts to meters, and if so, adjust our scale_factor calculation to avoid double-scaling
+3. **Add logging**: Log the actual scale_factor being applied during export to debug the issue
+4. **UI improvement**: Show warning if source_unit doesn't match detected scene unit
+
+**Acceptance Criteria**:
+- [ ] Changing target unit produces correctly scaled USD output
+- [ ] Works correctly when Blender scene is in mm, cm, m, or km
+- [ ] No double-scaling occurs between Blender's exporter and our post-process
+- [ ] Source unit auto-detection runs at export time (not just when "Detect" clicked)
+
+---
+
+#### REQ-EXP-026: Collection Pivot Source
 **Priority**: High  
 **Status**: Planned  
 **Date Added**: 2026-02-02  
@@ -1264,7 +1338,7 @@ for obj in context.view_layer.objects:
 
 ---
 
-#### REQ-EXP-024: Object Pivot Normalization
+#### REQ-EXP-027: Object Pivot Normalization
 **Priority**: Medium  
 **Status**: Planned  
 **Date Added**: 2026-02-02  
@@ -1280,6 +1354,132 @@ for obj in context.view_layer.objects:
 - [ ] Object pivot normalization toggle is available for Object start points
 - [ ] When enabled, exported object has pivot normalized without changing world-space placement
 - [ ] Scene state is restored after export
+
+---
+
+#### REQ-EXP-028: Animation Export - Baked Transform Animation
+**Priority**: Medium  
+**Status**: 🔬 Research / Planned  
+**Date Added**: 06.02.2026  
+**Updated**: 06.02.2026 (expanded scope based on Blender 5.0 native support research)  
+**Discovery Reference**: `00_Discovery.md` - "Session: Animation Export Research"
+
+**Requirement**: Start points MUST support optional export of animations baked per-frame into the USD file, leveraging all animation types supported by Blender's native USD exporter.
+
+**Background**: Currently, the addon exports only the current frame (`export_animation=False`). Users with animated objects cannot export their animation data to USD for use in downstream applications like Omniverse.
+
+**Functional Requirements**:
+- Add `export_animation` boolean property to start point settings (default: `False`)
+- Add frame range mode: "Scene Range" (uses `scene.frame_start`/`scene.frame_end`) or "Custom Range"
+- If "Custom Range": Temporarily set scene frame range before export, restore after
+- When enabled, pass `export_animation=True` to `bpy.ops.wm.usd_export()`
+- Animation exports as **time-sampled values** (baked per-frame, not animation curves)
+- Post-process bake step (`usd_bake.py`) must handle or preserve time-sampled `xformOp` values
+
+**Supported Animation Types** (Blender 5.0 Native USD Exporter):
+
+| Type | Parameter | Default | Notes |
+|------|-----------|---------|-------|
+| **Transform animations** | `export_animation` | `False` | Loc/rot/scale keyframes as `xformOp` time-samples |
+| **Deforming meshes** | `export_animation` | `False` | Cloth, soft-body vertex animation |
+| **Topology-changing meshes** | `export_animation` | `False` | Fluid simulations |
+| **Armatures (UsdSkel)** | `export_armatures` | `True` | Skeletal animation (Blender 4.0+) |
+| **Shape keys (BlendShapes)** | `export_shapekeys` | `True` | Morph target animation |
+| **Animated volumes** | `export_animation` | `False` | VDB time-samples |
+| **Cameras** | `export_animation` | `False` | FOV, transform animation |
+| **Lights** | `export_animation` | `False` | Intensity, transform animation |
+| **Visibility** | `export_animation` | `False` | Animated visibility attribute |
+
+**Additional Parameters to Expose**:
+- `export_armatures` (bool, default: `True`) - Export armatures as UsdSkel
+- `export_shapekeys` (bool, default: `True`) - Export shape keys as USD BlendShapes  
+- `only_deform_bones` (bool, default: `False`) - Only export deforming bones
+
+**Limitations** (Blender Native):
+- No animation curve export (USD uses baked samples, not bezier curves)
+- Invisible objects not exported
+- Absolute shape keys not supported (relative only)
+- Bendy bones not supported
+
+**UI Requirements**:
+- Checkbox: "Export Animation" (in start point settings, under export options)
+- When checked, show:
+  - Frame range: Radio "Scene Range" / "Custom Range"
+  - If Custom: Integer fields for Start Frame, End Frame
+  - Checkbox: "Export Armatures" (default: on) - visible only if animation enabled
+  - Checkbox: "Export Shape Keys" (default: on) - visible only if animation enabled
+  - Checkbox: "Only Deform Bones" (default: off) - visible only if armatures enabled
+
+**Acceptance Criteria**:
+- [ ] "Export Animation" checkbox available per start point
+- [ ] Frame range options visible when animation export enabled
+- [ ] Transform animation exports with time-sampled values
+- [ ] Armature animation exports as UsdSkel (when enabled)
+- [ ] Shape keys export as USD BlendShapes (when enabled)
+- [ ] Exported animation plays back correctly in Omniverse/usdview
+- [ ] Post-process bake does not corrupt time-sampled data
+- [ ] Static exports still work when animation disabled
+
+---
+
+#### REQ-EXP-029: Separate Animation Layer Export (USD Composition Pattern)
+**Priority**: Low  
+**Status**: 🔬 Research / Planned  
+**Date Added**: 06.02.2026  
+**Discovery Reference**: `00_Discovery.md` - "Session: Animation Export Research"
+
+**Requirement**: Start points SHOULD support exporting animation data to a **separate USD file** that can be composed with geometry using USD composition arcs (sublayers).
+
+**Background**: USD's composition system (LIVERPS) allows animation to be stored in separate layers and combined non-destructively. This enables:
+- Animators and modelers to work on separate files
+- Multiple animation variants for the same geometry
+- Easier version control and diffing
+- Follows NVIDIA Omniverse best practices for layer organization
+
+**Pattern**:
+```
+# geometry.usd - Static geometry (current frame only)
+def Xform "MyAsset" { ... }
+
+# geometry_anim.usd - Animation layer (uses 'over' opinions)
+over "MyAsset" {
+    double3 xformOp:translate.timeSamples = { 1: (0,0,0), 24: (10,0,0) }
+}
+
+# composition.usd - Combines both (optional auto-generated)
+(
+    subLayers = [ @./geometry_anim.usd@, @./geometry.usd@ ]
+)
+```
+
+**Functional Requirements**:
+- Add "Export Animation as Separate Layer" checkbox (requires REQ-EXP-028 enabled)
+- When enabled, perform **two exports**:
+  1. Geometry file: `{name}.usd` - Current frame only (`export_animation=False`)
+  2. Animation file: `{name}_anim.usd` - Full frame range (`export_animation=True`)
+- Animation file uses `over` opinions to override transform values from geometry
+- Optional: Auto-generate composition root file (`{name}_composed.usd`) that sublayers both
+- Animation layer should NOT include geometry (prims with `over` specifier only)
+
+**Technical Considerations**:
+- May require post-processing to convert `def` to `over` in animation layer
+- Geometry layer post-process bake (scale/rotation) still applies
+- Animation layer should preserve time-sampled `xformOp` values without additional baking
+- Prim paths must match between geometry and animation layers
+
+**UI Requirements**:
+- Checkbox: "Export Animation as Separate Layer" (visible when "Export Animation" is checked)
+- When checked, show options:
+  - Checkbox: "Generate Composition Root" (default: `True`)
+  - Text field: Animation layer suffix (default: `_anim`)
+
+**Acceptance Criteria**:
+- [ ] Two separate USD files generated when enabled
+- [ ] Geometry file contains static geometry at current frame
+- [ ] Animation file contains only `over` opinions with time-sampled transforms
+- [ ] Composition root correctly sublayers both files
+- [ ] Combined scene plays back animation in Omniverse/usdview
+- [ ] Individual layers can be used independently
 
 ---
 
@@ -1832,7 +2032,20 @@ Per `Master_Rules/080_Framework_RULES/documentation/usd_multiexport_uix_pattern.
 
 ## Implementation Status
 
-### Recently Added Requirements (v2.4.0 - 26.01.2026)
+### Recently Added Requirements (v2.5.4 - 06.02.2026)
+
+- **REQ-EXP-028**: 🔬 Animation Export - Baked Transform Animation (per-frame time-sampled export)
+- **REQ-EXP-029**: 🔬 Separate Animation Layer Export - USD composition pattern for non-destructive animation workflows
+
+### Previously Added Requirements (v2.5.3 - 05.02.2026)
+
+- **REQ-EXP-030**: 🐛 **BUG** - Unit Conversion Bug - Target unit selection has no effect when Blender scene is in millimeters
+
+### Previously Added Requirements (v2.5.2 - 05.02.2026)
+
+- **REQ-EXP-023**: Materials Scope Renamed to "Looks" - Post-process `/Materials` → `/Looks` for Omniverse/USD convention compliance (added after REQ-EXP-022)
+
+### Previously Added Requirements (v2.4.0 - 26.01.2026)
 
 - **REQ-EXP-019**: Unit Conversion System - Per-start point metric unit conversion (mm, cm, m, km) with auto-detection
 - **REQ-EXP-020**: Y-Up Axis Conversion - Per-start point Z-up to Y-up conversion for Omniverse compatibility
@@ -1896,8 +2109,9 @@ Per `Master_Rules/080_Framework_RULES/documentation/usd_multiexport_uix_pattern.
 - ⏳ Per-start point export options (General, Stage, Geometry, Materials, etc.)
 - ⏳ Version-aware compatibility wrapper for Blender 5.0 API
 - ⏳ Export presets system
-- ⏳ Animation export support
-- ⏳ Rigging export support
+- ⏳ **Animation export support (REQ-EXP-028)** - Transform animation baked per-frame
+- ⏳ **Separate animation layer export (REQ-EXP-029)** - USD composition pattern
+- ⏳ Rigging export support (UsdSkel - future)
 - ⏳ Particles export support
 - ⏳ Enhanced validation and pre-flight checks
 

@@ -2,8 +2,12 @@
 
 [![License: To Be Determined](https://img.shields.io/badge/License-TBD-lightgrey.svg)](LICENSE)
 [![Blender: 5.0+](https://img.shields.io/badge/Blender-5.0+-orange.svg)](https://www.blender.org/)
-[![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-blue.svg)](HANDOFF.md)
+[![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-blue.svg)](HANDOFF.md)
 [![Status: MVP Complete](https://img.shields.io/badge/Status-MVP%20Complete-green.svg)](HANDOFF.md)
+
+**Last Updated**: 03.02.2026 23:27
+
+**Release Workflow (Mandatory)**: For every version update, we **version → commit → push**. No version change is considered complete until the commit is pushed.
 
 A Blender Python addon that enables users to define **start points** (collections or objects) in Blender's scene hierarchy and export them as separate USD files. Start points are the stable DCC origins for the downstream USD pipeline and composition arcs; exported USD files are the **beginning** of further pipelining, not the terminus.
 
@@ -13,9 +17,9 @@ A Blender Python addon that enables users to define **start points** (collection
 
 ## 📊 Project Status
 
-**Current Status**: ✅ **MVP Released** - v0.1.0 Available for Testing
+**Current Status**: ✅ **MVP Released** - v0.1.3 Available for Testing
 
-> **🎉 MVP Available**: **Blender USD Multi Export v0.1.0** is now available! This functional MVP provides core endpoint-based USD export workflow. See installation instructions below for testing.
+> **🎉 MVP Available**: **Blender USD Multi Export v0.1.3** is now available! This functional MVP provides core endpoint-based USD export workflow. See installation instructions below for testing.
 
 ### Development Phases
 
@@ -24,7 +28,7 @@ A Blender Python addon that enables users to define **start points** (collection
 - [ ] **Requirements Questionnaire** - Ongoing (confirmed requirements)
 - [ ] **Detailed Requirements** - Ongoing
 - [ ] **Module Design** - Ongoing
-- [x] **MVP Implementation (v0.1.0)** - ✅ Complete & Released
+- [x] **MVP Implementation (v0.1.3)** - ✅ Complete & Released
 - [ ] **Advanced Features (v0.2.0+)** - Post-MVP
 - [ ] **Full Testing & ASWF Compliance** - In Progress
 
@@ -34,9 +38,9 @@ See the [Implementation Process](docs/archive/README_Implementation.md) for deta
 
 ## 🎯 Overview
 
-**Blender USD Multi Export v0.1.0** is a functional MVP that provides core endpoint-based USD export workflow. Define export endpoints (collections or objects) and export multiple USD files in batch operations, with automatic scene state restoration and comprehensive error handling.
+**Blender USD Multi Export v0.1.3** is a functional MVP that provides core endpoint-based USD export workflow. Define export endpoints (collections or objects) and export multiple USD files in batch operations, with automatic scene state restoration and comprehensive error handling.
 
-### MVP v0.1.0 Key Features
+### MVP v0.1.3 Key Features
 
 - ✅ **Start point-Based Export**: Define collections or objects as export endpoints
 - ✅ **Batch Export**: Export multiple endpoints in a single operation
@@ -77,7 +81,7 @@ This addon is particularly useful for:
 
 ## 🚀 Installation
 
-> **🎉 MVP Available**: Blender USD Multi Export v0.1.0 is now available for testing!
+> **🎉 MVP Available**: Blender USD Multi Export v0.1.3 is now available for testing!
 
 ### Method 1: Install from ZIP (Recommended for Distribution)
 
@@ -148,7 +152,7 @@ For development or testing, you can install directly from the repository:
 
 ## 📖 Usage
 
-> **🎯 MVP Features**: v0.1.0 provides core functionality for testing. Advanced features will be added in future versions.
+> **🎯 MVP Features**: v0.1.3 provides core functionality for testing. Advanced features will be added in future versions.
 >
 > **📚 For detailed usage instructions**, see the **[User Guide](06_USER_GUIDE.md)** with step-by-step workflows, troubleshooting, and best practices.
 
@@ -173,7 +177,7 @@ An **endpoint** is a collection or set of objects that you want to export as a s
 
 > **⚠️ Naming Note**: Avoid using "Environment" as a collection name. In Omniverse, `/World` (default prim) and `/environment` are siblings at root level. `/environment` is reserved for lighting and is NOT imported when referencing (only content under `/World` is imported). Using "Environment" creates conflicts. Use descriptive names like "Props", "Set", "Location", or "SceneElements" instead. See [Naming Conventions](NAMING_CONVENTIONS.md) for details (Active reference).
 
-### MVP v0.1.0 Export Options
+### MVP v0.1.3 Export Options
 
 Each endpoint exports with these settings:
 - **Materials**: ✅ Enabled (USD Preview Surface)
@@ -339,7 +343,7 @@ Contributions are welcome! However, please note that this project is currently i
 - Test thoroughly with various scene configurations
 - Provide clear commit messages
 
-## 🐛 Known Limitations (Version 0.1.0)
+## 🐛 Known Limitations (Version 0.1.3)
 
 ### Current MVP Limitations
 

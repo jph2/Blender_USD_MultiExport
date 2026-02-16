@@ -3,7 +3,8 @@
 **Date Created**: 2025-12-28  
 **Version**: 1.0.0  
 **Status**: Initial Evaluation - For Planning & Prioritization  
-**Current MVP**: v0.1.0 (Complete)  
+**Current MVP**: v0.1.3 (Complete)  
+**Last Updated**: 03.02.2026 23:27  
 **Target Platform**: Blender 5.0+
 
 ---
@@ -12,7 +13,7 @@
 
 This roadmap defines the requirements and implementation plan for expanding the Blender USD Multi Export add-on with comprehensive export options. The roadmap is based on:
 
-- **Current MVP State** (v0.1.0): Basic endpoint-based export with minimal options
+- **Current MVP State** (v0.1.3): Basic endpoint-based export with minimal options
 - **NVIDIA Best Practices**: Patterns from official Omniverse Blender add-ons
 - **Blender USD Export Options**: All available parameters from Blender 5.0 USD exporter
 - **User Requirements**: Export functionality visible in Blender USD export dialog
@@ -46,7 +47,7 @@ The MVP focuses on a **one-way push model** for ComfyUI integration:
 
 ## 🎯 Roadmap Overview
 
-### Current State (v0.1.0 MVP)
+### Current State (v0.1.3 MVP)
 - ✅ Basic endpoint-based export (Collection/Object)
 - ✅ Minimal export options (materials, UVs, normals - hardcoded)
 - ✅ Subdivision export (NVIDIA pattern with `single_user=True`)
@@ -1423,7 +1424,7 @@ if endpoint.export_materials:
 ---
 
 ### 12.4 Backward Compatibility
-**Challenge**: Existing endpoints (v0.1.0) don't have new export properties.
+**Challenge**: Existing endpoints (v0.1.3) don't have new export properties.
 
 **Solution**:
 - Provide default values for all new properties
@@ -1524,7 +1525,7 @@ if endpoint.export_materials:
 - **USD Python API**: May be needed for post-processing (Default Prim Kind)
 
 ### Internal Dependencies
-- **Current MVP (v0.1.0)**: All features build on existing architecture
+- **Current MVP (v0.1.3)**: All features build on existing architecture
 - **State Manager**: May need enhancements for selection/visibility filtering
 - **Path Resolver**: No changes needed
 
