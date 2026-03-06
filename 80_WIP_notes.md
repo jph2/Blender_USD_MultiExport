@@ -1,3 +1,8 @@
+**Version**: 1.0.0 | **Date**: 16.02.2026 | **Time**: 12:00 | **GlobalID**: 20260216_1200_Blender_USD_MultiExport_batch
+
+**Tag block:**
+#blender #framework_integration #conversion #export #omniverse #prims #prim #openusd #usd_core #hybrid #workflow_automation #analysis #workflow_optimization #deterministic_workflows
+
 # WIP Notes
 
 Chronological order: **oldest first, newest last** (version numbers increase top to bottom).

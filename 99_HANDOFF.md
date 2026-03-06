@@ -4,6 +4,8 @@
 **Date**: 03.02.2026  
 **Time**: 23:27  
 **Goal:** Hand off current state after **Z to Y for Omniverse** UI rename and default.
+**Tag block:**
+#blender #framework_integration #conversion #stage #omniverse #openusd #export #cleanup #usd_core #hybrid #references #analysis #workflow_automation #quality_assurance #validation #workflow_optimization #deterministic_workflows #isaac_sim
 
 ---
 

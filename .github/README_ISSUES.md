@@ -1,5 +1,8 @@
 # GitHub Issues & Ticketing System
 
+**Tag block:**
+#blender #openusd #export #usd_core #conversion #workflow_automation #best_practices #analysis #deterministic_workflows #framework_integration
+
 This repository uses **GitHub's built-in Issues system** for bug tracking, feature requests, and project management.
 
 ## 🎯 What's Set Up

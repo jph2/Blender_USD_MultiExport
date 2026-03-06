@@ -2,6 +2,9 @@
 
 **Version**: 1.0.0 | **Date**: 06.02.2026 | **Time**: 14:30 | **GlobalID**: 20260206_1430_BlenderUSDMultiExport_REQIDFIX
 
+**Tag block:**
+#workflow_automation #export #usd_core #extension_development #blender #openusd #conversion #references #analysis #layers #composition #framework_integration #ai_coding_agents #deterministic_workflows
+
 ---
 
 ## Summary

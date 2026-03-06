@@ -4,6 +4,8 @@
 **Date**: 18.01.2026  
 **Last Updated**: 03.02.2026 23:27  
 **Purpose**: Step-by-step guide for building the Blender USD Multi Export add-on from source
+**Tag block:**
+#blender #framework_integration #export #conversion #construction #troubleshooting #vscode #extensionui #openusd #usd_core #references #analysis #workflow_automation #quality_assurance #validation #best_practices #deterministic_workflows
 
 ---
 

@@ -2,6 +2,9 @@
 
 **Version**: 1.2.0 | **Date**: 06.02.2026 | **Time**: 17:30 | **GlobalID**: 20260206_1730_BlenderUSDME_AnimationExport_Handoff
 
+**Tag block:**
+#workflow_automation #export #usd_core #extension_development #blender #openusd #conversion #layers #composition #framework_integration #ai_coding_agents #analysis #case_study #deterministic_workflows
+
 ---
 
 ## 📋 Executive Summary

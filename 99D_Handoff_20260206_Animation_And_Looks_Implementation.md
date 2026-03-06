@@ -2,6 +2,9 @@
 
 **Version**: 1.1.1 | **Date**: 06.02.2026 | **Time**: 19:50 | **GlobalID**: 20260206_1915_BlenderUSDME_AnimLooks_Handoff
 
+**Tag block:**
+#workflow_automation #export #usd_core #extension_development #blender #openusd #omniverse #hybrid #conversion #references #analysis #layers #composition #framework_integration #ai_coding_agents #validation #quality_assurance #best_practices #case_study #workflow_optimization
+
 ---
 
 ## Executive Summary

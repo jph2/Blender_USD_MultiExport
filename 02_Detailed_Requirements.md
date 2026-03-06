@@ -9,6 +9,9 @@
 **Target Platform**: Blender 5.0+ (officially released November 18, 2025)  
 **Cross-Platform Pattern Reference**: `Master_Rules/080_Framework_RULES/documentation/usd_multiexport_uix_pattern.md`
 
+**Tag block:**
+#quality_assurance #export #usd_core #extension_development #blender #openusd #omniverse #hybrid #comfyui #framework_integration #conversion #references #analysis #variants #layers #composition #workflow_automation #ai_coding_agents #best_practices #deterministic_workflows
+
 ---
 
 ## 📋 Requirements Status

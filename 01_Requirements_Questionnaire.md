@@ -6,6 +6,8 @@
 **Date Created**: 25.11.2025  
 **Version**: v1.2.0  
 **Target Platform**: Blender 5.0+ (officially released November 18, 2025)
+**Tag block:**
+#blender #framework_integration #construction #export #modules #creative #conversion #import #openusd #usd_core #omniverse #hybrid #references #analysis #variants #layers #workflow_automation #best_practices #deterministic_workflows
 
 **Important**: Many requirements have been confirmed and moved to `02_Detailed_Requirements.md`. This questionnaire now focuses only on unanswered questions. See the Detailed Requirements document for all confirmed requirements.
 
@@ -596,4 +598,3 @@ Once this questionnaire is completed:
 
 **Document Status**: ✅ In Progress - Confirmed requirements moved to Detailed Requirements  
 **Last Updated**: 25.11.2025
-

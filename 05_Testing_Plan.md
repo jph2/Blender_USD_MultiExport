@@ -5,6 +5,8 @@
 **Version**: v0.1.3 (MVP Release)
 **Last Updated**: 03.02.2026 23:27
 **Target Platform**: Blender 5.0+ (officially released November 18, 2025)
+**Tag block:**
+#blender #framework_integration #export #creative #conversion #validation #advanced #stage #openusd #usd_core #workflow_automation #ai_coding_agents #quality_assurance #deterministic_workflows #performance #optimization
 
 ---
 

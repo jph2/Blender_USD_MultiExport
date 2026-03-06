@@ -6,6 +6,8 @@
 **Current MVP**: v0.1.3 (Complete)  
 **Last Updated**: 03.02.2026 23:27  
 **Target Platform**: Blender 5.0+
+**Tag block:**
+#blender #framework_integration #export #creative #conversion #validation #opinions #stage #omniverse #openusd #usd_core #hybrid #comfyui #workflow_automation #ai_coding_agents #quality_assurance #deterministic_workflows #omniverse_nucleus
 
 ---
 
@@ -1579,4 +1581,3 @@ This roadmap provides a comprehensive plan for expanding the Blender USD Multi E
 **Document Version**: 1.0.0  
 **Last Updated**: 2025-12-28  
 **Author**: AI Agent (based on HANDOFF.md, NVIDIA best practices, and Blender USD export options)
-

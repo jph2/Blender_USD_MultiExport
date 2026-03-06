@@ -4,6 +4,9 @@
 
 **Purpose**: Clear, actionable plan to restore object export to v0.1.48 behavior and isolate collection export path.
 
+**Tag block:**
+#workflow_automation #export #usd_core #extension_development #blender #openusd #conversion #references #analysis #deterministic_workflows
+
 ---
 
 ## 🎯 Core Problem Statement

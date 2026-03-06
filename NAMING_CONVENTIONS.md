@@ -3,6 +3,8 @@
 **Version**: v0.1.3  
 **Last Updated**: 03.02.2026 23:27  
 **Purpose**: This document defines naming conventions and best practices for collection and endpoint names to avoid conflicts with USD/Omniverse reserved names and ensure smooth integration.
+**Tag block:**
+#blender #framework_integration #best_practices #gaming #export #conversion #collections #omniverse #aas_integration #prim #openusd #usd_core #hybrid #semantic_governance #references #analysis #workflow_automation #deterministic_workflows
 
 **Last Updated**: 25.11.2025
 
@@ -197,4 +199,3 @@ Collections:
 ---
 
 **Last Updated**: 25.11.2025
-

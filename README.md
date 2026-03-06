@@ -1,3 +1,8 @@
+**Version**: 1.0.0 | **Date**: 16.02.2026 | **Time**: 12:00 | **GlobalID**: 20260216_1200_Blender_USD_MultiExport_batch
+
+**Tag block:**
+#blender #framework_integration #export #conversion #joints #collections #openusd #usd_core #references #analysis #workflow_automation #validation #quality_assurance #case_study #workflow_optimization #deterministic_workflows #best_practices
+
 # Blender USD Multi Export
 
 [![License: To Be Determined](https://img.shields.io/badge/License-TBD-lightgrey.svg)](LICENSE)

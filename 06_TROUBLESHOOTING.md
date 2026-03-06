@@ -4,6 +4,8 @@ This guide covers troubleshooting for the Blender USD Multi Export add-on, inclu
 
 **Version**: v0.1.3  
 **Last Updated**: 03.02.2026 23:27
+**Tag block:**
+#blender #framework_integration #troubleshooting #export #debugging #conversion #openusd #directrl #usd_core #references #analysis #workflow_automation #best_practices #deterministic_workflows
 
 ## Quick Checks
 
@@ -378,5 +380,4 @@ You can also find the temp directory in Blender:
 - `README.md` - User guide and installation instructions
 - `HANDOFF.md` - Technical details and implementation notes
 - `docs/archive/LEARNINGS_FROM_FAKE_REFERENCES.md` - Cross-project learnings and improvements (Archived - learnings implemented)
-
 

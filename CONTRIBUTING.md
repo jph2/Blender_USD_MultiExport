@@ -2,6 +2,8 @@
 
 **Version**: v0.1.3  
 **Last Updated**: 03.02.2026 23:27  
+**Tag block:**
+#blender #framework_integration #export #conversion #construction #stage #expert #openusd #usd_core #workflow_automation #quality_assurance #validation #best_practices #analysis #case_study #deterministic_workflows
 
 Thank you for your interest in contributing to Blender USD Stable Export! This document provides guidelines and instructions for contributing.
 
@@ -139,4 +141,3 @@ Based on project status, current focus areas:
 Thank you for contributing to Blender USD Multi Export! 🎉
 
 > **Note**: This repository was renamed from `Blender_USD_StableExport` to `Blender_USD_MultiExport`. Old links still work thanks to GitHub's automatic redirects.
-

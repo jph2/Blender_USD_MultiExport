@@ -2,6 +2,9 @@
 
 **Version**: 2.0.0 | **Date**: 06.02.2026 | **Time**: 19:50 | **GlobalID**: 20260206_0200_Blender_USD_MultiExport_Discovery
 
+**Tag block:**
+#workflow_optimization #integration_pattern #best_practices #export #usd_core #extension_development #blender #openusd #conversion #references #analysis #variants #layers #composition #workflow_automation #framework_integration #ai_coding_agents #quality_assurance #validation #case_study
+
 ---
 
 ## Executive Summary

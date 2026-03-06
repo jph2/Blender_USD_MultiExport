@@ -4,6 +4,8 @@
 **Date**: 23.12.2025  
 **Last Updated**: 03.02.2026 23:27  
 **Target Platform**: Blender 5.0+
+**Tag block:**
+#blender #framework_integration #best_practices #export #conversion #troubleshooting #collections #list_operations #openusd #usd_core #omniverse #hybrid #references #analysis #workflow_automation #quality_assurance #validation #deterministic_workflows
 
 ---
 
@@ -554,4 +556,3 @@ This addon uses **Scene Properties** because:
 
 **Last Updated**: December 23, 2025  
 **Version**: v0.1.3 (MVP Release)
-

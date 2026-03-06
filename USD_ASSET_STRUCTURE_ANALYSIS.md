@@ -1,8 +1,10 @@
 # USD Asset Structure Guidelines - Relevance Analysis
 
-**Date**: 25.11.2025  
+**Date**: 16.02.2026  
 **Version**: v1.0.0  
 **Status**: Analysis Document
+**Tag block:**
+#blender #framework_integration #openusd #analysis #conversion #export #usd_core #references #workflow_automation #best_practices #deterministic_workflows
 
 ---
 
@@ -349,4 +351,3 @@ Contains sample USD assets demonstrating VFX-focused implementations of the stru
 
 **Last Updated**: 25.11.2025  
 **Next Review**: After v1.0 implementation
-

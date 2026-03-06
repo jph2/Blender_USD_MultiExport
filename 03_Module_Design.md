@@ -7,6 +7,9 @@
 **GlobalID**: 20260202_1401_Blender_USD_MultiExport_03  
 **Target Platform**: Blender 5.0+ (officially released November 18, 2025)
 
+**Tag block:**
+#best_practices #export #usd_core #extension_development #blender #openusd #conversion #workflow_automation #validation #quality_assurance #deterministic_workflows
+
 ---
 
 ## ✅ Module Architecture Document

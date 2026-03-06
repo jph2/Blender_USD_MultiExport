@@ -2,6 +2,9 @@
 
 **Version**: 1.1.0 | **Date**: 02.02.2026 | **Time**: 19:30 | **GlobalID**: 20260202_1930_Blender_USD_MultiExport_QUICKREF
 
+**Tag block:**
+#export #usd_core #extension_development #blender #openusd #conversion #references #analysis #workflow_automation #quality_assurance #validation #deterministic_workflows
+
 ---
 
 ## 🎯 The Problem (One Sentence)

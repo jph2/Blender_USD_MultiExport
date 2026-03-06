@@ -7,6 +7,9 @@
 **Target Platform**: Blender 5.0+ (officially released November 18, 2025)
 **MVP Release**: v0.1.3 - December 23, 2025
 
+**Tag block:**
+#workflow_automation #export #usd_core #extension_development #blender #openusd #comfyui #framework_integration #conversion #rhino #references #analysis #layers #composition #ai_coding_agents #quality_assurance #validation #deterministic_workflows
+
 ---
 
 ## 📋 Executive Summary
