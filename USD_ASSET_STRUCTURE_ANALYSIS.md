@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: ffc1a4f3-732a-41ab-9274-a979d58b832c
+title: USD Asset Structure Guidelines - Relevance Analysis
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # USD Asset Structure Guidelines - Relevance Analysis
 
 **Date**: 16.02.2026  

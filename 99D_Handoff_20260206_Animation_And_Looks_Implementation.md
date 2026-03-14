@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 8b61a988-e83d-4c5e-831c-88074c2f6376
+title: 'Handoff: Animation Export + Looks Rename Implementation'
+type: PRACTICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:24:43Z'
+last_modified: '2026-02-17T09:24:43Z'
+---
+
 # Handoff: Animation Export + Looks Rename Implementation
 
 **Version**: 1.1.1 | **Date**: 06.02.2026 | **Time**: 19:50 | **GlobalID**: 20260206_1915_BlenderUSDME_AnimLooks_Handoff

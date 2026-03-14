@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 32503e19-abb5-4130-affd-9322f7ccc476
+title: Blender USD Multi Export
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 **Version**: 1.0.0 | **Date**: 16.02.2026 | **Time**: 12:00 | **GlobalID**: 20260216_1200_Blender_USD_MultiExport_batch
 
 **Tag block:**

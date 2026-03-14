@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: bd4913c5-c920-4399-9e04-b51b0c38b056
+title: 'Handoff Memo: REQ-EXP-025 Duplicate ID Fix'
+type: PRACTICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Handoff Memo: REQ-EXP-025 Duplicate ID Fix
 
 **Version**: 1.0.0 | **Date**: 06.02.2026 | **Time**: 14:30 | **GlobalID**: 20260206_1430_BlenderUSDMultiExport_REQIDFIX

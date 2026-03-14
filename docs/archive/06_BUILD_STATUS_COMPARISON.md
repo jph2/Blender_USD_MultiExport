@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 87dfbdbd-df8c-41d6-9f78-46c6d03e97a0
+title: Blender USD Multi Export - Build Status Comparison
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2025-12-27T20:37:02Z'
+last_modified: '2025-12-27T20:37:02Z'
+---
+
 # Blender USD Multi Export - Build Status Comparison
 
 **Date**: 2025-12-26  

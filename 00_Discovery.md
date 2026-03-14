@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 1aad6d35-5d85-4954-997b-29267dee7c84
+title: Blender USD Multi Export - Discovery Document
+type: STRATEGIC
+status: active
+trust_level: 2
+created: '2026-02-17T09:24:43Z'
+last_modified: '2026-02-17T09:24:43Z'
+---
+
 # Blender USD Multi Export - Discovery Document
 
 **Version**: 2.0.0 | **Date**: 06.02.2026 | **Time**: 19:50 | **GlobalID**: 20260206_0200_Blender_USD_MultiExport_Discovery

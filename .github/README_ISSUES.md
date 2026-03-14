@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 7566c1e8-b341-4d36-b881-db2efe369483
+title: GitHub Issues & Ticketing System
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # GitHub Issues & Ticketing System
 
 **Tag block:**

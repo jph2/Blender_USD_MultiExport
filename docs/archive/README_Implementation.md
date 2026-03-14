@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 04b43aad-824b-45b9-99d0-de70fc186acd
+title: Blender USD Stable Export - Implementation Process
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2025-11-25T17:47:38Z'
+last_modified: '2025-11-25T17:47:38Z'
+---
+
 # Blender USD Stable Export - Implementation Process
 
 **Purpose**: This document explains the step-by-step implementation process for the Blender USD Stable Export addon.

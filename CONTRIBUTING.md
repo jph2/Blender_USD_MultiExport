@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 2e54971c-4754-4517-953a-e0fb373c401f
+title: Contributing to Blender USD Multi Export
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Contributing to Blender USD Multi Export
 
 **Version**: v0.1.3  

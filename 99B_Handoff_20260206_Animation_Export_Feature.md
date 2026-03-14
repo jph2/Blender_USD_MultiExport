@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: defd9db1-bf36-44ed-b9e2-0d4d2d884930
+title: 'Handoff: Animation Export Feature Implementation'
+type: PRACTICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Handoff: Animation Export Feature Implementation
 
 **Version**: 1.2.0 | **Date**: 06.02.2026 | **Time**: 17:30 | **GlobalID**: 20260206_1730_BlenderUSDME_AnimationExport_Handoff

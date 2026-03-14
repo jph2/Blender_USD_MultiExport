@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 610ded4d-92e2-4f61-97dc-35166a1be758
+title: Blender USD Multi Export - Testing Plan
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Blender USD Multi Export - Testing Plan
 
 **Status**: ✅ Ready for Implementation

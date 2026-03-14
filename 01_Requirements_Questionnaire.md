@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: ece710d4-e050-4ae2-a5f5-4ae4e2de0f24
+title: Blender USD Stable Export - Requirements Questionnaire
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Blender USD Stable Export - Requirements Questionnaire
 
 **Purpose**: This questionnaire is designed to gather detailed requirements for the Blender USD Stable Export addon. Complete this questionnaire before proceeding with detailed requirements definition, module design, and implementation planning.

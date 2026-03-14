@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 25254095-61fa-45ab-896a-9417a311151d
+title: Blender USD Multi Export - Feature Roadmap
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:43:33Z'
+last_modified: '2026-02-17T09:43:33Z'
+---
+
 # Blender USD Multi Export - Feature Roadmap
 
 **Date Created**: 2025-12-28  

@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 8b107b1e-3aeb-40d1-9936-90cec8f4730a
+title: 99 HANDOFF
+type: PRACTICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:43:33Z'
+last_modified: '2026-02-17T09:43:33Z'
+---
+
 ## HANDOFF — Blender USD MultiExport
 
 **Version**: 0.1.3  

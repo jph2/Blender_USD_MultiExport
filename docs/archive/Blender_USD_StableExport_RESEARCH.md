@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: d2111ab2-ffb3-4ec5-a07b-d14fad73945e
+title: Blender USD Stable Export Plugin - Research Document
+type: STRATEGIC
+status: active
+trust_level: 2
+created: '2025-11-26T16:12:25Z'
+last_modified: '2025-11-26T16:12:25Z'
+---
+
 # Blender USD Stable Export Plugin - Research Document
 
 > **Research Overview**: This is an in-depth research document analyzing the development of a Blender Python addon for exporting specific parts of the scene hierarchy to USD files. Since Blender doesn't support USD composition arcs natively, this plugin will allow users to define endpoints (collections or objects) in Blender's scene tree and export them as separate USD files. You don't need to read it all at once - start with the "TLDR" section for a quick overview, then dive deeper into specific areas that interest you. The FAQ section answers common questions, while the detailed sections provide comprehensive analysis for implementation decisions.

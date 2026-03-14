@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: fa80dbe1-3fc2-4c68-aefc-805e57591020
+title: Building Blender USD Multi Export Add-on
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Building Blender USD Multi Export Add-on
 
 **Version**: 0.1.3  

@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 7083457c-477f-4a6d-ba2a-a2796f463ec7
+title: Blender USD Multi Export - User Guide
+type: PRACTICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Blender USD Multi Export - User Guide
 
 **Version**: v0.1.3 (MVP Release)  

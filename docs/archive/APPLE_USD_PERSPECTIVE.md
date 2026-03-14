@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: c2cf2a00-e8f7-4955-b9d7-cb1d1a3b481d
+title: Apple USD Perspective
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2025-11-26T16:12:23Z'
+last_modified: '2025-11-26T16:12:23Z'
+---
+
 # Apple USD Perspective
 
 **Date**: 25.11.2025  

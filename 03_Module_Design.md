@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 2f79a95f-3734-4440-b42b-2c95434b038e
+title: Blender USD Stable Export - Module Design
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Blender USD Stable Export - Module Design
 
 **Status**: ✅ Updated - Incorporating ASWF USD Guidelines compliance  

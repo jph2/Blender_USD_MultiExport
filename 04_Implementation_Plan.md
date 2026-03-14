@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 99a0e74a-a91d-4078-8711-4a8bc6f3d2e3
+title: Blender USD Multi Export - Complete Implementation Plan
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Blender USD Multi Export - Complete Implementation Plan
 
 **Version**: 2.12.3 | **Date**: 05.02.2026 | **Time**: 00:35 | **GlobalID**: 20260205_0035_Blender_USD_MultiExport_01

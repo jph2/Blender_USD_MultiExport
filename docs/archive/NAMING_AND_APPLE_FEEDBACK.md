@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: d29bd2c2-d023-491e-afd4-20d6e6daa0a5
+title: Naming and Apple Perspective - Feedback Response
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2025-11-26T16:12:24Z'
+last_modified: '2025-11-26T16:12:24Z'
+---
+
 # Naming and Apple Perspective - Feedback Response
 
 **Date**: 25.11.2025  

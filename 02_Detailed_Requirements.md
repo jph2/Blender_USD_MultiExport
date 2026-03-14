@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 9fd4387c-66f0-4eae-ac5c-cb45c0975414
+title: Blender USD Stable Export - Detailed Requirements
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Blender USD Stable Export - Detailed Requirements
 
 **Status**: ✅ In Progress - Requirements being populated from confirmed questionnaire items  

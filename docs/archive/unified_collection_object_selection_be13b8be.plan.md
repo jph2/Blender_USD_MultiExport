@@ -1,66 +1,86 @@
 ---
+arys_schema_version: '1.2'
+id: 82308d3a-efae-4b93-b82f-d160f2b28f66
+title: Bug Fixes and Feature Enhancements - Implementation Plan
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2025-12-28T11:55:04Z'
+last_modified: '2025-12-28T11:55:04Z'
 name: Bug Fixes and Feature Enhancements
-overview: Fix critical TypeError bug in object isolation, improve UI with labels and spacing, add filepath subfolder feature, and implement origin metadata tracking in USD files.
+overview: Fix critical TypeError bug in object isolation, improve UI with labels and
+  spacing, add filepath subfolder feature, and implement origin metadata tracking
+  in USD files.
 todos:
-  - id: fix_typeerror_bug
-    content: Fix TypeError in state_manager.py line 95 - use obj.name instead of obj for view_layer.objects membership check
-    status: pending
-  - id: ui_labels_spacing
-    content: Add visible labels to all fields and increase horizontal space for long collection/object names using scale_x
-    status: pending
-  - id: filepath_subfolder
-    content: Add create_subfolder checkbox property and implement subfolder creation logic (USD_Endpoint_[name])
-    status: pending
-  - id: origin_metadata
-    content: Add include_origin_metadata checkbox and implement USD custom attributes for origin tracking
-    status: pending
-  - id: data_model
-    content: "Update props.py: Add endpoint_type enum, object_name property, include_subcollections flag"
-    status: pending
-  - id: ui_type_selector
-    content: Add type selector dropdown in UI with Collection/Object options
-    status: pending
-    dependencies:
-      - data_model
-  - id: ui_conditional_selectors
-    content: Implement conditional collection/object selectors that show/hide based on type
-    status: pending
-    dependencies:
-      - data_model
-      - ui_type_selector
-  - id: ui_subcollection_toggle
-    content: Add include_subcollections checkbox (visible only for Collection type)
-    status: pending
-    dependencies:
-      - data_model
-      - ui_type_selector
-  - id: update_autodetection
-    content: Update add_endpoint operator to detect object vs collection and set type accordingly
-    status: pending
-    dependencies:
-      - data_model
-  - id: update_validation
-    content: Update pre-flight and per-endpoint validation to handle both collection and object types
-    status: pending
-    dependencies:
-      - data_model
-  - id: update_export_logic
-    content: Update export loop to get target based on endpoint_type and pass to ScopedIsolation
-    status: pending
-    dependencies:
-      - data_model
-      - update_validation
-  - id: update_state_manager
-    content: Update _get_collection_objects_recursive to support include_subcollections flag
-    status: pending
-    dependencies:
-      - data_model
-  - id: research_usd_export
-    content: Research Blender 5.0 USD export operator to confirm object-level export support
-    status: pending
-  - id: remove_autocreation
-    content: Remove or disable automatic collection creation button/functionality
-    status: pending
+- id: fix_typeerror_bug
+  content: Fix TypeError in state_manager.py line 95 - use obj.name instead of obj
+    for view_layer.objects membership check
+  status: pending
+- id: ui_labels_spacing
+  content: Add visible labels to all fields and increase horizontal space for long
+    collection/object names using scale_x
+  status: pending
+- id: filepath_subfolder
+  content: Add create_subfolder checkbox property and implement subfolder creation
+    logic (USD_Endpoint_[name])
+  status: pending
+- id: origin_metadata
+  content: Add include_origin_metadata checkbox and implement USD custom attributes
+    for origin tracking
+  status: pending
+- id: data_model
+  content: 'Update props.py: Add endpoint_type enum, object_name property, include_subcollections
+    flag'
+  status: pending
+- id: ui_type_selector
+  content: Add type selector dropdown in UI with Collection/Object options
+  status: pending
+  dependencies:
+  - data_model
+- id: ui_conditional_selectors
+  content: Implement conditional collection/object selectors that show/hide based
+    on type
+  status: pending
+  dependencies:
+  - data_model
+  - ui_type_selector
+- id: ui_subcollection_toggle
+  content: Add include_subcollections checkbox (visible only for Collection type)
+  status: pending
+  dependencies:
+  - data_model
+  - ui_type_selector
+- id: update_autodetection
+  content: Update add_endpoint operator to detect object vs collection and set type
+    accordingly
+  status: pending
+  dependencies:
+  - data_model
+- id: update_validation
+  content: Update pre-flight and per-endpoint validation to handle both collection
+    and object types
+  status: pending
+  dependencies:
+  - data_model
+- id: update_export_logic
+  content: Update export loop to get target based on endpoint_type and pass to ScopedIsolation
+  status: pending
+  dependencies:
+  - data_model
+  - update_validation
+- id: update_state_manager
+  content: Update _get_collection_objects_recursive to support include_subcollections
+    flag
+  status: pending
+  dependencies:
+  - data_model
+- id: research_usd_export
+  content: Research Blender 5.0 USD export operator to confirm object-level export
+    support
+  status: pending
+- id: remove_autocreation
+  content: Remove or disable automatic collection creation button/functionality
+  status: pending
 ---
 
 # Bug Fixes and Feature Enhancements - Implementation Plan

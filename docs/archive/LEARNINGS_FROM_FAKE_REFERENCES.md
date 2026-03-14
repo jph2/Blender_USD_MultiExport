@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 86d96d3c-b961-4356-b3b6-d6f177d570eb
+title: Learnings from Blender USD FAKE References - Applied to Multi Export
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2025-12-27T20:31:58Z'
+last_modified: '2025-12-27T20:31:58Z'
+---
+
 # Learnings from Blender USD FAKE References - Applied to Multi Export
 
 **Date**: 2025-12-26  

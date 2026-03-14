@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 9081fa62-ba01-4ecb-a07b-13c69b2b157b
+title: Clean Implementation Plan - Object/Collection Export Path Isolation
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Clean Implementation Plan - Object/Collection Export Path Isolation
 
 **Version**: 1.2.0 | **Date**: 03.02.2026 | **Time**: 17:20 | **GlobalID**: 20260203_1720_Blender_USD_MultiExport_22

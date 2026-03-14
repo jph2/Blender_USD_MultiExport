@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 3354ef6d-a20a-4180-ac3f-bc6eb211014f
+title: Naming Conventions for Blender USD Stable Export
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Naming Conventions for Blender USD Stable Export
 
 **Version**: v0.1.3  

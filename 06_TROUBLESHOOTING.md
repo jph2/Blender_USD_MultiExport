@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 86937fea-c3b4-4f82-9261-26e684df76f4
+title: Troubleshooting Guide - Blender USD Multi Export
+type: PRACTICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Troubleshooting Guide - Blender USD Multi Export
 
 This guide covers troubleshooting for the Blender USD Multi Export add-on, including installation issues, debugging, and common problems.

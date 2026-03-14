@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 8c07b327-9d49-4419-9845-6d26253d8354
+title: Quick Reference - Object/Collection Export Fix
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2026-02-17T09:42:16Z'
+last_modified: '2026-02-17T09:42:16Z'
+---
+
 # Quick Reference - Object/Collection Export Fix
 
 **Version**: 1.1.0 | **Date**: 02.02.2026 | **Time**: 19:30 | **GlobalID**: 20260202_1930_Blender_USD_MultiExport_QUICKREF

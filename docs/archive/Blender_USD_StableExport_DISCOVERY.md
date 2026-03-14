@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: d1fc3960-b2e3-451b-a9ff-57d49b229b6b
+title: __init__.py
+type: STRATEGIC
+status: active
+trust_level: 2
+created: '2025-11-25T19:31:49Z'
+last_modified: '2025-11-25T19:31:49Z'
+---
+
 **⚠️ IMPORTANT: This document targets Blender 5.0+ only (officially released November 18, 2025). Blender 4.x versions are not supported.**
 
 ---

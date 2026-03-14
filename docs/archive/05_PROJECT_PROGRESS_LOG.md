@@ -1,3 +1,14 @@
+---
+arys_schema_version: '1.2'
+id: 41a34036-67db-4396-a964-04bcab29eef8
+title: Blender USD Multi Export - Project Progress Log
+type: TECHNICAL
+status: active
+trust_level: 2
+created: '2025-12-27T20:53:33Z'
+last_modified: '2025-12-27T20:53:33Z'
+---
+
 # Blender USD Multi Export - Project Progress Log
 
 **Project**: Blender USD Multi Export Addon
