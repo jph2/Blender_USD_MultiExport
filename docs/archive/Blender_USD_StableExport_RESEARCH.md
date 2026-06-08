@@ -5,6 +5,7 @@ title: Blender USD Stable Export Plugin - Research Document
 type: STRATEGIC
 status: active
 trust_level: 2
+visibility: internal
 created: '2025-11-26T16:12:25Z'
 last_modified: '2025-11-26T16:12:25Z'
 ---

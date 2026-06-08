@@ -5,6 +5,7 @@ title: Blender USD Stable Export - Implementation Process
 type: TECHNICAL
 status: active
 trust_level: 2
+visibility: internal
 created: '2025-11-25T17:47:38Z'
 last_modified: '2025-11-25T17:47:38Z'
 ---

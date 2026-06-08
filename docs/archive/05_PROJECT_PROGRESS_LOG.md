@@ -5,6 +5,7 @@ title: Blender USD Multi Export - Project Progress Log
 type: TECHNICAL
 status: active
 trust_level: 2
+visibility: internal
 created: '2025-12-27T20:53:33Z'
 last_modified: '2025-12-27T20:53:33Z'
 ---

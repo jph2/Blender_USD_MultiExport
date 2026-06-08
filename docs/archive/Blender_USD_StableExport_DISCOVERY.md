@@ -5,6 +5,7 @@ title: __init__.py
 type: STRATEGIC
 status: active
 trust_level: 2
+visibility: internal
 created: '2025-11-25T19:31:49Z'
 last_modified: '2025-11-25T19:31:49Z'
 ---

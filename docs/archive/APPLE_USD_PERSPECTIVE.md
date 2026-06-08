@@ -5,6 +5,7 @@ title: Apple USD Perspective
 type: TECHNICAL
 status: active
 trust_level: 2
+visibility: internal
 created: '2025-11-26T16:12:23Z'
 last_modified: '2025-11-26T16:12:23Z'
 ---

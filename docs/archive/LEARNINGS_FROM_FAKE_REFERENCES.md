@@ -5,6 +5,7 @@ title: Learnings from Blender USD FAKE References - Applied to Multi Export
 type: TECHNICAL
 status: active
 trust_level: 2
+visibility: internal
 created: '2025-12-27T20:31:58Z'
 last_modified: '2025-12-27T20:31:58Z'
 ---

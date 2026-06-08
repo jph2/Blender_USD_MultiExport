@@ -5,6 +5,7 @@ title: Blender USD Multi Export - User Guide
 type: PRACTICAL
 status: active
 trust_level: 2
+visibility: internal
 created: '2026-02-17T09:42:16Z'
 last_modified: '2026-02-17T09:42:16Z'
 ---
@@ -37,12 +38,12 @@ last_modified: '2026-02-17T09:42:16Z'
 
 ## Overview
 
-**Blender USD Multi Export v0.1.3** is a Blender addon that enables you to define multiple export endpoints (collections or objects) in a single Blender scene and export them as separate USD files in batch operations. This is particularly useful for workflows where you need to export different parts of a scene separately, such as for use in NVIDIA Omniverse or other USD-based pipelines.
+**Blender USD Multi Export v0.1.3** is a Blender addon that enables you to define multiple export StartPoints (collections or objects) in a single Blender scene and export them as separate USD files in batch operations. This is particularly useful for workflows where you need to export different parts of a scene separately, such as for use in NVIDIA Omniverse or other USD-based pipelines.
 
 ### Key Features (MVP v0.1.3)
 
-- ✅ **Endpoint-Based Export**: Define collections as export endpoints
-- ✅ **Batch Export**: Export multiple endpoints in a single operation
+- ✅ **StartPoint-Based Export**: Define collections as export StartPoints
+- ✅ **Batch Export**: Export multiple StartPoints in a single operation
 - ✅ **Scene State Safety**: Non-destructive export with automatic state restoration
 - ✅ **Cross-Platform Paths**: Relative path storage with automatic resolution
 - ✅ **Comprehensive Logging**: Verbose mode and automated bug reports
@@ -110,31 +111,89 @@ After installation, you should see:
 2. **Access the Addon**:
    - Go to the **Scene Properties** tab (icon with a sphere)
    - Scroll down to find the **"USD Multi Export"** panel
+     - **important** -> some plugins 'occupy' the scene porperties and Prevent the MultiExport to be shown.
+       - Bonsai (a BIM plugin)
 
-3. **Create Your First Endpoint**:
-   - Click **"Add"** button in the Endpoints section
-   - A new endpoint will appear in the list
-   - Click on the endpoint name field and rename it (e.g., "Characters")
+3. **Create Your First StartPoint**:
+   - Click **"Add"** button in the StartPoints section
+   - A new StartPoint will appear in the list
+   - Click on the StartPoint name field and rename it (e.g., "Characters")
    - Enter the collection name in the collection field (must match exactly)
    - Click the folder icon to set the filepath (e.g., `//export/characters.usd`)
 
 4. **Export**:
-   - Ensure the endpoint is enabled (checkbox checked)
-   - Click **"Export Endpoints"** button
+   - Ensure the StartPoint is enabled (checkbox checked)
+   - Click **"Export StartPoints"** button
    - Check Blender's console or the export location for results
 
-### Understanding Endpoints
+### Understanding StartPoints
 
-An **endpoint** is a definition that tells the addon:
+An **StartPoint** is a definition that tells the addon:
 - **What** to export (which collection)
 - **Where** to export it (filepath)
-- **How** to name it (endpoint name becomes root prim path)
+- **How** to name it (StartPoint name becomes root prim path)
 
 **Example**:
-- Endpoint Name: `Characters`
+- StartPoint Name: `Characters`
 - Collection: `Characters` (must match existing collection)
 - Filepath: `//export/characters.usd`
 - Result: Exports the "Characters" collection to `export/characters.usd` with root prim `/Characters`
+
+---
+### Understanding Filepaths: How to Make the Right Relative Path
+
+Blender-relative paths start with `//`.
+This means: **start from the folder where the current `.blend` file is saved**.
+
+Example project structure:
+
+```text
+ProjectFolder/
+├── 000_SOURCE/
+├── 010_ASS_USD/
+├── 020_BASE_LYR/
+├── 030_SIM_LYR/
+└── 040_DATA_LYRs/
+```
+
+If your `.blend` file is saved inside:
+
+```text
+ProjectFolder/000_SOURCE/
+```
+
+and you want to export to:
+
+```text
+ProjectFolder/010_ASS_USD/USD_Startpoint/
+```
+
+then you need to go **one folder up** from `000_SOURCE`, and then into `010_ASS_USD/USD_Startpoint`.
+
+Use this filepath:
+
+```text
+../010_ASS_USD/USD_Startpoint/Neubau einer Montagehalle 2. - BA III.usd
+```
+
+Path logic:
+
+```text
+            = start at the .blend file location
+../         = go one folder up
+010_ASS_USD = go into the USD export folder
+USD_Startpoint = go into the Startpoint folder
+filename.usd = exported USD file
+```
+
+Important:
+
+```text
+//../010_ASS_USD/USD_Startpoint/your_file_name.usd
+```
+
+Use forward slashes `/`, also on Windows. Make sure folder names match exactly, including spelling and capitalization. Avoid double file endings like `..usd`; use only `.usd`.
+
 
 ---
 
@@ -159,17 +218,17 @@ This addon uses **Scene Properties** because:
 ┌─────────────────────────────────────┐
 │ USD Multi Export                    │
 ├─────────────────────────────────────┤
-│ Endpoints                            │
+│ StartPoints                            │
 │ [Add] [Remove]                       │
 │                                     │
 │ ┌─────────────────────────────────┐ │
-│ │ ☑ Endpoint Name | Collection    │ │
-│ │ ☑ Endpoint 2    | Props         │ │
+│ │ ☑ StartPoint Name | Collection    │ │
+│ │ ☑ StartPoint 2    | Props         │ │
 │ └─────────────────────────────────┘ │
 │                                     │
 │ ☐ Verbose Logging                   │
 │                                     │
-│ [Export Endpoints]                  │
+│ [Export StartPoints]                  │
 │                                     │
 │ [Generate Bug Report]              │
 └─────────────────────────────────────┘
@@ -177,13 +236,13 @@ This addon uses **Scene Properties** because:
 
 ### UI Elements
 
-#### Endpoints Section
+#### StartPoints Section
 
-- **Add Button**: Creates a new endpoint with default name "Endpoint N"
-- **Remove Button**: Removes the last endpoint in the list
-- **Endpoint List**: Shows all defined endpoints with:
-  - **Checkbox**: Enable/disable this endpoint for export
-  - **Name Field**: Endpoint name (used as root prim path)
+- **Add Button**: Creates a new StartPoint with default name "StartPoint N"
+- **Remove Button**: Removes the last StartPoint in the list
+- **StartPoint List**: Shows all defined StartPoints with:
+  - **Checkbox**: Enable/disable this StartPoint for export
+  - **Name Field**: StartPoint name (used as root prim path)
   - **Collection Field**: Collection name (must match existing collection exactly)
 
 #### Settings
@@ -194,9 +253,9 @@ This addon uses **Scene Properties** because:
 
 #### Actions
 
-- **Export Endpoints**: Batch export all enabled endpoints
+- **Export StartPoints**: Batch export all enabled StartPoints
   - **Icon**: Export icon (box with arrow)
-  - **Behavior**: Exports all enabled endpoints sequentially
+  - **Behavior**: Exports all enabled StartPoints sequentially
   - **Feedback**: Success/failure messages in Blender's info area
 
 - **Generate Bug Report**: Create a comprehensive bug report JSON file
@@ -208,7 +267,7 @@ This addon uses **Scene Properties** because:
 
 ## Step-by-Step Workflows
 
-### Workflow 1: Basic Single Endpoint Export
+### Workflow 1: Basic Single StartPoint Export
 
 **Goal**: Export one collection as a USD file
 
@@ -216,16 +275,16 @@ This addon uses **Scene Properties** because:
    - Ensure you have a collection named "Props" (or your desired name)
    - Ensure the collection contains objects you want to export
 
-2. **Create Endpoint**:
+2. **Create StartPoint**:
    - Open Scene Properties → USD Multi Export panel
    - Click **"Add"**
-   - Set endpoint name: `Props`
+   - Set StartPoint name: `Props`
    - Set collection name: `Props` (must match exactly)
    - Set filepath: `//export/props.usd` (or click folder icon to browse)
 
 3. **Export**:
-   - Ensure endpoint is enabled (checkbox checked)
-   - Click **"Export Endpoints"**
+   - Ensure StartPoint is enabled (checkbox checked)
+   - Click **"Export StartPoints"**
    - Check console for success message
    - Verify file exists at `export/props.usd` (relative to your .blend file)
 
@@ -237,32 +296,32 @@ This addon uses **Scene Properties** because:
    - Organize scene into collections: "Characters", "Props", "Vehicles"
    - Ensure each collection has content
 
-2. **Create Multiple Endpoints**:
+2. **Create Multiple StartPoints**:
    - Click **"Add"** three times (or once per collection)
-   - Configure each endpoint:
-     - Endpoint 1: Name=`Characters`, Collection=`Characters`, Filepath=`//export/characters.usd`
-     - Endpoint 2: Name=`Props`, Collection=`Props`, Filepath=`//export/props.usd`
-     - Endpoint 3: Name=`Vehicles`, Collection=`Vehicles`, Filepath=`//export/vehicles.usd`
+   - Configure each StartPoint:
+     - StartPoint 1: Name=`Characters`, Collection=`Characters`, Filepath=`//export/characters.usd`
+     - StartPoint 2: Name=`Props`, Collection=`Props`, Filepath=`//export/props.usd`
+     - StartPoint 3: Name=`Vehicles`, Collection=`Vehicles`, Filepath=`//export/vehicles.usd`
 
 3. **Export All**:
-   - Ensure all endpoints are enabled
-   - Click **"Export Endpoints"**
-   - All enabled endpoints will export sequentially
+   - Ensure all StartPoints are enabled
+   - Click **"Export StartPoints"**
+   - All enabled StartPoints will export sequentially
    - Check console for individual success/failure messages
 
 ### Workflow 3: Selective Export (Enable/Disable)
 
-**Goal**: Export only specific endpoints from a larger set
+**Goal**: Export only specific StartPoints from a larger set
 
-1. **Create All Endpoints** (as in Workflow 2)
+1. **Create All StartPoints** (as in Workflow 2)
 
-2. **Disable Unwanted Endpoints**:
-   - Uncheck the checkbox next to endpoints you don't want to export
-   - Only enabled endpoints will be exported
+2. **Disable Unwanted StartPoints**:
+   - Uncheck the checkbox next to StartPoints you don't want to export
+   - Only enabled StartPoints will be exported
 
 3. **Export**:
-   - Click **"Export Endpoints"**
-   - Only enabled endpoints will export
+   - Click **"Export StartPoints"**
+   - Only enabled StartPoints will export
 
 ### Workflow 4: Debugging with Verbose Logging
 
@@ -294,15 +353,15 @@ This addon uses **Scene Properties** because:
 
 **Steps**:
 1. Organize Blender scene into collections (e.g., "Characters", "Props", "Set")
-2. Create endpoints for each collection
+2. Create StartPoints for each collection
 3. Use relative paths: `//export/characters.usd`
-4. Export all endpoints
+4. Export all StartPoints
 5. Import USD files into Omniverse using references
 
 **Important Notes**:
 - Avoid using "Environment" as a collection name (conflicts with Omniverse's `/environment` lighting)
 - Use descriptive names: "Props", "Set", "Location", "SceneElements"
-- Root prim path will be `/EndpointName` (e.g., `/Characters`)
+- Root prim path will be `/StartPointName` (e.g., `/Characters`)
 
 ### Scenario 2: Creating Asset Library
 
@@ -310,9 +369,9 @@ This addon uses **Scene Properties** because:
 
 **Steps**:
 1. Organize scene into logical asset groups (collections)
-2. Create endpoints for each asset group
+2. Create StartPoints for each asset group
 3. Use consistent naming: `//assets/asset_name.usd`
-4. Export all endpoints
+4. Export all StartPoints
 5. Result: Organized USD asset library
 
 ### Scenario 3: Exporting Different LODs
@@ -321,10 +380,10 @@ This addon uses **Scene Properties** because:
 
 **Current Limitation**: MVP v0.1.3 exports collections as-is. For LOD workflows:
 - Create separate collections for each LOD (e.g., "Character_LOD0", "Character_LOD1")
-- Create separate endpoints for each LOD collection
-- Export all LOD endpoints
+- Create separate StartPoints for each LOD collection
+- Export all LOD StartPoints
 
-**Future Enhancement**: Per-endpoint export options (planned for v0.2.0+)
+**Future Enhancement**: Per-StartPoint export options (planned for v0.2.0+)
 
 ---
 
@@ -341,17 +400,17 @@ This addon uses **Scene Properties** because:
 
 **Solutions**:
 1. Check collection name in Blender's Outliner
-2. Ensure endpoint collection name matches exactly (case-sensitive)
+2. Ensure StartPoint collection name matches exactly (case-sensitive)
 3. Verify collection exists and contains objects
 
 ### Problem: Export Fails Silently
 
-**Symptoms**: Click "Export Endpoints" but nothing happens, no error message
+**Symptoms**: Click "Export StartPoints" but nothing happens, no error message
 
 **Solutions**:
 1. **Enable Verbose Logging**: Check "Verbose Logging" and check console
 2. **Check Console**: Look for error messages in Blender's console
-3. **Verify Endpoints**: Ensure at least one endpoint is enabled
+3. **Verify StartPoints**: Ensure at least one StartPoint is enabled
 4. **Check Filepath**: Ensure filepath is valid and writable
 5. **Generate Bug Report**: Use "Generate Bug Report" to capture system state
 
@@ -425,24 +484,24 @@ This addon uses **Scene Properties** because:
 - Export to system directories (use project directories)
 - Overwrite important files without backups
 
-### Endpoint Configuration
+### StartPoint Configuration
 
 ✅ **Do**:
-- Use meaningful endpoint names (becomes root prim path)
+- Use meaningful StartPoint names (becomes root prim path)
 - Match collection names exactly (case-sensitive)
-- Enable/disable endpoints as needed for selective export
-- Test endpoints individually before batch export
+- Enable/disable StartPoints as needed for selective export
+- Test StartPoints individually before batch export
 
 ❌ **Don't**:
-- Use generic names like "Endpoint 1" (use descriptive names)
-- Create endpoints for non-existent collections
-- Leave endpoints enabled if you don't want them exported
-- Create duplicate endpoints (one per collection)
+- Use generic names like "StartPoint 1" (use descriptive names)
+- Create StartPoints for non-existent collections
+- Leave StartPoints enabled if you don't want them exported
+- Create duplicate StartPoints (one per collection)
 
 ### Workflow Optimization
 
 ✅ **Do**:
-- Save .blend file before first export (endpoints are saved with scene)
+- Save .blend file before first export (StartPoints are saved with scene)
 - Use verbose logging during development/testing
 - Generate bug reports when encountering issues
 - Test with simple scenes before complex scenes
@@ -464,21 +523,21 @@ This addon uses **Scene Properties** because:
 - Export the collection
 - **Future Enhancement**: Direct object export (planned for v0.2.0+)
 
-### Q: Can I customize export settings per endpoint?
+### Q: Can I customize export settings per StartPoint?
 
-**A**: MVP v0.1.3 uses default export settings for all endpoints:
+**A**: MVP v0.1.3 uses default export settings for all StartPoints:
 - Materials: Enabled
 - UV Maps: Enabled
 - Normals: Enabled
 - Animation: Disabled
 
-**Future Enhancement**: Per-endpoint export options (planned for v0.2.0+)
+**Future Enhancement**: Per-StartPoint export options (planned for v0.2.0+)
 
 ### Q: How do I export animations?
 
 **A**: MVP v0.1.3 exports static geometry only (animation disabled). For animated exports:
 - Use Blender's native USD export (`File > Export > USD`)
-- **Future Enhancement**: Animation support per endpoint (planned for v0.2.0+)
+- **Future Enhancement**: Animation support per StartPoint (planned for v0.2.0+)
 
 ### Q: Can I use this with Blender 4.x?
 
@@ -501,7 +560,7 @@ This addon uses **Scene Properties** because:
 
 **A**: The addon will:
 - Log the error with details
-- Continue with remaining endpoints (if batch export)
+- Continue with remaining StartPoints (if batch export)
 - Report success/failure count at the end
 - Preserve scene state (no permanent changes)
 
@@ -527,7 +586,7 @@ This addon uses **Scene Properties** because:
 ### MVP v0.1.3 Limitations
 
 - **Collections Only**: Individual object export not supported (use collections)
-- **Fixed Export Settings**: All endpoints use same export settings (no per-endpoint options)
+- **Fixed Export Settings**: All StartPoints use same export settings (no per-StartPoint options)
 - **No Animation**: Static geometry only (animation disabled)
 - **No Validation**: Pre-flight validation not implemented (planned for v0.2.0+)
 - **No Progress Indicators**: No progress bar for batch exports
@@ -535,22 +594,22 @@ This addon uses **Scene Properties** because:
 
 ### Known Issues
 
-- **Remove Button**: Removes last endpoint only (not selected endpoint)
-  - **Workaround**: Remove endpoints in reverse order
+- **Remove Button**: Removes last StartPoint only (not selected StartPoint)
+  - **Workaround**: Remove StartPoints in reverse order
   - **Future Fix**: Select-and-remove functionality (planned for v0.2.0+)
 
-- **No Endpoint Reordering**: Endpoints cannot be reordered in UI
+- **No StartPoint Reordering**: StartPoints cannot be reordered in UI
   - **Workaround**: Remove and recreate in desired order
   - **Future Fix**: Drag-and-drop reordering (planned for v0.2.0+)
 
 ### Planned Enhancements (v0.2.0+)
 
-- Per-endpoint export options (materials, UVs, normals, animation)
+- Per-StartPoint export options (materials, UVs, normals, animation)
 - Pre-flight validation (collection existence, filepath validation)
 - Progress indicators for batch exports
 - Export presets (common configurations)
 - Individual object export (not just collections)
-- Root prim path customization (beyond endpoint name)
+- Root prim path customization (beyond StartPoint name)
 - ASWF USD compliance features
 
 ---

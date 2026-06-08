@@ -5,6 +5,7 @@ title: Naming and Apple Perspective - Feedback Response
 type: TECHNICAL
 status: active
 trust_level: 2
+visibility: internal
 created: '2025-11-26T16:12:24Z'
 last_modified: '2025-11-26T16:12:24Z'
 ---

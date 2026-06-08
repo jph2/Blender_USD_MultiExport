@@ -5,6 +5,7 @@ title: Building Blender USD Multi Export Add-on
 type: TECHNICAL
 status: active
 trust_level: 2
+visibility: internal
 created: '2026-02-17T09:42:16Z'
 last_modified: '2026-02-17T09:42:16Z'
 ---

@@ -5,6 +5,7 @@ title: 'Handoff: Animation Export + Looks Rename Implementation'
 type: PRACTICAL
 status: active
 trust_level: 2
+visibility: internal
 created: '2026-02-17T09:24:43Z'
 last_modified: '2026-02-17T09:24:43Z'
 ---
