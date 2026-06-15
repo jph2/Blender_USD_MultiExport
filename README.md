@@ -7,15 +7,20 @@ status: active
 trust_level: 2
 visibility: internal
 created: '2026-02-17T09:42:16Z'
-last_modified: '2026-02-17T09:42:16Z'
+last_modified: '2026-06-09T12:00:00Z'
 ---
 
-**Version**: 1.0.0 | **Date**: 16.02.2026 | **Time**: 12:00 | **GlobalID**: 20260216_1200_Blender_USD_MultiExport_batch
+**Version**: 1.0.1 | **Date**: 09.06.2026 | **Time**: 12:00 | **GlobalID**: 20260216_1200_Blender_USD_MultiExport_batch
 
 **Tag block:**
 #blender #framework_integration #export #conversion #joints #collections #openusd #usd_core #references #analysis #workflow_automation #validation #quality_assurance #case_study #workflow_optimization #deterministic_workflows #best_practices
 
 # Blender USD Multi Export
+
+> ⚠️ **WORKFLOW-MIGRATION AUSSTEHEND — vor weiterer Arbeit angleichen.**
+> Die Doc-Struktur dieses Repos (`04*_Implementation_Plan*`, `09_Roadmap`, nummerierte Docs) stammt aus dem alten Workflow und entspricht **nicht** dem neu definierten Studio-Kanon: **Roadmap = Execution-Wrapper/Owner**, der Implementation Plan ist deren Execution-Section, **Specs bleiben separat & klein**, klare Trennung SPEC/IMP/VAL. Bevor hier substanziell weitergearbeitet wird, muss das Repo darauf gerade gezogen werden (Renumbering/Merge der `04`-Serie unter die Roadmap).
+> Sonderfall hier: verirrte `22_IMPLEMENTATION_PLAN_CLEAN_Phase_14D.md` (+ `23_QUICK_REFERENCE_Phase_14D.md`) in die Roadmap/`04`-Serie einordnen.
+> Kanon: `Studio_Framework/020_Standards_Definitions_Rules/040_Quality_enforcement/STANDARD_SPEC_IMPLEMENTATION_VALIDATION_SEPARATION.md` + `.../030_Process/Artifact_Lifecycle_Pipeline.md`. (Notiz: 09.06.2026)
 
 [![License: To Be Determined](https://img.shields.io/badge/License-TBD-lightgrey.svg)](LICENSE)
 [![Blender: 5.0+](https://img.shields.io/badge/Blender-5.0+-orange.svg)](https://www.blender.org/)
